@@ -13,3 +13,9 @@ MemoryCaptures/
 
 *.csproj
 *.sln
+# Local editor settings
+.vscode/
+*.slnx
+
+# Unity recovery files
+Assets/_Recovery/
