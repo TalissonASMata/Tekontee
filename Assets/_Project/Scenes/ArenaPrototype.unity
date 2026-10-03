@@ -537,8 +537,8 @@ MonoBehaviour:
   attackRange: 1.2
   damage: 12
   attackCooldown: 1
-  attackPulseScale: 1.15
-  attackPulseDuration: 0.08
+  attackPulseScale: 1.25
+  attackPulseDuration: 0.1
 --- !u!212 &705824169
 SpriteRenderer:
   serializedVersion: 2
@@ -626,9 +626,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
   damageColor: {r: 1, g: 0.9626852, b: 0, a: 1}
-  flashDuration: 0.12
-  knockbackDistance: 0.25
-  knockbackDuration: 0.08
+  flashDuration: 0.18
+  knockbackDistance: 0.45
+  knockbackDuration: 0.1
 --- !u!1 &757721670
 GameObject:
   m_ObjectHideFlags: 0
@@ -1331,8 +1331,8 @@ MonoBehaviour:
   attackRange: 1.2
   damage: 10
   attackCooldown: 1
-  attackPulseScale: 1.15
-  attackPulseDuration: 0.08
+  attackPulseScale: 1.25
+  attackPulseDuration: 0.1
 --- !u!212 &1784146735
 SpriteRenderer:
   serializedVersion: 2
@@ -1420,9 +1420,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
   damageColor: {r: 1, g: 0, b: 0, a: 1}
-  flashDuration: 0.12
-  knockbackDistance: 0.25
-  knockbackDuration: 0.08
+  flashDuration: 0.18
+  knockbackDistance: 0.45
+  knockbackDuration: 0.1
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
