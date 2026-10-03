@@ -129,6 +129,7 @@ GameObject:
   m_Component:
   - component: {fileID: 69260405}
   - component: {fileID: 69260406}
+  - component: {fileID: 69260407}
   m_Layer: 5
   m_Name: PlayerHPBar
   m_TagString: Untagged
@@ -156,7 +157,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 40, y: -40}
-  m_SizeDelta: {x: 340, y: 20}
+  m_SizeDelta: {x: 340, y: 24}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &69260406
 MonoBehaviour:
@@ -197,18 +198,33 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 1643338701}
   m_FillRect: {fileID: 1533522013}
   m_HandleRect: {fileID: 1643338700}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &69260407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 69260404}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f47bb34b4026c908cf5411b5e38da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
+  targetHealth: {fileID: 1784146733}
+  slider: {fileID: 69260406}
+  hpText: {fileID: 0}
 --- !u!1 &107498100
 GameObject:
   m_ObjectHideFlags: 0
@@ -609,7 +625,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b5ac7b744b7d46fc89f42de7ccdf2fe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageFeedback
-  damageColor: {r: 1, g: 0, b: 0, a: 1}
+  damageColor: {r: 1, g: 0.9626852, b: 0, a: 1}
   flashDuration: 0.12
   knockbackDistance: 0.25
   knockbackDuration: 0.08
@@ -1460,7 +1476,7 @@ MonoBehaviour:
   m_ScaleFactor: 1
   m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.5
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -1522,6 +1538,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1924174112}
   - component: {fileID: 1924174113}
+  - component: {fileID: 1924174114}
   m_Layer: 5
   m_Name: EnemyHPBar
   m_TagString: Untagged
@@ -1549,7 +1566,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -40, y: -40}
-  m_SizeDelta: {x: 340, y: 20}
+  m_SizeDelta: {x: 340, y: 24}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1924174113
 MonoBehaviour:
@@ -1590,18 +1607,33 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 107498102}
   m_FillRect: {fileID: 384873479}
   m_HandleRect: {fileID: 107498101}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1
+  m_MaxValue: 100
   m_WholeNumbers: 0
-  m_Value: 0
+  m_Value: 100
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1924174114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1924174111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9f47bb34b4026c908cf5411b5e38da6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
+  targetHealth: {fileID: 705824167}
+  slider: {fileID: 1924174113}
+  hpText: {fileID: 0}
 --- !u!1 &1941118073
 GameObject:
   m_ObjectHideFlags: 0
