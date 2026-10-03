@@ -14,34 +14,58 @@ public class AutoFighter : MonoBehaviour
     public float attackCooldown = 1f;
 
     [Header("Feedback de Ataque")]
-    public float attackPulseScale = 1.15f;
-    public float attackPulseDuration = 0.08f;
+    public float attackPulseScale = 1.25f;
+    public float attackPulseDuration = 0.10f;
 
     private float nextAttackTime;
     private Health selfHealth;
+    private CombatantStateMachine stateMachine;
+
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
 
     private void Awake()
     {
         selfHealth = GetComponent<Health>();
+        stateMachine = GetComponent<CombatantStateMachine>();
         originalScale = transform.localScale;
     }
 
     private void Update()
     {
-        if (target == null) return;
-        if (selfHealth != null && selfHealth.IsDead) return;
-        if (target.IsDead) return;
+        if (target == null)
+        {
+            stateMachine?.SetState(CombatState.Idle);
+            return;
+        }
+
+        if (selfHealth != null && selfHealth.IsDead)
+        {
+            stateMachine?.SetState(CombatState.Dead);
+            return;
+        }
+
+        if (target.IsDead)
+        {
+            stateMachine?.SetState(CombatState.Idle);
+            return;
+        }
+
+        if (stateMachine != null && stateMachine.IsLocked)
+        {
+            return;
+        }
 
         float distance = Vector2.Distance(transform.position, target.transform.position);
 
         if (distance > attackRange)
         {
+            stateMachine?.SetState(CombatState.Moving);
             MoveTowardTarget();
         }
         else
         {
+            stateMachine?.SetState(CombatState.Idle);
             TryAttack();
         }
     }
@@ -55,6 +79,8 @@ public class AutoFighter : MonoBehaviour
     private void TryAttack()
     {
         if (Time.time < nextAttackTime) return;
+
+        stateMachine?.SetState(CombatState.Attacking, attackPulseDuration);
 
         target.TakeDamage(damage, transform);
         PlayAttackPulse();
