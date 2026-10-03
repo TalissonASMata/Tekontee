@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class AutoFighter : MonoBehaviour
 {
@@ -12,13 +13,19 @@ public class AutoFighter : MonoBehaviour
     public int damage = 10;
     public float attackCooldown = 1f;
 
-    private float nextAttackTime;
+    [Header("Feedback de Ataque")]
+    public float attackPulseScale = 1.15f;
+    public float attackPulseDuration = 0.08f;
 
+    private float nextAttackTime;
     private Health selfHealth;
+    private Vector3 originalScale;
+    private Coroutine attackPulseRoutine;
 
     private void Awake()
     {
         selfHealth = GetComponent<Health>();
+        originalScale = transform.localScale;
     }
 
     private void Update()
@@ -49,7 +56,28 @@ public class AutoFighter : MonoBehaviour
     {
         if (Time.time < nextAttackTime) return;
 
-        target.TakeDamage(damage);
+        target.TakeDamage(damage, transform);
+        PlayAttackPulse();
+
         nextAttackTime = Time.time + attackCooldown;
+    }
+
+    private void PlayAttackPulse()
+    {
+        if (attackPulseRoutine != null)
+        {
+            StopCoroutine(attackPulseRoutine);
+        }
+
+        attackPulseRoutine = StartCoroutine(AttackPulseRoutine());
+    }
+
+    private IEnumerator AttackPulseRoutine()
+    {
+        transform.localScale = originalScale * attackPulseScale;
+
+        yield return new WaitForSeconds(attackPulseDuration);
+
+        transform.localScale = originalScale;
     }
 }
