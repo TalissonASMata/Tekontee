@@ -1,35 +1,38 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using TMPro;
-using UnityEngine.InputSystem;
 
 public class BattleManager : MonoBehaviour
 {
-    public Health playerMon;
-    public Health enemyMon;
+    [Header("Combatentes")]
+    public Combatant playerCombatant;
+    public Combatant enemyCombatant;
 
+    [Header("Controle do jogador")]
+    public PlayerControlManager playerControlManager;
+
+    [Header("UI")]
     public TMP_Text resultText;
 
-    private bool battleEnded;
+    [Header("Fim da batalha")]
+    public float endDelay = 0.45f;
+
+    private bool battleEnded = false;
 
     private void Start()
     {
-        battleEnded = false;
-
         if (resultText != null)
         {
-            resultText.text = "";
+            resultText.gameObject.SetActive(false);
         }
 
-        if (playerMon != null)
+        if (playerControlManager != null)
         {
-            playerMon.OnDeath += HandleDeath;
+            playerControlManager.SetGameplayEnabled(true);
         }
 
-        if (enemyMon != null)
-        {
-            enemyMon.OnDeath += HandleDeath;
-        }
+        SubscribeToDeaths();
     }
 
     private void Update()
@@ -39,21 +42,55 @@ public class BattleManager : MonoBehaviour
 
         if (Keyboard.current.rKey.wasPressedThisFrame)
         {
-            RestartBattle();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 
-    private void HandleDeath(Health deadCharacter)
+    private void OnDestroy()
+    {
+        UnsubscribeFromDeaths();
+    }
+
+    private void SubscribeToDeaths()
+    {
+        if (playerCombatant != null && playerCombatant.Health != null)
+        {
+            playerCombatant.Health.OnDeath += HandleDeath;
+        }
+
+        if (enemyCombatant != null && enemyCombatant.Health != null)
+        {
+            enemyCombatant.Health.OnDeath += HandleDeath;
+        }
+    }
+
+    private void UnsubscribeFromDeaths()
+    {
+        if (playerCombatant != null && playerCombatant.Health != null)
+        {
+            playerCombatant.Health.OnDeath -= HandleDeath;
+        }
+
+        if (enemyCombatant != null && enemyCombatant.Health != null)
+        {
+            enemyCombatant.Health.OnDeath -= HandleDeath;
+        }
+    }
+
+    private void HandleDeath(Health deadHealth)
     {
         if (battleEnded) return;
 
-        if (deadCharacter == enemyMon)
+        if (playerCombatant != null && deadHealth == playerCombatant.Health)
         {
-            EndBattle("Vitória\nPressione R para reiniciar");
+            EndBattle("Derrota");
+            return;
         }
-        else if (deadCharacter == playerMon)
+
+        if (enemyCombatant != null && deadHealth == enemyCombatant.Health)
         {
-            EndBattle("Derrota\nPressione R para reiniciar");
+            EndBattle("VitÃ³ria");
+            return;
         }
     }
 
@@ -61,42 +98,44 @@ public class BattleManager : MonoBehaviour
     {
         battleEnded = true;
 
-        Debug.Log($"Fim da batalha: {result}");
+        StopCombatants();
+        StopPlayerControl();
 
-        StopFighters();
+        Invoke(nameof(ShowResult), endDelay);
 
-        if (resultText != null)
+        Debug.Log($"Fim da batalha: {result}\nPressione R para reiniciar");
+
+        pendingResult = result;
+    }
+
+    private string pendingResult;
+
+    private void ShowResult()
+    {
+        if (resultText == null) return;
+
+        resultText.gameObject.SetActive(true);
+        resultText.text = $"{pendingResult}\nPressione R para\nreiniciar";
+    }
+
+    private void StopCombatants()
+    {
+        if (playerCombatant != null)
         {
-            resultText.text = result;
-            resultText.gameObject.SetActive(true);
+            playerCombatant.StopCombat();
+        }
+
+        if (enemyCombatant != null)
+        {
+            enemyCombatant.StopCombat();
         }
     }
 
-    private void StopFighters()
+    private void StopPlayerControl()
     {
-        if (playerMon != null)
+        if (playerControlManager != null)
         {
-            AutoFighter playerFighter = playerMon.GetComponent<AutoFighter>();
-
-            if (playerFighter != null)
-            {
-                playerFighter.enabled = false;
-            }
+            playerControlManager.SetGameplayEnabled(false);
         }
-
-        if (enemyMon != null)
-        {
-            AutoFighter enemyFighter = enemyMon.GetComponent<AutoFighter>();
-
-            if (enemyFighter != null)
-            {
-                enemyFighter.enabled = false;
-            }
-        }
-    }
-
-    private void RestartBattle()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

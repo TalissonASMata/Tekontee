@@ -1,8 +1,10 @@
 using UnityEngine;
 using System.Collections;
 
+[DisallowMultipleComponent]
 public class AutoFighter : MonoBehaviour
 {
+    [Header("Alvo")]
     public Health target;
 
     [Header("Movimento")]
@@ -12,15 +14,23 @@ public class AutoFighter : MonoBehaviour
     [Header("Ataque")]
     public int damage = 10;
     public float attackCooldown = 1f;
+    public float attackPulseScale = 1.2f;
+    public float attackPulseDuration = 0.12f;
 
-    [Header("Feedback de Ataque")]
-    public float attackPulseScale = 1.25f;
-    public float attackPulseDuration = 0.10f;
+    [Header("Repel bônus")]
+    public float baseBonusRepelDistance = 0.35f;
+
+    [Header("Morfologia")]
+    public MorphPointType pointTypeOnHit = MorphPointType.Attack;
+    public int pointsOnHit = 1;
+
+    [Header("Forma dominante")]
+    public MonFormGameplayStats formStats;
 
     private float nextAttackTime;
     private Health selfHealth;
     private CombatantStateMachine stateMachine;
-
+    private MorphPointBank morphPointBank;
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
 
@@ -28,6 +38,13 @@ public class AutoFighter : MonoBehaviour
     {
         selfHealth = GetComponent<Health>();
         stateMachine = GetComponent<CombatantStateMachine>();
+        morphPointBank = GetComponent<MorphPointBank>();
+
+        if (formStats == null)
+        {
+            formStats = GetComponent<MonFormGameplayStats>();
+        }
+
         originalScale = transform.localScale;
     }
 
@@ -35,19 +52,19 @@ public class AutoFighter : MonoBehaviour
     {
         if (target == null)
         {
-            stateMachine?.SetState(CombatState.Idle);
+            SetState(CombatState.Idle);
             return;
         }
 
         if (selfHealth != null && selfHealth.IsDead)
         {
-            stateMachine?.SetState(CombatState.Dead);
+            SetState(CombatState.Dead);
             return;
         }
 
         if (target.IsDead)
         {
-            stateMachine?.SetState(CombatState.Idle);
+            SetState(CombatState.Idle);
             return;
         }
 
@@ -56,36 +73,100 @@ public class AutoFighter : MonoBehaviour
             return;
         }
 
-        float distance = Vector2.Distance(transform.position, target.transform.position);
+        float distance = Mathf.Abs(target.transform.position.x - transform.position.x);
 
         if (distance > attackRange)
         {
-            stateMachine?.SetState(CombatState.Moving);
+            SetState(CombatState.Moving);
             MoveTowardTarget();
         }
         else
         {
-            stateMachine?.SetState(CombatState.Idle);
+            SetState(CombatState.Idle);
             TryAttack();
         }
     }
 
     private void MoveTowardTarget()
     {
-        Vector2 direction = (target.transform.position - transform.position).normalized;
-        transform.position += (Vector3)(direction * moveSpeed * Time.deltaTime);
+        if (target == null) return;
+
+        float directionX = Mathf.Sign(target.transform.position.x - transform.position.x);
+        float finalMoveSpeed = moveSpeed * GetMoveSpeedMultiplier();
+
+        transform.position += new Vector3(directionX * finalMoveSpeed * Time.deltaTime, 0f, 0f);
     }
 
     private void TryAttack()
     {
         if (Time.time < nextAttackTime) return;
+        if (target == null) return;
+        if (target.IsDead) return;
 
-        stateMachine?.SetState(CombatState.Attacking, attackPulseDuration);
+        SetState(CombatState.Attacking, attackPulseDuration);
 
-        target.TakeDamage(damage, transform);
+        int finalDamage = GetFinalDamage();
+
+        target.TakeDamage(finalDamage, transform);
+
+        ApplyBonusRepelToTarget();
+
+        AddMorphPointsOnHit();
+
         PlayAttackPulse();
 
+        Debug.Log(
+            $"{gameObject.name} atacou com dano final {finalDamage}. " +
+            $"Forma dominante: {GetCurrentFormName()}"
+        );
+
         nextAttackTime = Time.time + attackCooldown;
+    }
+
+    private int GetFinalDamage()
+    {
+        float multiplier = formStats != null ? formStats.DamageMultiplier : 1f;
+        return Mathf.Max(1, Mathf.RoundToInt(damage * multiplier));
+    }
+
+    private float GetMoveSpeedMultiplier()
+    {
+        return formStats != null ? formStats.MoveSpeedMultiplier : 1f;
+    }
+
+    private float GetRepelMultiplier()
+    {
+        return formStats != null ? formStats.RepelMultiplier : 1f;
+    }
+
+    private string GetCurrentFormName()
+    {
+        if (formStats == null || !formStats.HasAnyPoints) return "Normal";
+        return formStats.CurrentDominantType.ToString();
+    }
+
+    private void ApplyBonusRepelToTarget()
+    {
+        if (target == null) return;
+
+        float repelMultiplier = GetRepelMultiplier();
+
+        if (repelMultiplier <= 1f) return;
+
+        float directionX = Mathf.Sign(target.transform.position.x - transform.position.x);
+        float bonusRepelDistance = baseBonusRepelDistance * (repelMultiplier - 1f);
+
+        target.transform.position += new Vector3(directionX * bonusRepelDistance, 0f, 0f);
+
+        Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
+    }
+
+    private void AddMorphPointsOnHit()
+    {
+        if (morphPointBank == null) return;
+        if (pointsOnHit <= 0) return;
+
+        morphPointBank.AddPoints(pointTypeOnHit, pointsOnHit);
     }
 
     private void PlayAttackPulse()
@@ -105,5 +186,19 @@ public class AutoFighter : MonoBehaviour
         yield return new WaitForSeconds(attackPulseDuration);
 
         transform.localScale = originalScale;
+    }
+
+    private void SetState(CombatState state)
+    {
+        if (stateMachine == null) return;
+
+        stateMachine.SetState(state);
+    }
+
+    private void SetState(CombatState state, float lockDuration)
+    {
+        if (stateMachine == null) return;
+
+        stateMachine.SetState(state, lockDuration);
     }
 }
