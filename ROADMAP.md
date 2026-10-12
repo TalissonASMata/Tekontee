@@ -8,24 +8,52 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 |---|---|---|
 | V0.x → V1.0 | Core playable loop: combat, Tamer/Mon switching, Morph Points, collection, arguments, form gameplay effects and battle loop | Validated incrementally |
 | V1.1 | Camera by control mode: strategic Tamer camera + fighting-game Mon camera | Validated |
+| V1.2 | EnemyTamer | Validated |
+| V1.3 | EnemyMon Morphology | Validated |
 
 ## Active roadmap
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.2 | EnemyTamer | Add an opponent Tamer that acts in the platform/arena layer and creates real competition for available Morph Point resources. Reuse player Tamer systems where practical; avoid duplicating movement/collection rules unnecessarily. |
-| V1.3 | EnemyMon Morphology | EnemyMon gains and uses Morph Points and can change dominant form/gameplay effects using shared morphology systems. Player must adapt to an opponent whose capabilities change during the battle. |
-| V1.4 | Morph concentration/proportion | Replace or extend simple raw dominant totals with morphology based on point concentration/proportion. Validate whether composition produces more dynamic and readable form changes. |
-| V1.5 | Tamer ↔ arena expansion interactions | Validate interactions where the Tamer can change/expand the arena, generate new objects/platforms or create/potentiate point opportunities. Keep scope deliberately small. |
-| V1.6 | Competitive Tamer behavior | Improve EnemyTamer decisions so it contests valuable resources rather than only wandering/collecting opportunistically. |
-| V1.7 | Pair interaction | Validate clearer tactical interdependence between Tamer actions and Mon combat outcomes. |
+| V1.4 | Weighted Morph Influence | A gameplay action can reinforce up to three morphology axes at different intensities: primary/intense, secondary/medium and tertiary/basic. Validate the architecture using the current temporary Attack/Defense/Air/Energy axes. |
+| V1.5 | Move Morphology Requirements | Moves evaluate the current morphology and resolve as Fail / Effective / Critical. Validate that execution quality changes both move effectiveness and the amount of morphological reinforcement awarded. |
+| V1.6 | Universal Moveset | All Mons conceptually share the same base moveset. Morphology determines whether each move can be executed poorly, effectively or critically rather than whether the move exists at all. |
+| V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
+| V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
+| V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
+| V1.10 | Original Morphology Baseline | Store the morphology each Mon had when entering the battle as `OriginalMorphology`. |
+| V1.11 | Morph Reversion / Debuff | Add combat effects that pull current morphology back toward `OriginalMorphology`, partially dismantling morphology built during the match. |
+| V1.12 | Morph Concentration | Measure morphology distribution/concentration so specialization can be distinguished from broad development rather than relying only on accumulated totals. |
+| V1.13 | Corrupted / Balanced / Extremist | Introduce the high-level development axis only after real morphology behavior exists. Corrupted should relate to persistent unsupported execution, Balanced to broad controlled development, and Extremist to concentration in a small number of parameters. Exact formulas remain to be designed. |
+| V1.14 | Advanced Transformations | Use morphology plus the Corrupted/Balanced/Extremist state to drive higher-level transformations. |
+| V1.15 | Tamer ↔ Arena Expansion | Validate interactions where the Tamer can change/expand the arena, create objects/platforms or generate/potentiate morphology opportunities. |
+| V1.16 | Competitive EnemyTamer | Improve EnemyTamer decisions so it strategically contests valuable morphology opportunities instead of only collecting opportunistically. |
+| V1.17 | Pair Interaction | Validate stronger tactical interdependence between Tamer actions and Mon combat outcomes. |
+| V2.0 | Target Prototype Loop | Tamer + Mon vs Tamer + Mon with contested arena resources, universal moveset, morphology-driven move capability, morphology feedback, reversion and dynamic development as the defining gameplay loop. |
+
+## Target anatomical morphology — current working model
+
+- Head: Weight, Hardness, Fang/Beak capability, Intellect.
+- Torso: Weight, Hardness, Coverage.
+- Arms: Weight, Extension, Drag, Quantity.
+- Legs: Weight, Extension, Drag, Quantity.
+- Tail: Weight, Extension.
+- Element: elemental affinity/state.
+
+This list is a design direction, not yet a locked production schema.
+
+## Core loop to preserve
+
+Player input -> universal move -> morphology requirements -> Fail / Effective / Critical -> gameplay effect -> up to three weighted morphology influences -> updated morphology -> changed future move execution.
+
+Opponent reversion effects run in parallel and push morphology toward the Mon's original battle baseline.
 
 ## Future concepts — not active unless promoted to a milestone
 
 - Four-player / 2 vs 2 final match structure.
 - More complete move presets (2 moves + 1 special before battle).
 - Special move combinations.
-- Music/rhythm layer where correctly timed moves generate different Morph Point types according to synchronized instruments.
+- Music/rhythm layer where correctly timed moves generate different morphology influences according to synchronized instruments.
 - Larger arena evolution / spatial expansion systems.
 - Production AI, networking, progression, narrative, content pipeline and art polish.
 
