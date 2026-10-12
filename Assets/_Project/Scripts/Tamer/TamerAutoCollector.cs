@@ -9,6 +9,7 @@ public class TamerAutoCollector : MonoBehaviour
     [Header("Foco de coleta")]
     public MorphPointType primaryCollectFocus = MorphPointType.Air;
     public MorphPointType secondaryCollectFocus = MorphPointType.Energy;
+    public bool collectOtherTypesWhenFocusedUnavailable = false;
 
     [Header("Destino dos pontos")]
     public MorphPointBank targetPointBank;
@@ -69,6 +70,7 @@ public class TamerAutoCollector : MonoBehaviour
     {
         if (type == primaryCollectFocus) return 0;
         if (type == secondaryCollectFocus) return 1;
+        if (collectOtherTypesWhenFocusedUnavailable) return 2;
 
         return -1;
     }
