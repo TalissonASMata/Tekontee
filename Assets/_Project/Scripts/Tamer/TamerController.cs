@@ -29,7 +29,10 @@ public class TamerController : MonoBehaviour
             groundY = transform.position.y;
         }
 
-        SnapToGround();
+        // Preserve the position authored in the scene at startup.
+        // The logical ground is initialized without snapping the Transform.
+        verticalVelocity = 0f;
+        isGrounded = Mathf.Abs(transform.position.y - groundY) < 0.01f;
     }
 
     private void Update()
