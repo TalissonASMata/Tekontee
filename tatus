@@ -1,0 +1,139 @@
+[1mdiff --git a/Assets/_Project/Scripts/Combat/DamageFeedback.cs b/Assets/_Project/Scripts/Combat/DamageFeedback.cs[m
+[1mindex 22099d5..a6f11fd 100644[m
+[1m--- a/Assets/_Project/Scripts/Combat/DamageFeedback.cs[m
+[1m+++ b/Assets/_Project/Scripts/Combat/DamageFeedback.cs[m
+[36m@@ -11,6 +11,13 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+     public float knockbackDistance = 0.25f;[m
+     public float knockbackDuration = 0.08f;[m
+ [m
+[32m+[m[32m    [Header("Morte")][m
+[32m+[m[32m    public bool applyDeathVisual = true;[m
+[32m+[m[32m    public Color deathColor = Color.gray;[m
+[32m+[m[32m    public float deathScaleY = 0.55f;[m
+[32m+[m[32m    public float deathScaleX = 1.15f;[m
+[32m+[m[32m    public float deathRotationZ = 0f;[m
+[32m+[m
+     private Health health;[m
+     private SpriteRenderer spriteRenderer;[m
+     private Renderer normalRenderer;[m
+[36m@@ -18,7 +25,11 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+     private Color originalSpriteColor;[m
+     private Color originalRendererColor;[m
+ [m
+[32m+[m[32m    private Vector3 originalScale;[m
+[32m+[m[32m    private Quaternion originalRotation;[m
+[32m+[m
+     private Coroutine feedbackRoutine;[m
+[32m+[m[32m    private bool isDead;[m
+ [m
+     private void Awake()[m
+     {[m
+[36m@@ -32,10 +43,18 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+             originalSpriteColor = spriteRenderer.color;[m
+         }[m
+ [m
+[32m+[m[32m        if (normalRenderer == spriteRenderer)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            normalRenderer = null;[m
+[32m+[m[32m        }[m
+[32m+[m
+         if (normalRenderer != null && normalRenderer.material.HasProperty("_Color"))[m
+         {[m
+             originalRendererColor = normalRenderer.material.color;[m
+         }[m
+[32m+[m
+[32m+[m[32m        originalScale = transform.localScale;[m
+[32m+[m[32m        originalRotation = transform.rotation;[m
+     }[m
+ [m
+     private void OnEnable()[m
+[36m@@ -43,6 +62,7 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+         if (health != null)[m
+         {[m
+             health.OnDamaged += HandleDamaged;[m
+[32m+[m[32m            health.OnDeath += HandleDeath;[m
+         }[m
+     }[m
+ [m
+[36m@@ -51,11 +71,14 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+         if (health != null)[m
+         {[m
+             health.OnDamaged -= HandleDamaged;[m
+[32m+[m[32m            health.OnDeath -= HandleDeath;[m
+         }[m
+     }[m
+ [m
+     private void HandleDamaged(Health damagedHealth, int damageAmount, Transform attacker)[m
+     {[m
+[32m+[m[32m        if (isDead) return;[m
+[32m+[m
+         if (feedbackRoutine != null)[m
+         {[m
+             StopCoroutine(feedbackRoutine);[m
+[36m@@ -64,9 +87,25 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+         feedbackRoutine = StartCoroutine(FeedbackRoutine(attacker));[m
+     }[m
+ [m
+[32m+[m[32m    private void HandleDeath(Health deadHealth)[m
+[32m+[m[32m    {[m
+[32m+[m[32m        isDead = true;[m
+[32m+[m
+[32m+[m[32m        if (feedbackRoutine != null)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            StopCoroutine(feedbackRoutine);[m
+[32m+[m[32m            feedbackRoutine = null;[m
+[32m+[m[32m        }[m
+[32m+[m
+[32m+[m[32m        if (applyDeathVisual)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            ApplyDeathVisual();[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+     private IEnumerator FeedbackRoutine(Transform attacker)[m
+     {[m
+[31m-        SetDamageColor();[m
+[32m+[m[32m        SetVisualColor(damageColor);[m
+ [m
+         Vector3 startPosition = transform.position;[m
+         Vector3 knockbackTarget = startPosition;[m
+[36m@@ -97,19 +136,35 @@[m [mpublic class DamageFeedback : MonoBehaviour[m
+ [m
+         yield return new WaitForSeconds(flashDuration);[m
+ [m
+[31m-        RestoreOriginalColor();[m
+[32m+[m[32m        if (!isDead)[m
+[32m+[m[32m        {[m
+[32m+[m[32m            RestoreOriginalColor();[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    private void ApplyDeathVisual()[m
+[32m+[m[32m    {[m
+[32m+[m[32m        SetVisualColor(deathColor);[m
+[32m+[m
+[32m+[m[32m        transform.localScale = new Vector3([m
+[32m+[m[32m            originalScale.x * deathScaleX,[m
+[32m+[m[32m            originalScale.y * deathScaleY,[m
+[32m+[m[32m            originalScale.z[m
+[32m+[m[32m        );[m
+[32m+[m
+[32m+[m[32m        transform.rotation = originalRotation * Quaternion.Euler(0f, 0f, deathRotationZ);[m
+     }[m
+ [m
+[31m-    private void SetDamageColor()[m
+[32m+[m[32m    private void SetVisualColor(Color color)[m
+     {[m
+         if (spriteRenderer != null)[m
+         {[m
+[31m-            spriteRenderer.color = damageColor;[m
+[32m+[m[32m            spriteRenderer.color = color;[m
+         }[m
+ [m
+         if (normalRenderer != null && normalRenderer.material.HasProperty("_Color"))[m
+         {[m
+[31m-            normalRenderer.material.color = damageColor;[m
+[32m+[m[32m            normalRenderer.material.color = color;[m
+         }[m
+     }[m
+ [m
