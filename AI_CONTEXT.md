@@ -19,7 +19,7 @@ The player switches control between Tamer and Mon. When the player controls the 
 
 ## Current validated baseline
 
-Validated through V1.3:
+Validated through V1.4:
 
 - core combat loop;
 - Tamer/Mon control switching;
@@ -29,9 +29,10 @@ Validated through V1.3:
 - PlayerMon and EnemyMon both using morphology systems;
 - morphology affecting combat stats;
 - control-mode camera system;
-- battle/restart loop.
+- battle/restart loop;
+- weighted multi-influence morphology reinforcement per successful combat action.
 
-Active milestone: V1.4 — weighted morphological influence per action.
+Active milestone: V1.5 — move morphology requirements and Fail / Effective / Critical execution quality.
 
 ## Morphology — current prototype
 
@@ -43,6 +44,8 @@ Current temporary morphology types:
 - Energy
 
 `MorphPointBank` currently stores absolute values and exposes a dominant type. `MonDominantFormVisual` handles visual feedback and `MonFormGameplayStats` handles gameplay effects.
+
+V1.4 added weighted multi-influence reinforcement: a combat action can apply up to three `MorphInfluence` values in one atomic bank update. Player and automatic combat both use this path.
 
 These four axes are prototype placeholders. They are not the intended final morphology model.
 
@@ -96,6 +99,8 @@ This creates the intended feedback loop:
 
 Current morphology -> move execution quality -> morphological reinforcement -> changed morphology -> changed future move execution quality.
 
+V1.5 should validate this quality evaluation using the current temporary Attack/Defense/Air/Energy model and the weighted reinforcement architecture already proven in V1.4. Do not introduce final counter balance, anatomical morphology, or the universal moveset catalog yet unless strictly required for the smallest test.
+
 ## Weighted morphological influence
 
 A successful gameplay event must not be restricted to only one morphology attribute.
@@ -110,7 +115,7 @@ Example concept only:
 
 Headbutt critical -> strong Head.Weight, medium Head.Hardness, basic Torso.Weight.
 
-V1.4 should validate this weighted multi-influence architecture using the current temporary Attack/Defense/Air/Energy axes before the full anatomical model is introduced.
+V1.4 validated this architecture using the current temporary Attack/Defense/Air/Energy axes.
 
 ## Specials
 
@@ -167,7 +172,8 @@ The current prototype already contains:
 - restart/battle loop;
 - arena bounds;
 - control switching between Tamer and Mon;
-- shared morphology behavior for PlayerMon and EnemyMon.
+- shared morphology behavior for PlayerMon and EnemyMon;
+- weighted morphology reinforcement on successful hits in both manual and automatic Mon combat.
 
 ## Camera
 
