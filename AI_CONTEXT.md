@@ -19,7 +19,7 @@ The player switches control between Tamer and Mon. When the player controls the 
 
 ## Current validated baseline
 
-Validated through V1.4:
+Validated through V1.5:
 
 - core combat loop;
 - Tamer/Mon control switching;
@@ -32,7 +32,9 @@ Validated through V1.4:
 - battle/restart loop;
 - weighted multi-influence morphology reinforcement per successful combat action.
 
-Active milestone: V1.5 — move morphology requirements and Fail / Effective / Critical execution quality.
+V1.5 validated in Unity: move requirement type can be independent from the current dominant form; execution quality (Fail / Effective / Critical) adjusts damage and weighted morphology reinforcement. Both automatic and manual paths use the shared evaluator.
+
+Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog.
 
 ## Morphology — current prototype
 
