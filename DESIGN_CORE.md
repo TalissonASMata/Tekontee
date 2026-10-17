@@ -45,6 +45,9 @@ The identity of a Mon should come from how well its current body can execute the
 - Use Unity Input System actions and device-independent gameplay commands. Bind keyboard and gamepad controls to the same actions; do not hard-code keyboard keys in move definitions or duplicate move logic per controller type.
 - Support coherent movement, attack selection, defensive actions, Tamer/Mon switching and gameplay interactions on both input methods as their features are implemented.
 - Keep mappings configurable/remappable where practical, and use controller-agnostic action names rather than assuming Xbox or PlayStation button labels.
+- **Hard input-complexity limit:** executing any individual move must require at most two buttons pressed together (one button alone or a two-button chord). Never design a move that requires three or more simultaneous buttons, long command sequences or fighting-game motion inputs as mandatory execution.
+- Examples of acceptable controller chords: `R1 + Square` on PlayStation, `LT + A` on Xbox; provide equivalent keyboard bindings via the same Input Actions.
+- Reserve this two-button budget for each move itself; avoid hidden extra modifiers or mandatory additional confirmation. Design the full moveset and future specials around this accessibility constraint.
 - V1.6 should establish and validate the shared input path for the first two test moves, rather than postponing controller compatibility until the full catalog exists.
 
 ## 3. Morphology requirements and execution quality
