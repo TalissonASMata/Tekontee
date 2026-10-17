@@ -32,6 +32,7 @@ public class AutoFighter : MonoBehaviour
     private Health selfHealth;
     private CombatantStateMachine stateMachine;
     private MorphPointBank morphPointBank;
+    private MoveMorphologyEvaluator moveEvaluator;
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
 
@@ -40,6 +41,7 @@ public class AutoFighter : MonoBehaviour
         selfHealth = GetComponent<Health>();
         stateMachine = GetComponent<CombatantStateMachine>();
         morphPointBank = GetComponent<MorphPointBank>();
+        moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
 
         if (formStats == null)
         {
@@ -106,28 +108,41 @@ public class AutoFighter : MonoBehaviour
 
         SetState(CombatState.Attacking, attackPulseDuration);
 
-        int finalDamage = GetFinalDamage();
+        MoveExecutionQuality quality = EvaluateMoveQuality();
+        int finalDamage = GetFinalDamage(quality);
 
         target.TakeDamage(finalDamage, transform);
 
         ApplyBonusRepelToTarget();
 
-        AddMorphInfluencesOnHit();
+        AddMorphInfluencesOnHit(quality);
 
         PlayAttackPulse();
 
         Debug.Log(
-            $"{gameObject.name} atacou com dano final {finalDamage}. " +
+            $"{gameObject.name} atacou com qualidade {quality} e dano final {finalDamage}. " +
+            $"Requisito: {GetRequirementDebugText()}. " +
             $"Forma dominante: {GetCurrentFormName()}"
         );
 
         nextAttackTime = Time.time + attackCooldown;
     }
 
-    private int GetFinalDamage()
+    private MoveExecutionQuality EvaluateMoveQuality()
     {
-        float multiplier = formStats != null ? formStats.DamageMultiplier : 1f;
-        return Mathf.Max(1, Mathf.RoundToInt(damage * multiplier));
+        return moveEvaluator != null
+            ? moveEvaluator.Evaluate()
+            : MoveExecutionQuality.Effective;
+    }
+
+    private int GetFinalDamage(MoveExecutionQuality quality)
+    {
+        float formMultiplier = formStats != null ? formStats.DamageMultiplier : 1f;
+        float qualityMultiplier = moveEvaluator != null
+            ? moveEvaluator.GetDamageMultiplier(quality)
+            : 1f;
+
+        return Mathf.Max(1, Mathf.RoundToInt(damage * formMultiplier * qualityMultiplier));
     }
 
     private float GetMoveSpeedMultiplier()
@@ -146,6 +161,15 @@ public class AutoFighter : MonoBehaviour
         return formStats.CurrentDominantType.ToString();
     }
 
+    private string GetRequirementDebugText()
+    {
+        if (moveEvaluator == null) return "sem avaliador (Effective por compatibilidade)";
+
+        return
+            $"{moveEvaluator.requiredType} {moveEvaluator.CurrentRequiredValue} " +
+            $"(Effective >= {moveEvaluator.effectiveThreshold}, Critical >= {moveEvaluator.criticalThreshold})";
+    }
+
     private void ApplyBonusRepelToTarget()
     {
         if (target == null) return;
@@ -162,14 +186,19 @@ public class AutoFighter : MonoBehaviour
         Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
     }
 
-    private void AddMorphInfluencesOnHit()
+    private void AddMorphInfluencesOnHit(MoveExecutionQuality quality)
     {
         if (morphPointBank == null) return;
+
+        float reinforcementMultiplier = moveEvaluator != null
+            ? moveEvaluator.GetReinforcementMultiplier(quality)
+            : 1f;
 
         morphPointBank.AddInfluences(
             primaryInfluence,
             secondaryInfluence,
-            tertiaryInfluence
+            tertiaryInfluence,
+            reinforcementMultiplier
         );
     }
 
