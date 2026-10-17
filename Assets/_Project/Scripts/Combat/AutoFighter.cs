@@ -115,15 +115,15 @@ public class AutoFighter : MonoBehaviour
 
         ApplyBonusRepelToTarget();
 
-        AddMorphInfluencesOnHit(quality);
-
-        PlayAttackPulse();
-
         Debug.Log(
             $"{gameObject.name} atacou com qualidade {quality} e dano final {finalDamage}. " +
             $"Requisito: {GetRequirementDebugText()}. " +
             $"Forma dominante: {GetCurrentFormName()}"
         );
+
+        AddMorphInfluencesOnHit(quality);
+
+        PlayAttackPulse();
 
         nextAttackTime = Time.time + attackCooldown;
     }
