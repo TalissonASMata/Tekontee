@@ -28,9 +28,10 @@ public class MonPlayerController : MonoBehaviour
     [Header("Repel bônus")]
     public float baseBonusRepelDistance = 0.35f;
 
-    [Header("Morfologia")]
-    public MorphPointType pointTypeOnHit = MorphPointType.Attack;
-    public int pointsOnHit = 1;
+    [Header("Morfologia por acerto")]
+    public MorphInfluence primaryInfluence = new MorphInfluence(MorphPointType.Attack, 1);
+    public MorphInfluence secondaryInfluence = new MorphInfluence(MorphPointType.Defense, 0);
+    public MorphInfluence tertiaryInfluence = new MorphInfluence(MorphPointType.Energy, 0);
 
     [Header("Forma dominante")]
     public MonFormGameplayStats formStats;
@@ -183,7 +184,7 @@ public class MonPlayerController : MonoBehaviour
             $"Forma dominante: {GetCurrentFormName()}"
         );
 
-        AddMorphPointsOnHit();
+        AddMorphInfluencesOnHit();
 
         nextAttackTime = Time.time + attackCooldown;
     }
@@ -231,12 +232,15 @@ public class MonPlayerController : MonoBehaviour
         Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
     }
 
-    private void AddMorphPointsOnHit()
+    private void AddMorphInfluencesOnHit()
     {
         if (morphPointBank == null) return;
-        if (pointsOnHit <= 0) return;
 
-        morphPointBank.AddPoints(pointTypeOnHit, pointsOnHit);
+        morphPointBank.AddInfluences(
+            primaryInfluence,
+            secondaryInfluence,
+            tertiaryInfluence
+        );
     }
 
     private void SetState(CombatState state)
