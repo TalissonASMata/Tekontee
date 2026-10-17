@@ -39,6 +39,14 @@ Working examples:
 
 The identity of a Mon should come from how well its current body can execute these moves, not from an arbitrary species-specific move list.
 
+### Input device compatibility (permanent requirement)
+
+- The universal moveset must be fully playable with keyboard and modern gamepads, including Xbox and PlayStation (PS5/DualSense-class) controllers.
+- Use Unity Input System actions and device-independent gameplay commands. Bind keyboard and gamepad controls to the same actions; do not hard-code keyboard keys in move definitions or duplicate move logic per controller type.
+- Support coherent movement, attack selection, defensive actions, Tamer/Mon switching and gameplay interactions on both input methods as their features are implemented.
+- Keep mappings configurable/remappable where practical, and use controller-agnostic action names rather than assuming Xbox or PlayStation button labels.
+- V1.6 should establish and validate the shared input path for the first two test moves, rather than postponing controller compatibility until the full catalog exists.
+
 ## 3. Morphology requirements and execution quality
 
 Every move may define morphology requirements.
