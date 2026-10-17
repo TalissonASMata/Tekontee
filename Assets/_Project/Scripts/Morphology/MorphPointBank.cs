@@ -35,7 +35,6 @@ public class MorphPointBank : MonoBehaviour
 
             if (energyPoints > highest)
             {
-                highest = energyPoints;
                 dominant = MorphPointType.Energy;
             }
 
@@ -45,7 +44,40 @@ public class MorphPointBank : MonoBehaviour
 
     public void AddPoints(MorphPointType type, int amount)
     {
-        if (amount <= 0) return;
+        if (!AddPointsInternal(type, amount)) return;
+
+        Debug.Log($"{gameObject.name} ganhou {amount} ponto(s) de {type}. Dominante atual: {DominantType}");
+
+        OnPointsChanged?.Invoke(this);
+    }
+
+    public void AddInfluences(
+        MorphInfluence primary,
+        MorphInfluence secondary,
+        MorphInfluence tertiary)
+    {
+        bool changed = false;
+
+        changed |= AddPointsInternal(primary.type, primary.amount);
+        changed |= AddPointsInternal(secondary.type, secondary.amount);
+        changed |= AddPointsInternal(tertiary.type, tertiary.amount);
+
+        if (!changed) return;
+
+        Debug.Log(
+            $"{gameObject.name} recebeu influência morfológica: " +
+            $"Primária {primary.type} +{Mathf.Max(0, primary.amount)}, " +
+            $"Secundária {secondary.type} +{Mathf.Max(0, secondary.amount)}, " +
+            $"Terciária {tertiary.type} +{Mathf.Max(0, tertiary.amount)}. " +
+            $"Dominante atual: {DominantType}"
+        );
+
+        OnPointsChanged?.Invoke(this);
+    }
+
+    private bool AddPointsInternal(MorphPointType type, int amount)
+    {
+        if (amount <= 0) return false;
 
         switch (type)
         {
@@ -64,11 +96,12 @@ public class MorphPointBank : MonoBehaviour
             case MorphPointType.Energy:
                 energyPoints += amount;
                 break;
+
+            default:
+                return false;
         }
 
-        Debug.Log($"{gameObject.name} ganhou {amount} ponto(s) de {type}. Dominante atual: {DominantType}");
-
-        OnPointsChanged?.Invoke(this);
+        return true;
     }
 
     public int GetPoints(MorphPointType type)
