@@ -43,12 +43,14 @@ public class MonPlayerController : MonoBehaviour
     private Health selfHealth;
     private CombatantStateMachine stateMachine;
     private MorphPointBank morphPointBank;
+    private MoveMorphologyEvaluator moveEvaluator;
 
     private void Awake()
     {
         selfHealth = GetComponent<Health>();
         stateMachine = GetComponent<CombatantStateMachine>();
         morphPointBank = GetComponent<MorphPointBank>();
+        moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
 
         if (formStats == null)
         {
@@ -173,26 +175,39 @@ public class MonPlayerController : MonoBehaviour
 
         SetState(CombatState.Attacking, 0.12f);
 
-        int finalDamage = GetFinalDamage();
+        MoveExecutionQuality quality = EvaluateMoveQuality();
+        int finalDamage = GetFinalDamage(quality);
 
         target.TakeDamage(finalDamage, transform);
 
         ApplyBonusRepelToTarget();
 
         Debug.Log(
-            $"Ataque manual do Mon acertou com dano final {finalDamage}. " +
+            $"Ataque manual do Mon acertou com qualidade {quality} e dano final {finalDamage}. " +
+            $"Requisito: {GetRequirementDebugText()}. " +
             $"Forma dominante: {GetCurrentFormName()}"
         );
 
-        AddMorphInfluencesOnHit();
+        AddMorphInfluencesOnHit(quality);
 
         nextAttackTime = Time.time + attackCooldown;
     }
 
-    private int GetFinalDamage()
+    private MoveExecutionQuality EvaluateMoveQuality()
     {
-        float multiplier = formStats != null ? formStats.DamageMultiplier : 1f;
-        return Mathf.Max(1, Mathf.RoundToInt(damage * multiplier));
+        return moveEvaluator != null
+            ? moveEvaluator.Evaluate()
+            : MoveExecutionQuality.Effective;
+    }
+
+    private int GetFinalDamage(MoveExecutionQuality quality)
+    {
+        float formMultiplier = formStats != null ? formStats.DamageMultiplier : 1f;
+        float qualityMultiplier = moveEvaluator != null
+            ? moveEvaluator.GetDamageMultiplier(quality)
+            : 1f;
+
+        return Mathf.Max(1, Mathf.RoundToInt(damage * formMultiplier * qualityMultiplier));
     }
 
     private float GetMoveSpeedMultiplier()
@@ -216,6 +231,15 @@ public class MonPlayerController : MonoBehaviour
         return formStats.CurrentDominantType.ToString();
     }
 
+    private string GetRequirementDebugText()
+    {
+        if (moveEvaluator == null) return "sem avaliador (Effective por compatibilidade)";
+
+        return
+            $"{moveEvaluator.requiredType} {moveEvaluator.CurrentRequiredValue} " +
+            $"(Effective >= {moveEvaluator.effectiveThreshold}, Critical >= {moveEvaluator.criticalThreshold})";
+    }
+
     private void ApplyBonusRepelToTarget()
     {
         if (target == null) return;
@@ -232,14 +256,19 @@ public class MonPlayerController : MonoBehaviour
         Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
     }
 
-    private void AddMorphInfluencesOnHit()
+    private void AddMorphInfluencesOnHit(MoveExecutionQuality quality)
     {
         if (morphPointBank == null) return;
+
+        float reinforcementMultiplier = moveEvaluator != null
+            ? moveEvaluator.GetReinforcementMultiplier(quality)
+            : 1f;
 
         morphPointBank.AddInfluences(
             primaryInfluence,
             secondaryInfluence,
-            tertiaryInfluence
+            tertiaryInfluence,
+            reinforcementMultiplier
         );
     }
 
