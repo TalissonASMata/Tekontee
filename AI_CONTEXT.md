@@ -34,7 +34,7 @@ Validated through V1.5:
 
 V1.5 validated in Unity: move requirement type can be independent from the current dominant form; execution quality (Fail / Effective / Critical) adjusts damage and weighted morphology reinforcement. Both automatic and manual paths use the shared evaluator.
 
-Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog.
+Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog. The moveset must work on both keyboard and modern gamepads (Xbox and PS5/DualSense-class). Route both device types through common Unity Input System actions, with no gameplay logic tied to specific key/button labels. Establish keyboard/gamepad parity for these two moves and preserve an extensible input mapping for later actions.
 
 ## Morphology — current prototype
 
