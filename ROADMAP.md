@@ -17,7 +17,7 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.6 | Universal Moveset | All Mons conceptually share the same base moveset. Morphology determines whether each move can be executed poorly, effectively or critically rather than whether the move exists at all. |
+| V1.6 | Universal Moveset | All Mons share universal moves; morphology determines Fail / Effective / Critical rather than availability. Validate two different moves, manual/automatic selection, and shared keyboard + modern gamepad (Xbox / PS5) input via Unity Input System actions. |
 | V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
 | V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
 | V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
