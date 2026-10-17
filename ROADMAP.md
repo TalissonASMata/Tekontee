@@ -11,12 +11,12 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 | V1.2 | EnemyTamer | Validated |
 | V1.3 | EnemyMon Morphology | Validated |
 | V1.4 | Weighted Morph Influence | Validated |
+| V1.5 | Move Morphology Requirements | Validated in Unity: Fail / Effective / Critical, damage/reinforcement multipliers, requirements independent from dominant form (Attack versus Air) |
 
 ## Active roadmap
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.5 | Move Morphology Requirements | Moves evaluate the current morphology and resolve as Fail / Effective / Critical. Validate that execution quality changes both move effectiveness and the amount of morphological reinforcement awarded. |
 | V1.6 | Universal Moveset | All Mons conceptually share the same base moveset. Morphology determines whether each move can be executed poorly, effectively or critically rather than whether the move exists at all. |
 | V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
 | V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
