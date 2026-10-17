@@ -28,7 +28,17 @@ public class MonAutoPreset : MonoBehaviour
     {
         if (autoFighter == null) return;
 
-        autoFighter.pointTypeOnHit = primaryCombatFocus;
+        MorphInfluence primary = autoFighter.primaryInfluence;
+        primary.type = primaryCombatFocus;
+        autoFighter.primaryInfluence = primary;
+
+        MorphInfluence secondary = autoFighter.secondaryInfluence;
+        secondary.type = secondaryCombatFocus;
+        autoFighter.secondaryInfluence = secondary;
+
+        MorphInfluence tertiary = autoFighter.tertiaryInfluence;
+        tertiary.type = specialFocus;
+        autoFighter.tertiaryInfluence = tertiary;
 
         Debug.Log(
             $"{gameObject.name} preset aplicado. " +
