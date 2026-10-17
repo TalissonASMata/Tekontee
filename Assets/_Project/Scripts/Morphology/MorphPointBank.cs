@@ -56,23 +56,46 @@ public class MorphPointBank : MonoBehaviour
         MorphInfluence secondary,
         MorphInfluence tertiary)
     {
+        AddInfluences(primary, secondary, tertiary, 1f);
+    }
+
+    public void AddInfluences(
+        MorphInfluence primary,
+        MorphInfluence secondary,
+        MorphInfluence tertiary,
+        float multiplier)
+    {
+        float safeMultiplier = Mathf.Max(0f, multiplier);
+
+        int primaryAmount = ScaleInfluenceAmount(primary.amount, safeMultiplier);
+        int secondaryAmount = ScaleInfluenceAmount(secondary.amount, safeMultiplier);
+        int tertiaryAmount = ScaleInfluenceAmount(tertiary.amount, safeMultiplier);
+
         bool changed = false;
 
-        changed |= AddPointsInternal(primary.type, primary.amount);
-        changed |= AddPointsInternal(secondary.type, secondary.amount);
-        changed |= AddPointsInternal(tertiary.type, tertiary.amount);
+        changed |= AddPointsInternal(primary.type, primaryAmount);
+        changed |= AddPointsInternal(secondary.type, secondaryAmount);
+        changed |= AddPointsInternal(tertiary.type, tertiaryAmount);
 
         if (!changed) return;
 
         Debug.Log(
             $"{gameObject.name} recebeu influência morfológica: " +
-            $"Primária {primary.type} +{Mathf.Max(0, primary.amount)}, " +
-            $"Secundária {secondary.type} +{Mathf.Max(0, secondary.amount)}, " +
-            $"Terciária {tertiary.type} +{Mathf.Max(0, tertiary.amount)}. " +
+            $"Primária {primary.type} +{primaryAmount}, " +
+            $"Secundária {secondary.type} +{secondaryAmount}, " +
+            $"Terciária {tertiary.type} +{tertiaryAmount}. " +
+            $"Multiplicador x{safeMultiplier:0.##}. " +
             $"Dominante atual: {DominantType}"
         );
 
         OnPointsChanged?.Invoke(this);
+    }
+
+    private int ScaleInfluenceAmount(int baseAmount, float multiplier)
+    {
+        if (baseAmount <= 0 || multiplier <= 0f) return 0;
+
+        return Mathf.Max(1, Mathf.RoundToInt(baseAmount * multiplier));
     }
 
     private bool AddPointsInternal(MorphPointType type, int amount)
