@@ -10,12 +10,12 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 | V1.1 | Camera by control mode: strategic Tamer camera + fighting-game Mon camera | Validated |
 | V1.2 | EnemyTamer | Validated |
 | V1.3 | EnemyMon Morphology | Validated |
+| V1.4 | Weighted Morph Influence | Validated |
 
 ## Active roadmap
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.4 | Weighted Morph Influence | A gameplay action can reinforce up to three morphology axes at different intensities: primary/intense, secondary/medium and tertiary/basic. Validate the architecture using the current temporary Attack/Defense/Air/Energy axes. |
 | V1.5 | Move Morphology Requirements | Moves evaluate the current morphology and resolve as Fail / Effective / Critical. Validate that execution quality changes both move effectiveness and the amount of morphological reinforcement awarded. |
 | V1.6 | Universal Moveset | All Mons conceptually share the same base moveset. Morphology determines whether each move can be executed poorly, effectively or critically rather than whether the move exists at all. |
 | V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
