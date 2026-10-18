@@ -722,6 +722,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** numeric speed/distance, movement interpolation and animation duration; these require Unity playtesting, not arbitrary constants.
 - **Affected nodes:** grounded recovery command recognition, recoil movement initiation, invulnerability transition, animation timeline and collision response. No Unity code change requested yet.
 
+### PHY-080 — Early-recovery recoil uses an initial impulse with deceleration (DECIDED, 2026-10-18)
+
+- **Option A adopted:** the backward displacement during early knockdown recovery begins **fast** and **progressively decelerates**, conveying the physical feel of a knockback/repel impulse.
+- The motion begins immediately upon successful recovery input, together with invulnerability (PHY-077–079), and follows a **fixed, non-steerable backward trajectory** for all eligible Mons (PHY-061/062/067).
+- As before, a solid wall or obstacle stops horizontal travel without rebounding, while the recovery animation runs to completion (PHY-068). Attacks and new active defenses remain unavailable until recovery finishes (PHY-065/066).
+- This **does not authorize a specific friction curve, easing formula, velocity, distance or duration yet**. Calibrate physical/arcade feel in a Unity gameplay test, preserving the same intended movement across eligible Mons.
+- **Affected nodes:** early-recovery recoil movement profile, physics velocity/deceleration, fixed-direction collision response, animation synchronization and invulnerability timing. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
