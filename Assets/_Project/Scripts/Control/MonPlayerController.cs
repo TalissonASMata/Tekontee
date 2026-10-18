@@ -47,6 +47,7 @@ public class MonPlayerController : MonoBehaviour
     private UniversalMoveSet universalMoves;
     private InputAction heavyAction;
     private InputAction aerialAction;
+    private InputAction defenseAction;
 
     private void Awake()
     {
@@ -78,12 +79,19 @@ public class MonPlayerController : MonoBehaviour
         aerialAction.AddCompositeBinding("OneModifier")
             .With("Modifier", "<Gamepad>/rightShoulder")
             .With("Binding", "<Gamepad>/buttonSouth");
+        defenseAction = new InputAction("GuardBreak", InputActionType.Button);
+        defenseAction.AddBinding("<Keyboard>/l");
+        defenseAction.AddBinding("<Gamepad>/buttonEast");
+        defenseAction.Enable();
         heavyAction.Enable();
         aerialAction.Enable();
     }
 
     private void OnDisable()
     {
+        defenseAction?.Disable();
+        defenseAction?.Dispose();
+        defenseAction = null;
         heavyAction?.Disable();
         aerialAction?.Disable();
         heavyAction?.Dispose();
@@ -196,18 +204,20 @@ public class MonPlayerController : MonoBehaviour
         bool keyboardJ = Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame;
         bool keyboardEnter = Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame;
         bool keyboardK = Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame;
+        bool keyboardL = Keyboard.current != null && Keyboard.current.lKey.wasPressedThisFrame;
         bool keyboardShiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
         bool keyboardShiftPressed = Keyboard.current != null && Keyboard.current.leftShiftKey.wasPressedThisFrame;
         bool keyboardJHeld = Keyboard.current != null && Keyboard.current.jKey.isPressed;
 
         bool gamepadSouth = Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame;
+        bool gamepadEast = Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame;
         bool gamepadShoulderHeld = Gamepad.current != null && Gamepad.current.rightShoulder.isPressed;
         bool gamepadShoulderPressed = Gamepad.current != null && Gamepad.current.rightShoulder.wasPressedThisFrame;
         bool gamepadSouthHeld = Gamepad.current != null && Gamepad.current.buttonSouth.isPressed;
 
         // Instrumentacao de input: registra o comando observado mesmo quando
         // cooldown ou alcance impedem a execucao. Evita logs em todos os frames.
-        bool inputEvent = keyboardJ || keyboardEnter || keyboardK ||
+        bool inputEvent = keyboardJ || keyboardEnter || keyboardK || keyboardL || gamepadEast ||
                           (keyboardShiftPressed && keyboardJHeld) ||
                           gamepadSouth || (gamepadShoulderPressed && gamepadSouthHeld);
         if (!inputEvent) return;
@@ -218,12 +228,17 @@ public class MonPlayerController : MonoBehaviour
                               (gamepadShoulderPressed && gamepadSouthHeld && !gamepadSouth);
         bool aerialPressed = aerialAction != null && aerialAction.WasPressedThisFrame();
         bool heavyPressed = heavyAction != null && heavyAction.WasPressedThisFrame();
+        bool defensePressed = defenseAction != null && defenseAction.WasPressedThisFrame();
 
-        UniversalMoveId selectedMove = keyboardChord || gamepadChord || keyboardK || aerialPressed
-            ? UniversalMoveId.AerialStrike
-            : UniversalMoveId.HeavyStrike;
+        UniversalMoveId selectedMove = keyboardL || gamepadEast || defensePressed
+            ? UniversalMoveId.GuardBreak
+            : keyboardChord || gamepadChord || keyboardK || aerialPressed
+                ? UniversalMoveId.AerialStrike
+                : UniversalMoveId.HeavyStrike;
 
-        string inputSource = keyboardK ? "Teclado K" :
+        string inputSource = keyboardL ? "Teclado L" :
+            gamepadEast ? "Gamepad East" :
+            keyboardK ? "Teclado K" :
             keyboardChord ? "Teclado Shift+J" :
             gamepadChord ? "Gamepad Shoulder+South" :
             keyboardJ ? "Teclado J" :
@@ -242,7 +257,7 @@ public class MonPlayerController : MonoBehaviour
             target == null ? "alvo ausente" :
             target.IsDead ? "alvo morto" : "nenhum";
         Debug.Log($"[V1.6 INPUT] {gameObject.name}: origem={inputSource}; " +
-                  $"heavyAction={heavyPressed}; aerialAction={aerialPressed}; " +
+                  $"heavyAction={heavyPressed}; aerialAction={aerialPressed}; defenseAction={defensePressed}; " +
                   $"resolvido={selectedMove}; bloqueio={blocked}");
 
         if (blocked != "nenhum") return;
