@@ -302,6 +302,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether a new charge stacks, extends, resets or otherwise interacts with an earlier outstanding attack-recovery timer; do not assume a stacking formula or allow a loophole to attack early.
 - **Affected technical nodes:** defense activation, charge timer, attack lockout, input transitions and movement. This is a design rule, not authorization for new Unity implementation.
 
+### PHY-034 — Non-stacking recovery deadlines for consecutive charged defenses (DECIDED, 2026-10-18)
+
+- **Option B adopted:** if another charged defense occurs while an earlier attack-recovery interval is still running, **their recovery durations do not add together**.
+- Each defense sets its **own attack-availability deadline** relative to the end of that defense, based on the time actually spent charging (PHY-030).
+- The Mon cannot attack until **the latest outstanding deadline** has passed: `AtaqueLiberadoEm = max(prazosDeRecuperaçãoPendentes)`.
+- Example only: first deadline at t=1.0s, second at t=1.3s → attack is permitted from t=1.3s; no sum of pending delays.
+- Restarting defense is still allowed (PHY-033), and movement remains free (PHY-032). Defense itself ends immediately on release (PHY-031).
+- **Not yet decided:** exact timings/charge durations, queued attack-input behavior, interruptions and cancellation. Do not introduce arbitrary additive or reset penalties.
+- **Affected nodes:** charge-duration tracking, attack recovery deadlines, defense state transitions and attack eligibility.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -323,7 +333,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-034: When a second charged defense happens while the first attack-recovery interval is still running, should the outstanding attack delay add together, or should it use the latest defense's recovery deadline without stacking?
+- PHY-035: If an attack button is pressed during the post-defense attack recovery, should the command be ignored, or buffered to execute as soon as attacking becomes available?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
