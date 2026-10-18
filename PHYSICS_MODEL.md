@@ -509,6 +509,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact time-window duration in seconds/frames, input device tolerances, or edge handling around direction changes; calibrate against responsive fighting-game controls.
 - **Affected nodes:** shared relative-direction double-tap recognizer, grounded knockdown input state, morphology eligibility check and recovery-time calculation. No Unity code change requested yet.
 
+### PHY-056 — Shared timing window for all double-tap commands (DECIDED, 2026-10-18)
+
+- **Option A adopted:** all gameplay commands that use two rapid directional taps share **one universal maximum inter-tap interval**.
+- This includes early knockdown recovery (PHY-051–055) and any future double-tap movement techniques such as dodge/dash, **if those techniques are explicitly added later**.
+- The same timing window improves input consistency; it does **not** mean every double-tap triggers every action. Execution remains conditioned on combat state, relative direction, move availability, morphology eligibility and other applicable rules.
+- The chosen window is **not dependent on Mon morphology** (PHY-055). Morphology may still determine whether a particular action is available and its effectiveness.
+- **Not yet decided:** the numerical timing threshold and device/input calibration; no future dodge mechanic or binding is automatically approved by this decision.
+- **Affected nodes:** shared double-tap input recognizer, context-specific move eligibility, grounded knockdown recovery, future mobility inputs. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
