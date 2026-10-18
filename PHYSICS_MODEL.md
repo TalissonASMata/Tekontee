@@ -202,15 +202,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Undecided for chargeable defense:** input behavior, activation timing, ramp/steps, maximum charge, vulnerability, trade-offs, resource costs and whether passive defense itself can charge. Keep chargeable defense as an exploration candidate, not a coded commitment.
 - **Affected nodes:** morphology shared per-limb values and quantity; form definition; passive-defense participation; defensive move configurations; future hold/charge input and move-execution state.
 
-### PHY-023 — Defensive charging gated by participating limb quantity (DECIDED, 2026-10-18)
+### PHY-023 — Defensive charge triggered by any participating member type with Quantity > 2 (DECIDED; clarified 2026-10-18)
 
-- A defense **does not charge** when its configured participating anatomy totals **two members** (e.g. `Torso + Braço` = 2).
-- A defense **can charge only when it uses a repeated member group configured with more than two participating members** (e.g. `Braços (4)`).
-- Charging adds participating members **in steps of two**: e.g. a four-arm defense has a two-arm stage and then a four-arm stage. Only the members actually recruited into a stage contribute their tenacity to that stage's defensive calculation, alongside global body mass per PHY-019.
-- This is **not a universal charge button mechanic available to every Mon**: charging depends on the form's anatomy and the members configured for the defense.
-- Do not infer extra stages for mixed member groups such as `Torso + Braço`; the user's explicit example establishes that two configured participants means no charge.
-- **Not yet decided:** hold durations, what happens with odd numbers of eligible limbs, whether mixed groups with more than two total members can charge, activation/release timing, and whether this applies to passive defense or only explicitly activated defensive moves.
-- **Affected technical nodes:** form anatomy/member quantities, defensive move data (participant list and count), charge/execution state, morphology-derived defense evaluation. Preserve the existing combat loop until smallest vertical-slice implementation is approved.
+- **Corrected trigger:** charging becomes available if **at least one anatomical member type referenced by the defense** has the morphology property `Quantidade > 2`. The **total number of member types or combined participants is irrelevant** to charge eligibility.
+- Examples: `Tronco + Braços` may charge when `Braços.Quantidade = 4`; `Tronco + Braço` with `Braços.Quantidade = 2` does not. `Braços.Quantidade = 4` alone permits 2 → 4 arms.
+- **Member quantities must be even**. Odd arm/leg/tentacle quantities such as 3 or 5 are not valid in this design; therefore the previous question about a partial odd stage is canceled.
+- For an eligible repeated member group, defensive participation **charges by pairs (2, 4, 6, ...)** up to the configured eligible quantity. Other referenced anatomical types can participate according to the defense definition, but their mere presence does not count toward the >2 trigger.
+- Defense at each stage uses the tenacity of actually participating limbs and overall body mass, under PHY-019; exact coefficients and timing are not yet decided.
+- **Not yet decided:** how multiple qualifying repeated member types charge simultaneously, hold durations, activation/release timing, and whether charging is restricted to active defensive moves. Do not assume these details.
+- **Technical nodes:** morphology member-type quantities, move participation data, charge stages/input, defense evaluation. No gameplay code change yet.
 
 ## Existing architectural boundary
 
@@ -233,7 +233,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-024: For a defense with an odd number of eligible repeated limbs (e.g. three arms), does the extra limb participate without charging, or do only complete pairs count?
+- PHY-024: If a defensive move uses two distinct member types that each have Quantity > 2 (e.g. four arms and four tentacles), should they charge together or separately?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
