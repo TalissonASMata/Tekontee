@@ -372,6 +372,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - Defense protection activates normally after successful cancellation (PHY-026–028). Do not conflate this tie-break with invincibility or with a universal priority for all defensive inputs.
 - **Implementation requirement for a future vertical slice:** evaluate eligible cancel inputs before committing collision-generated damage events for the same fixed simulation step; test same-step, previous-step and invalid-window cases. No code changes yet.
 
+### PHY-042 — Valid newly activated defense wins same-tick incoming-hit tie (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if an **incoming enemy hit** would register in the **same simulation tick** in which the defending Mon validly activates defense, **process the valid defense activation first**.
+- The incoming attack is then resolved **against the newly active defensive state**, using participating members and derived defense values under PHY-019–028, instead of treating the Mon as undefended at that instant.
+- **This does not mean the incoming attack is automatically nullified or deals zero damage**: the defensive calculation still determines how much damage/knockback, if any, gets through.
+- The tie-break only applies to **valid defense inputs**, including defensive cancels allowed by the current move's windows (PHY-036–039); invalid defense inputs do not gain priority.
+- This extends the **defense-first philosophy** behind PHY-041 to incoming hits, but preserves the distinction: in PHY-041, the Mon's **own outgoing hitbox is removed** on defensive cancel; in PHY-042, the **enemy's hitbox is not inherently removed** and is handled against active defense.
+- Hits already registered in earlier simulation ticks remain final. Actual timing/input priority needs tests at fixed-step boundaries.
+- **Affected nodes:** input activation order, attack collision/damage resolution, active defense participation, move-cancel windows. No Unity implementation yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -393,7 +403,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-042: Should the same-tick defense-first priority apply only when cancelling one's own outgoing attack, or also when an incoming enemy hit coincides with initiating a valid defense?
+- PHY-043: When a defense absorbs an incoming hit, should the defender still experience knockback according to the remaining impact, or should an active defense fully prevent knockback?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
