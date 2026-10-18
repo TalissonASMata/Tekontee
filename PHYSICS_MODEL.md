@@ -21,6 +21,16 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - A future explicit power or environmental effect could alter local gravity as an exception; it is **not part of the baseline**.
 - Gravity magnitude, coordinates, implementation and tuning **remain undecided**.
 
+### PHY-003 — Collision normals with separate Mon/Tamer movement (DECIDED, 2026-10-18)
+
+- **Option B adopted:** use contact normals to classify ground, walls, slopes and platforms; the first validation may use only horizontal surfaces.
+- **Shared collision/contact principles** for Mon and Tamer (normal, support/groundedness, blocking/contact response), but **different gameplay movement controllers**.
+- **Mon:** predictable side-view fighting-game movement and arena constraints, with Street Fighter as a reference for combat feel.
+- **Tamer:** platforming movement with jumping between platforms and future possibilities such as sliding, ramps and momentum, with Mega Man X, Sonic and Symphony of the Night as experiential references.
+- Contact normals **enable slope recognition** but do not automatically implement Sonic-like acceleration, friction, momentum or sliding; those mechanics must be decided and tested separately.
+- Do not build all Tamer platforming mechanics now; preserve the current validated movement/camera/combat loop and add the smallest collision slice when implementation requires it.
+- **Not yet decided:** walkable angle threshold, one-way platform behavior, grounding tolerances, collision layer policy, slope forces and friction models.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -42,7 +52,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-003: How should we detect and classify ground versus wall/platform contacts (contact normals and groundedness)?
+- PHY-004: Should platforms permit passing upward through them and landing from above (one-way), or remain solid on all sides by default?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
