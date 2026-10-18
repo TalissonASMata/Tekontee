@@ -38,6 +38,14 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - This decision is a capability requirement; no need to implement all platform variants during the present V1.7 physics-design stage.
 - **Not yet decided:** whether the player can deliberately drop through one-way platforms, and the relevant input and collision rules.
 
+### PHY-005 — Intentional drop-through (DECIDED, 2026-10-18)
+
+- **Option A adopted:** while standing on a **one-way platform**, Tamer can press **Down + Jump** to intentionally descend through it.
+- The command must not cause a normal upward jump simultaneously.
+- The one-way collision is ignored temporarily for the supporting platform until the Tamer has cleared it; do not globally disable collisions with other solid surfaces.
+- Fully solid platforms remain solid and cannot be dropped through by this command.
+- The precise input mapping for gamepad and detailed timing/collision implementation are postponed until this mechanic is implemented and tested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -59,7 +67,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-005: Should the Tamer be able to intentionally drop through one-way platforms, or only pass through them from below?
+- PHY-006: Which collision interactions should distinguish ordinary solid objects from movable objects (push/block versus pass-through)?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
