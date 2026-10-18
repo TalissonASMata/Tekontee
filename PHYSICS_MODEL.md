@@ -250,6 +250,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Damage remains global, and defense at any instant depends on the participating members' tenacity and the Mon's total mass, not on a hit-location system.
 - Exact stage intervals, interruption rules and hold/release behavior remain unconfirmed; **do not implement speculative timing**.
 
+### PHY-028 — Immediate first pair alongside fixed defensive members (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a defense includes **fixed/non-chargeable members** alongside a charge-eligible repeated member type (`Quantidade > 2`), the fixed members **and the first pair of each chargeable type protect immediately** on defense input.
+- Subsequent pairs join after the brief staged intervals from PHY-026/027; the defense remains protective throughout.
+- Example: `Tronco + Braços (4)`: immediate defense = **torso + 2 arms**; next stage = **torso + 4 arms**.
+- Defense effectiveness derives from the tenacity of the members actually defending at each moment and `MassaGeral`, per PHY-019.
+- This clarifies and supersedes the earlier PHY-026 implementation ambiguity about whether the first pair from chargeable groups could be instantaneous when fixed members are present: **yes, it is instantaneous**.
+- Stage timing, resource consumption and release/interruption behaviors remain open; do not invent them or change Unity code yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -271,7 +280,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-028: When defense includes both fixed members (e.g. torso) and chargeable members (e.g. four arms), does the first arm pair protect immediately alongside fixed members, or join at the first very-short charge interval?
+- PHY-029: When the player releases defense before all pairs have joined, should protection stop immediately or include a brief recovery/exit interval?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
