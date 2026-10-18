@@ -400,6 +400,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Compatibility note:** the V1.6 move named `GuardBreak` is a prototype action name; the approved target design **does not authorize universal raw-force guard breaking**. Revisit its function/name only when implementing these counter categories; do not change validated prototype code now.
 - **Affected nodes:** move classifications and outcomes (sweep/grab), defensive state, combat resolution priority, knockback and animation/state transitions.
 
+### PHY-045 — Successful sweep causes knockdown (DECIDED, 2026-10-18)
+
+- **Option A adopted:** a successfully landed **rasteira (sweep)** against a defending Mon **causes knockdown (queda)**, following the familiar behavior of traditional fighting games.
+- As established in PHY-044, sweep is a valid counter to active defense; this decision selects **knockdown**, rather than a configurable stagger/displacement-only outcome, as the standard successful result.
+- Do not interpret “successful” as an unconditional hit: range, execution windows, collision and other attack-validity conditions still apply.
+- **Not yet decided:** knockdown animation, duration, invulnerability during knockdown, wake-up options, damage amount, or how sweeps interact with a Mon that is not defending.
+- **Affected technical nodes:** move classification, defense counter-resolution, knockdown combat state, animation and state recovery. No Unity gameplay code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -421,7 +429,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-045: When a sweep successfully beats defense, should it always knock the defending Mon down, or may the result depend on the specific sweep technique?
+- PHY-046: After a knockdown caused by a sweep, should the Mon automatically stand up after a fixed interval, or may the player influence the recovery timing?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
