@@ -46,6 +46,14 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - Fully solid platforms remain solid and cannot be dropped through by this command.
 - The precise input mapping for gamepad and detailed timing/collision implementation are postponed until this mechanic is implemented and tested.
 
+### PHY-006 — Per-object collision and physical behavior (DECIDED, 2026-10-18)
+
+- **Option C adopted:** objects in the arena can have distinct physical properties and reactions according to their type.
+- A given object can be **static and solid** (blocks movement), **dynamic/movable** (responds to forces, pushing or impacts), or **non-blocking / pass-through** where appropriate.
+- Object behavior is configured per object/type, not universally inferred from appearance.
+- This is a capability and design requirement; no immediate demand to implement all categories or detailed interactions.
+- **Not yet decided:** specific reactive object taxonomy, force formulas, damage/destruction, object-to-morphology conversion, and interactions triggered by Tamer versus Mon.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -67,7 +75,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-006: Which collision interactions should distinguish ordinary solid objects from movable objects (push/block versus pass-through)?
+- PHY-007: Should objects react automatically to physical contact/impact, only to explicit Tamer/Mon actions, or to both depending on their properties?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
