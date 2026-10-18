@@ -338,6 +338,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact timeline boundaries, windows during startup/active/recovery phases, whether windows depend on contact (hit/block/whiff), and whether canceling imposes additional costs or recovery.
 - **Affected nodes:** attack move data, attack-phase timing, cancellation eligibility, defense state transition and input evaluation. No Unity implementation requested yet.
 
+### PHY-038 — Ignore defense input outside cancel windows (DECIDED, 2026-10-18)
+
+- **Option A adopted:** pressing defense during an attack **outside the move's configured defensive-cancel window** has **no effect**; the input is **discarded** rather than buffered.
+- The attack proceeds normally. If the player wants to cancel into defense, they must **press defense again during a permitted window**, as defined per move by PHY-036/037.
+- No automatic defensive transition occurs later due to the rejected input.
+- This covers defense input during a running attack and **does not imply a universal prohibition on input buffers elsewhere**.
+- **Affected technical nodes:** attack-phase cancellation checks, defense-input validation, combat-state transitions and move data. No Unity code change yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -359,7 +367,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-038: When defense is pressed outside an attack's permitted cancel window, should the input be ignored, or buffered briefly for the next valid window?
+- PHY-039: Should a defensive-cancel window be allowed during an attack's active hit phase, or only during its startup/recovery phases?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
