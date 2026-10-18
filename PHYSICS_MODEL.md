@@ -346,6 +346,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - This covers defense input during a running attack and **does not imply a universal prohibition on input buffers elsewhere**.
 - **Affected technical nodes:** attack-phase cancellation checks, defense-input validation, combat-state transitions and move data. No Unity code change yet.
 
+### PHY-039 — Defensive cancellation may occur during an attack's active impact phase (DECIDED, 2026-10-18)
+
+- **Option A adopted:** individual attacks **may define defensive-cancel windows during their active hit/impact phase**, not solely during startup or recovery.
+- This is **permission at the move-design level**, not an always-active universal cancel. The move's expressly configured window determines eligibility (PHY-036–038).
+- On a valid defensive cancel, attack execution transitions into defense according to the move's permitted cancel timing. **Not yet decided:** whether existing attack hitboxes disappear immediately, whether a registered hit remains valid, and detailed simultaneity/hit-confirm resolution.
+- Pressing defense **outside** a permitted window remains ignored and unbuffered (PHY-038).
+- **Affected nodes:** per-move cancel windows, attack active-frame state, hitbox lifecycle, strike resolution, combat-state transitions. No Unity implementation required yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -367,7 +375,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-039: Should a defensive-cancel window be allowed during an attack's active hit phase, or only during its startup/recovery phases?
+- PHY-040: If defense cancels an attack during its active hit phase, should the attack hitbox disappear immediately, or remain active for the rest of its originally planned impact interval?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
