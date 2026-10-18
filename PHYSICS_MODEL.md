@@ -416,6 +416,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** which anatomical morphology parameters affect recovery, precise formulas and limits, recovery input/action, invulnerability, and exact timing. Do not select parameters or invent numerical values without confirmation.
 - **Affected nodes:** knockdown combat state, recovery input/eligibility, morphology-derived mobility and animation/state transitions. No Unity gameplay code changes requested yet.
 
+### PHY-047 — Knockdown recovery depends on intellect and mass (DECIDED, 2026-10-18)
+
+- **User-selected morphological inputs:** `Intelecto` and `Massa` determine the effectiveness/timing of player-controlled recovery after knockdown (PHY-046).
+- This **replaces** the assistant's prior proposal involving `Pernas.Extensão` and `Braços.Extensão`; neither extension is confirmed as a knockdown-recovery input.
+- `Intelecto` is currently a Head morphology parameter (`Cabeça.Intelecto`); **which mass measure** (`MassaGeral` versus another morphology mass value) and the exact recovery relationship remain to be confirmed. Do not silently impose a formula or assume a specific numeric scale.
+- The recovery must remain sensitive to the player's recovery action, not be only a fixed morphology-driven automatic timer.
+- **Not yet decided:** how intellect and mass interact, which mass aggregation is used, input timing, minimum/maximum recovery time and invulnerability.
+- **Affected nodes:** morphology, knockdown state, player recovery input, combat-state recovery timing. No implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -437,7 +446,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-047: Which morphological characteristics should determine the effectiveness of player-controlled recovery from knockdown?
+- PHY-048: For recovery after knockdown, does `Massa` mean `MassaGeral` (the Mon's total body mass)?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
