@@ -454,6 +454,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Supersedes any earlier proposal** of continuous intellect-derived recovery speed: intellect is an eligibility threshold under this decision; mass governs the early-recovery time benefit.
 - **Affected nodes:** morphology normalization, knockdown state, recovery input eligibility, animation duration/recovery window, attack follow-up timing. No Unity code changed yet.
 
+### PHY-050 — Linear reduction of early-recovery benefit with mass (DECIDED, 2026-10-18)
+
+- **Option A adopted:** for eligible Mons under PHY-049 (`Cabeça.Intelecto > 40%` and `MassaGeral < 40%` of their respective future normalized morphology ranges), the time advantage from player-triggered early knockdown recovery **decreases linearly as normalized total mass rises**.
+- **At the 40% total-mass boundary, the early-recovery advantage is zero**. At and above that boundary the Mon recovers only through the normal animation and timing; no Mon is permanently unable to stand.
+- The slope and maximum time saved cannot be numerically determined until the morphology scales, normal recovery duration and maximum early-recovery benefit are designed. No arbitrary constants are approved.
+- **Intelecto governs eligibility, not the magnitude of the linear mass-dependent benefit** under PHY-049.
+- **Affected nodes:** normalized morphological values, early-recovery eligibility, knockdown timer, animation timing and combat follow-up/combos. No Unity implementation approved yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
