@@ -526,6 +526,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - Document the final chosen value and test context **only after real gameplay validation**. Do not represent an untested placeholder as an approved balancing constant.
 - **Affected nodes:** shared input/double-tap detector, knockdown recovery, future mobility inputs and playtest instrumentation. This decision itself does not request a Unity code change.
 
+### PHY-058 — Double-tap requires release between presses (DECIDED, 2026-10-18)
+
+- **Option A adopted:** a valid double-tap directional command requires **press → release → press** of the same direction within the shared configured input window.
+- Holding a direction continuously counts as **one press**, not as repeated taps. The recognizer must observe a release before the second press.
+- This applies to early knockdown recovery input (PHY-051–055) and to any other explicitly implemented double-tap commands sharing the timing rule (PHY-056/057).
+- The recognition window's numerical duration will be calibrated in Unity playtests (PHY-057), not chosen arbitrarily now.
+- Early knockdown recovery still requires **both taps after ground contact** (PHY-052/053), with retries allowed while grounded (PHY-054).
+- **Not yet decided:** minimum release duration (if any), how analog-stick return-to-neutral thresholds are handled, and whether direction-relative side changes reset the input sequence.
+- **Affected nodes:** shared double-tap recognizer, directional press/release state, combat-facing orientation, knockdown recovery input validation. No Unity code changes yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
