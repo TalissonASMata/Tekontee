@@ -443,6 +443,17 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** what counts as 100% for intellect or mass, whether these thresholds are final after morphology scaling is defined, the recovery input/timing and the normal rise duration.
 - **Affected nodes:** morphology normalization and total mass aggregation, knockdown state, input gating and recovery action. No Unity code implementation requested yet.
 
+### PHY-049 — Knockdown early-recovery eligibility and weight-dependent benefit (DECIDED, 2026-10-18)
+
+- **Every Mon can recover from knockdown through its standard recovery animation at normal speed**, regardless of morphology. High body weight must never permanently prevent standing back up.
+- **Player-triggered early recovery is available only if both conditions hold:** `Cabeça.Intelecto > 40%` of its eventual morphology scale **AND** `MassaGeral < 40%` of its eventual morphology scale. Both percentages are relative to scales **not yet defined**, not fixed raw point values.
+- When eligible, a recovery input can **shorten the time spent knocked down** compared with standard recovery, potentially helping the player avoid subsequent hits/combos.
+- **MassaGeral determines the size of this time advantage** for eligible Mons: increasing weight reduces the possible early-recovery benefit; at the **40% weight threshold the early-recovery benefit reaches zero** and the Mon uses standard recovery.
+- At **MassaGeral >= 40%**, standard recovery is always available, but no accelerated player-controlled recovery applies. Likewise if `Cabeça.Intelecto <= 40%`, accelerated recovery is unavailable even when mass is low.
+- **Not yet decided:** actual numeric morphology ranges, normalization, early-recovery duration curve for mass below 40%, animation/input timing, minimum duration, and combo interruption/invulnerability rules. Avoid interpreting “avoid combos” as guaranteed invulnerability.
+- **Supersedes any earlier proposal** of continuous intellect-derived recovery speed: intellect is an eligibility threshold under this decision; mass governs the early-recovery time benefit.
+- **Affected nodes:** morphology normalization, knockdown state, recovery input eligibility, animation duration/recovery window, attack follow-up timing. No Unity code changed yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
