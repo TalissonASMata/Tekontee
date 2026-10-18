@@ -630,6 +630,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact hitstun durations, animation blending, knockdown chaining, combo scaling and invulnerability interaction with grab/sweep categories.
 - **Affected nodes:** early-recovery state machine, vulnerability timeline, hit resolution, hitstun/knockdown transitions and recoil movement. No Unity gameplay changes requested yet.
 
+### PHY-070 — Fresh early-recovery opportunity after each new knockdown (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if a Mon is hit during the vulnerable portion of an early-recovery recoil, and the incoming attack causes another knockdown (PHY-069), that **new knockdown creates a fresh opportunity for early recovery** after the Mon makes ground contact again.
+- The same conditions apply on every new knockdown: `Cabeça.Intelecto > 40%`, normalized `MassaGeral < 40%` (PHY-049); mass-dependent linear early-recovery benefit (PHY-050); and two quick backward taps **both after the new ground contact** (PHY-051–060).
+- The new falling/grounded knockdown cycle resets the double-tap recognizer; inputs from the earlier recovery or in-flight phase do not count.
+- The successfully executed new recovery follows the same backward recoil, fixed intensity, short initial invulnerability and vulnerability/interruption rules (PHY-061–069).
+- **Do not add a one-time-per-match or one-time-per-combo early-recovery restriction.** There is also no guarantee of escaping subsequent combos.
+- **Not yet decided:** any repeated-knockdown damage/combo scaling, exact recovery animation duration and invulnerability frame counts.
+- **Affected nodes:** knockdown state reset, ground-contact recovery window, input gesture recognizer, eligibility and hitstun/recoil transitions. No Unity gameplay code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
