@@ -703,6 +703,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how to resolve a valid recovery input and incoming hit in the exact same simulation tick, nor exact animation synchronization and frame duration. Do not invent a frame delay between accepted input and invulnerability.
 - **Affected nodes:** grounded knockdown input recognition, state transitions, invulnerability start, attack/hazard event ordering and recoil animation. No Unity code change requested yet.
 
+### PHY-078 — Valid early recovery invulnerability wins same-tick incoming-hit tie (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a valid backward double-tap for early knockdown recovery and an incoming enemy hit occur during **the same simulation tick**, process the **successful recovery input and resulting invulnerability first**.
+- The Mon thus enters the early-recovery invulnerable window immediately and the same-tick incoming attack **does not cause damage or hitstun**, consistent with PHY-077 and the general defensive tie-break principle of PHY-042.
+- This applies only when all recovery requirements are actually satisfied: grounded after knockdown, both taps after ground contact in the correct relative direction and timing, and morphological eligibility (PHY-049–060).
+- If the input is invalid or comes in a later tick, a previously registered hit remains valid; do not roll back earlier damage. Environmental effects are likewise ignored during the new invulnerability window under PHY-072/073, while solid collisions remain active.
+- **Implementation test later:** valid same-tick input + hit versus hit on preceding tick versus invalid recovery command; ensure input and eligibility resolve before committing same-tick damage.
+- **Not yet decided:** exact fixed-step implementation mechanics and invulnerability duration (to be playtested under PHY-076). No Unity code change requested yet.
+- **Affected nodes:** input evaluation, knockdown recovery, simulation event ordering, invulnerability state and attack resolution.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
