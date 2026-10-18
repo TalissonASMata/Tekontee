@@ -713,6 +713,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact fixed-step implementation mechanics and invulnerability duration (to be playtested under PHY-076). No Unity code change requested yet.
 - **Affected nodes:** input evaluation, knockdown recovery, simulation event ordering, invulnerability state and attack resolution.
 
+### PHY-079 — Recovery recoil displacement begins immediately upon valid input (DECIDED, 2026-10-18)
+
+- **Option A adopted:** on recognition of the successful early-knockdown-recovery backward double-tap, **the backward recoil movement begins immediately**, at the same moment the initial invulnerability window starts (PHY-077/078).
+- There is **no separate animation startup delay before the recoil starts moving**. Animation and physical displacement should respond together to the valid input.
+- The recoil maintains its fixed non-steerable trajectory/intensity (PHY-061/062/067) and respects solid obstacles/walls, stopping translation on collision while recovery animation completes (PHY-068).
+- Invulnerability applies only during the initial globally timed window (PHY-063/064/075/076). After that window expires, the Mon is hittable and an incoming hit interrupts the recoil (PHY-069), while attacking or defending remains unavailable until normal recoil completion (PHY-065/066).
+- **Not yet decided:** numeric speed/distance, movement interpolation and animation duration; these require Unity playtesting, not arbitrary constants.
+- **Affected nodes:** grounded recovery command recognition, recoil movement initiation, invulnerability transition, animation timeline and collision response. No Unity code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
