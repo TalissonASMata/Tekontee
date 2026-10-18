@@ -202,6 +202,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Undecided for chargeable defense:** input behavior, activation timing, ramp/steps, maximum charge, vulnerability, trade-offs, resource costs and whether passive defense itself can charge. Keep chargeable defense as an exploration candidate, not a coded commitment.
 - **Affected nodes:** morphology shared per-limb values and quantity; form definition; passive-defense participation; defensive move configurations; future hold/charge input and move-execution state.
 
+### PHY-023 — Defensive charging gated by participating limb quantity (DECIDED, 2026-10-18)
+
+- A defense **does not charge** when its configured participating anatomy totals **two members** (e.g. `Torso + Braço` = 2).
+- A defense **can charge only when it uses a repeated member group configured with more than two participating members** (e.g. `Braços (4)`).
+- Charging adds participating members **in steps of two**: e.g. a four-arm defense has a two-arm stage and then a four-arm stage. Only the members actually recruited into a stage contribute their tenacity to that stage's defensive calculation, alongside global body mass per PHY-019.
+- This is **not a universal charge button mechanic available to every Mon**: charging depends on the form's anatomy and the members configured for the defense.
+- Do not infer extra stages for mixed member groups such as `Torso + Braço`; the user's explicit example establishes that two configured participants means no charge.
+- **Not yet decided:** hold durations, what happens with odd numbers of eligible limbs, whether mixed groups with more than two total members can charge, activation/release timing, and whether this applies to passive defense or only explicitly activated defensive moves.
+- **Affected technical nodes:** form anatomy/member quantities, defensive move data (participant list and count), charge/execution state, morphology-derived defense evaluation. Preserve the existing combat loop until smallest vertical-slice implementation is approved.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -223,7 +233,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-023: Should the chargeable defensive action (progressively involving more limbs while holding a button) become an explicit core mechanic in the prototype, or remain a future move idea?
+- PHY-024: For a defense with an odd number of eligible repeated limbs (e.g. three arms), does the extra limb participate without charging, or do only complete pairs count?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
