@@ -184,6 +184,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - No hit-location detection or limb-specific HP; damage continues to affect the single global HP pool.
 - **Not yet decided:** which limbs belong to the passive-defense set, whether they are defined per Mon/form or shared by all Mons, and the precise scaling of passive versus active defense.
 
+### PHY-021 — Form-dependent passive defense anatomy (DECIDED, 2026-10-18)
+
+- **Option B adopted:** the anatomical members participating in **passive defense are defined by each Mon's current form**, not by one universal selection for all Mons.
+- Each Mon/form may have a distinct body structure, so its passive-defense participation set must be configurable for that specific form.
+- This feeds the established passive-defense calculation from PHY-020: `DefesaPassiva = f(SomaTenacidadeMembrosParticipantesDaForma, MassaGeral)`.
+- Transforming can change which members contribute to passive defense **without** introducing per-part health or localized damage (PHY-019).
+- Keep the distinction between a **form's default passive-defense set** and the **members used by a particular active defensive move**.
+- **Not yet decided:** how forms declare anatomical participation, how missing body regions or number of repeated limbs are counted within this defensive set, and whether default passive sets change during non-transformative morphology growth.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -205,7 +214,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-021: How is the passive-defense member set selected: a universal fixed set for every Mon, or a per-Mon/per-form configuration?
+- PHY-022: When a form's passive-defense set includes a repeated anatomy type such as arms or legs, should all available limbs of that type contribute, or should the form specify an exact number of participating limbs?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
