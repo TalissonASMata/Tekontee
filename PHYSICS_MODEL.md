@@ -612,6 +612,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how collisions with walls/obstacles affect the remaining recoil animation, whether incoming hitstun can interrupt the recoil, and exact travel speed/duration.
 - **Affected nodes:** early recovery recoil controller, movement-input gating, arena collision resolution, combat state and animation. No Unity implementation authorized yet.
 
+### PHY-068 — Backward recovery recoil stops at solid obstacles (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when the Mon's fixed backward early-recovery recoil collides with a solid wall, obstacle, or arena boundary, **horizontal displacement stops at the obstruction**. There is **no automatic rebound or opposite knockback**.
+- **The recovery animation/state continues until its normal completion**, even when the backward translation is blocked early. The animation must not get stuck waiting for travel distance that can no longer be achieved.
+- The fixed recoil remains non-steerable (PHY-067). Active attack and defense remain unavailable until the movement/recovery state ends (PHY-065/066), with early limited invulnerability followed by vulnerability (PHY-063/064).
+- Arena collisions remain authoritative: do not move the Mon through solid geometry to satisfy recoil distance.
+- **Not yet decided:** edge cases involving moving obstacles, wall-contact effects and whether the recoil's original animation duration is ever modified by other hitstun states. No Unity implementation requested yet.
+- **Affected nodes:** recoil movement, solid collision resolution, animation/state timer, combat input lockouts.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
