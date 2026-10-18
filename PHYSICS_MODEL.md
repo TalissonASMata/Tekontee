@@ -571,6 +571,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - The actual numerical distance, speed, animation timing, handling of collisions, and whether a fixed impulse or fixed travel distance best preserves the identical recoil result remain **to be established through playtesting**.
 - **Affected nodes:** knockdown early-recovery action, backward-recoil movement, body/environment collision, animation/state transitions. No Unity implementation requested yet.
 
+### PHY-063 — Brief invulnerability during early-recovery backward recoil (DECIDED, 2026-10-18)
+
+- **Option B adopted:** a Mon performing the backward recoil of a successful early knockdown recovery receives a **short invulnerability window against incoming attacks** during that recovery movement.
+- This is a **temporary, explicitly timed protection**, not permanent invulnerability for the entire knockdown or an automatic escape from every combo.
+- Only Mons that satisfy early-recovery eligibility and correctly execute the grounded backward double-tap can access this movement (PHY-049–061). Recoil intensity remains the same for all eligible Mons (PHY-062).
+- **Not yet decided:** exact invulnerability duration, where in the recoil animation the protected frames begin/end, whether grabs and sweeps bypass the invulnerability, whether environmental hazards/collision are affected, and how this interacts with the normal hurtbox.
+- **Affected nodes:** early-recovery state, animation timing, attack-vulnerability flags/hurtbox evaluation, combat hit resolution and recoil movement. Do not implement speculative frame counts.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
