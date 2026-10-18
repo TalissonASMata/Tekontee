@@ -518,6 +518,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** the numerical timing threshold and device/input calibration; no future dodge mechanic or binding is automatically approved by this decision.
 - **Affected nodes:** shared double-tap input recognizer, context-specific move eligibility, grounded knockdown recovery, future mobility inputs. No Unity implementation requested yet.
 
+### PHY-057 — Calibrate universal double-tap interval through Unity playtests (DECIDED, 2026-10-18)
+
+- **Option A adopted:** do **not** assign an arbitrary fixed millisecond/frame threshold to double-tap commands yet.
+- Implement a **single shared, configurable double-tap recognition interval** when the relevant input mechanic reaches its smallest Unity vertical slice, and **tune the value by playtesting actual responsiveness and execution feel**.
+- The calibrated timing threshold applies consistently across double-tap mechanics (PHY-055/056), including early knockdown recovery. It is independent of morphology, which governs eligibility and effect, not input difficulty.
+- Document the final chosen value and test context **only after real gameplay validation**. Do not represent an untested placeholder as an approved balancing constant.
+- **Affected nodes:** shared input/double-tap detector, knockdown recovery, future mobility inputs and playtest instrumentation. This decision itself does not request a Unity code change.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
