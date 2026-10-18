@@ -545,6 +545,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact implementation tolerances for near-overlapping character positions, and which opponent to reference in multi-combatant situations.
 - **Affected nodes:** opponent-relative direction recognition, side-change detection, shared double-tap gesture state, grounded knockdown recovery input. No Unity code change yet.
 
+### PHY-060 — Relative backward input uses opponent's current side (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a Mon is knocked down, the direction counted as **backward / away from the opponent** is based on **the opponent's current position at the time the player begins the recovery double-tap**, not their side when the knockdown originally happened.
+- Example: if the opponent crossed from right to left before the first input, the valid attempt is now `Right, Right`, not the former `Left, Left`.
+- PHY-059 still applies: if the opponent switches sides **between taps**, reset the attempt and require two new taps in the updated backward direction.
+- Both inputs must occur after the Mon touches the ground (PHY-052/053); timing is universal and calibrated in Unity (PHY-055–058).
+- This is a relative-direction rule, not a new facing lock, animation override or teleport behavior.
+- **Affected technical nodes:** opponent-relative input direction, grounded knockdown detection, double-tap recognizer and recovery eligibility. No Unity gameplay code change yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
