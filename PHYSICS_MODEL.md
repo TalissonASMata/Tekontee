@@ -330,6 +330,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** cancellation windows, timing, effects on hitboxes, stamina/costs, recovery from interrupted attacks, and input buffering. Do not assume instant cancellation across all animations.
 - **Affected nodes:** move definitions, combat-state transitions, attack execution phases, defensive input gating and charge-start timing. Preserve existing V1.6 controls until a test slice is approved.
 
+### PHY-037 — Configurable defense-cancel windows for each attack (DECIDED, 2026-10-18)
+
+- **Option B adopted:** an attack that permits defensive cancellation (PHY-036) defines **explicit windows in its execution timeline** during which the player may cancel into defense.
+- A defense input outside an allowed window **does not interrupt the running attack**. Do not assume the command is queued, buffered or later executed without a separate decision.
+- Each move owns its cancel eligibility and its allowed timing windows; there is **no global unrestricted instant defense-cancel rule**.
+- **Not yet decided:** exact timeline boundaries, windows during startup/active/recovery phases, whether windows depend on contact (hit/block/whiff), and whether canceling imposes additional costs or recovery.
+- **Affected nodes:** attack move data, attack-phase timing, cancellation eligibility, defense state transition and input evaluation. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -351,7 +359,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-037: For attacks that allow defensive cancellation, should cancellation be allowed at any point in the attack, or only within explicitly configured timing windows?
+- PHY-038: When defense is pressed outside an attack's permitted cancel window, should the input be ignored, or buffered briefly for the next valid window?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
