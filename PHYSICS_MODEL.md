@@ -135,8 +135,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **`Pernas.Arrasto`**: affects **falling speed** (aerial resistance), consistent with universal gravity in PHY-002; it is not a change to each Mon's gravity.
 - These are **directional mappings, not finalized equations**. Surface friction, adhesion, knockback, motion, air resistance and damage remain separately tunable derived mechanics.
 - **Dependency families:** ground mobility/adhesion; air mobility/falling; striking with legs; defense/knockback. Validate individually with small Unity tests, preserving existing movement.
-- **Schema note:** PHY-015 refers to `Pernas.Dureza` for leg strikes, but the provisional morphology list does not currently contain leg Hardness. Add/confirm this field before implementing leg damage.
-- **Not yet decided:** whether and how `Pernas.Quantidade` influences acceleration or stamina beyond surface adhesion; falling drag formula, and the exact leg hardness specification.
+- **Schema note (resolved in PHY-016):** `Pernas.Dureza` is now part of the anatomical schema.
+- **Not yet decided:** whether and how `Pernas.Quantidade` influences acceleration or stamina beyond surface adhesion; falling drag formula, and exact leg hardness effects.
+
+### PHY-016 — Hardness on every anatomical region (DECIDED, 2026-10-18)
+
+- **Confirmed:** `Dureza` is a morphology parameter in **every anatomical region**: `Cabeça.Dureza`, `Tronco.Dureza`, `Braços.Dureza`, `Pernas.Dureza` and `Cauda.Dureza`.
+- Head and torso already had hardness in the working schema; this decision explicitly adds/standardizes it for **arms, legs and tail**, as well.
+- **Arms and legs:** PHY-013 and PHY-014 apply; all limbs of the same type share their type's hardness value (no separate hardness stat per individual arm/leg).
+- `Dureza` remains **distinct from `Couraça`**. PHY-010 and PHY-015 establish hardness as relevant to striking; do not assume it contributes directly to global armor or health without a later decision.
+- No formula or Unity gameplay implementation is specified by this schema decision.
 
 ## Existing architectural boundary
 
@@ -159,7 +167,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-016: Confirm adding `Pernas.Dureza` to the morphology schema as a per-leg shared property, required for leg-strike damage.
+- PHY-017: Define the gameplay distinction between `Dureza` (material hardness) and `Couraça` (armor) so neither becomes a redundant stat.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
