@@ -294,6 +294,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether a new defensive action can be started during the attack-recovery interval; handling of attack input buffering, and interruption by hitstun/other states.
 - **Affected technical nodes:** attack eligibility/recovery, Mon movement controller, defense state and input. No gameplay code changes yet.
 
+### PHY-033 — Defense may be restarted during charged-defense attack recovery (DECIDED, 2026-10-18)
+
+- **Option A adopted:** a Mon may **start another defensive action while its previous charged-defense attack-recovery timer is still active**.
+- The existing **offensive restriction remains in effect**: restarting defense does not cancel, bypass, or automatically clear the time that must elapse before attacking.
+- Movement remains unrestricted under PHY-032; each new defense provides its normal immediate protection and may recruit further limbs according to PHY-023–028.
+- **Not yet decided:** whether a new charge stacks, extends, resets or otherwise interacts with an earlier outstanding attack-recovery timer; do not assume a stacking formula or allow a loophole to attack early.
+- **Affected technical nodes:** defense activation, charge timer, attack lockout, input transitions and movement. This is a design rule, not authorization for new Unity implementation.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -315,7 +323,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-033: During the attack-recovery interval from charged defense, may the Mon start defending again, or must it wait until the recovery is complete?
+- PHY-034: When a second charged defense happens while the first attack-recovery interval is still running, should the outstanding attack delay add together, or should it use the latest defense's recovery deadline without stacking?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
