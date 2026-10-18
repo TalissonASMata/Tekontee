@@ -107,10 +107,11 @@ This architecture is important because future morphology is multidimensional. Av
 
 ## 5. Target anatomical morphology
 
-Current working model is approximately 18 parameters:
+Current working model is evolving; the former approximately 18-parameter sketch is **not a fixed count**. PHY-011 explicitly added `Couraça` to every anatomical region.
 
 ### Head
 
+- Couraça
 - Weight
 - Hardness
 - Fang/Beak capability
@@ -118,12 +119,14 @@ Current working model is approximately 18 parameters:
 
 ### Torso
 
+- Couraça
 - Weight
 - Hardness
 - Coverage
 
 ### Arms
 
+- Couraça
 - Weight
 - Extension
 - Drag
@@ -131,6 +134,7 @@ Current working model is approximately 18 parameters:
 
 ### Legs
 
+- Couraça
 - Weight
 - Extension
 - Drag
@@ -138,6 +142,7 @@ Current working model is approximately 18 parameters:
 
 ### Tail
 
+- Couraça
 - Weight
 - Extension
 
@@ -147,7 +152,7 @@ Current working model is approximately 18 parameters:
 
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
-The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
+**Global totals are sums of their regional parameters** (e.g. global armor and global mass), not averages. Couraça and Hardness are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
 
 ## 6. Morphology should emerge from action
 
