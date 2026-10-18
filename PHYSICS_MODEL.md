@@ -765,6 +765,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether the limit applies identically to jumps and sustained flight, how upward velocity/force is treated when the limit is reached, and numerical altitude values. Define only what the next test requires.
 - **Affected nodes:** arena vertical bounds, Mon airborne controller, flight ability, camera verification. No Unity code change requested yet.
 
+### PHY-085 — One shared arena altitude cap; morphology determines attainable height (DECIDED, 2026-10-18)
+
+- **Option A adopted:** every Mon shares **one maximum altitude limit for the combat arena**, whether it reaches height through jumping or flying.
+- The common cap is a world/arena constraint **without a solid ceiling collision** (PHY-084). A Mon's morphology, movement capabilities, and moves determine **how high it can actually rise**, potentially below the shared limit.
+- Do **not** define a different artificial height cap for jumping versus flight. Both remain restricted to the fighting arena and do not move into the Tamer's platform layer (PHY-083).
+- This does not grant every Mon access to flight: flight depends on its own capability/mechanic, still to be defined.
+- **Not yet decided:** maximum numerical height, how vertical velocity behaves at the soft cap, mapping of morphology to jump impulse and flight control; tune when Unity vertical-slice tests require them.
+- **Affected nodes:** shared arena bounds, Mon jump/air/flight movement, morphology-derived movement, camera framing verification. No Unity gameplay code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -786,7 +795,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- Fundamentals next: establish whether the arena's soft altitude cap applies uniformly to both jumping and flying Mons, or uses distinct caps, without defining arbitrary numeric values.
+- Fundamentals next: specify the physical distinction between jumping and sustained flight (impulse-based movement versus continued airborne propulsion), without selecting numerical values.
 - Deferred morphology-scale question: when implementation needs it, define fixed maxima vs per-form normalization for Intelecto and Peso thresholds.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
