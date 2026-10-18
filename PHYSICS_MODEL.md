@@ -382,6 +382,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Hits already registered in earlier simulation ticks remain final. Actual timing/input priority needs tests at fixed-step boundaries.
 - **Affected nodes:** input activation order, attack collision/damage resolution, active defense participation, move-cancel windows. No Unity implementation yet.
 
+### PHY-043 — Active defense reduces but does not automatically eliminate knockback (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a Mon successfully blocks an incoming attack, **active defense can reduce the impact but does not inherently cancel all knockback**. The remaining impact can still displace the Mon.
+- Knockback must consider the incoming strike's physical properties, the defender's morphology-derived defensive response and overall mass, and surface adhesion/anti-repel effects from leg quantity (PHY-009, PHY-015, PHY-019).
+- **Do not equate defensive damage reduction with total impulse cancellation**: damage and knockback are distinct outputs that may need distinct calculations and tuning.
+- A particularly effective defense, morphology, surface interaction or explicit special mechanic **may** result in zero effective knockback, but this is not the universal default.
+- **Not yet decided:** equations, order of modifiers, thresholds for sliding/knockback, and any guard-break conditions. No Unity implementation requested yet.
+- **Affected nodes:** attack impact evaluation, defense state/participants, mass and limb morphology, surface contact/adhesion and knockback movement.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -403,7 +412,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-043: When a defense absorbs an incoming hit, should the defender still experience knockback according to the remaining impact, or should an active defense fully prevent knockback?
+- PHY-044: Should a sufficiently powerful blocked attack be able to break the defender's active guard, or should defense only reduce damage and knockback without a guard-break state?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
