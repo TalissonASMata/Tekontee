@@ -536,6 +536,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** minimum release duration (if any), how analog-stick return-to-neutral thresholds are handled, and whether direction-relative side changes reset the input sequence.
 - **Affected nodes:** shared double-tap recognizer, directional press/release state, combat-facing orientation, knockdown recovery input validation. No Unity code changes yet.
 
+### PHY-059 — Reset backward double-tap if opponent changes sides (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if the adversary crosses to the opposite side **between the first and second taps** of a relative-backward double-tap, **discard/reset the current input sequence**.
+- The player must then execute a **new pair of taps away from the adversary's current side**. Example: opponent moves from right to left during an attempted `Left, Left`; the attempted sequence is invalid and the new required sequence is `Right, Right`.
+- Do not preserve the first tap's old relative-backward direction after a side switch. Input release between two presses remains mandatory (PHY-058).
+- For knockdown early recovery, the two valid taps still have to occur after ground contact (PHY-052/053), under the shared universal timing interval to be tuned in Unity (PHY-055–057).
+- **Not yet decided:** exact implementation tolerances for near-overlapping character positions, and which opponent to reference in multi-combatant situations.
+- **Affected nodes:** opponent-relative direction recognition, side-change detection, shared double-tap gesture state, grounded knockdown recovery input. No Unity code change yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
