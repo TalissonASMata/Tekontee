@@ -109,6 +109,14 @@ The user's chosen model deliberately avoids separate per-limb constitution/HP tr
 - Do **not** infer that armor, hardness, reach, or other limb parameters are necessarily identical across limbs from this mass decision. Their representation remains to be decided.
 - Do not instantiate per-arm morphology records for mass; the shared value and count suffice.
 
+### PHY-013 — Shared morphology across all arms (DECIDED, 2026-10-18)
+
+- **Option A adopted:** all arms of the same Mon share the same morphology values for **mass, armor (Couraça), hardness (Dureza), extension (Extensão) and drag (Arrasto)**.
+- Arm quantity is tracked separately. There is **one shared set of arm parameters**, not individual values per arm.
+- `Braços.Massa` remains mass per arm; `MassaTotalBraços = Braços.Massa × Braços.Quantidade` (PHY-012).
+- Do not assume that global armor, effective drag or reach simply multiply by arm quantity: those aggregations depend on each property's physical meaning and should be decided explicitly. Regional totals that are additive must sum contributions correctly under PHY-011.
+- This shared-arm choice does not yet establish whether legs and other repeatable anatomical structures follow the same representation.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -130,7 +138,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-013: Should other arm properties (Couraça, Dureza, Extensão, Arrasto) also be shared by all arms, or may individual arms differ?
+- PHY-014: Should legs follow the same shared-per-limb morphology model as arms?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
