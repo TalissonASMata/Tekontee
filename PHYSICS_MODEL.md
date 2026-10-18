@@ -640,6 +640,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** any repeated-knockdown damage/combo scaling, exact recovery animation duration and invulnerability frame counts.
 - **Affected nodes:** knockdown state reset, ground-contact recovery window, input gesture recognizer, eligibility and hitstun/recoil transitions. No Unity gameplay code changes requested yet.
 
+### PHY-071 — Full attack-category invulnerability during the initial recovery recoil window (DECIDED, 2026-10-18)
+
+- **Option A (“Total”) adopted:** during the **initial invulnerability window** of a successful early knockdown recovery recoil, the Mon cannot be hit by **ordinary strikes, sweeps or grabs**. The window covers all these enemy attack categories, not only direct strikes.
+- This is a **temporary window**, not invulnerability throughout the full recoil or normal knockdown. After the window ends, the Mon becomes vulnerable again under PHY-064/069.
+- This does **not** change PHY-044: sweeps and grabs still defeat an active guard, but **an invulnerable recovery state is different from guarding**.
+- Eligibility and execution still require the morphology thresholds and grounded backward double-tap (PHY-049–060); recoil properties and attacks/defense lockout remain as established in PHY-061–070.
+- **Not yet decided:** interactions with environmental hazards, stage damage, or non-attack special effects; exact invulnerability frames/timing. Do not expand the approved immunity to arbitrary environmental effects without a decision.
+- **Affected nodes:** early-recovery invulnerability flag/hurtbox, strike/sweep/grab hit resolution, recoil animation phases and knockdown recovery state. No Unity gameplay implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
