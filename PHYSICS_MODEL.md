@@ -739,6 +739,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Invulnerability remains limited to the initial universal window (PHY-063/064/075), and attack/defense inputs cannot interrupt the active recoil (PHY-065/066).
 - **Affected nodes:** recoil velocity profile, movement animation synchronization, collision handling, early recovery state and gameplay tuning. No Unity gameplay code modification requested yet.
 
+### PHY-082 — Calibrate recovery recoil motion parameters in Unity (DECIDED, 2026-10-18)
+
+- **Option A adopted:** the backward early-recovery recoil's **distance, initial speed and duration** will be **calibrated through gameplay testing in Unity**, not fixed to arbitrary numbers in advance.
+- The tuning must preserve PHY-061/062/067/079–081: a common recoil for all eligible Mons; starts immediately with the valid command; fixed direction; initial fast impulse followed by **ease-out deceleration**.
+- Playtesting must evaluate camera framing, arena dimensions, combat spacing, reach of enemy moves, recovery responsiveness and wall collisions. The movement must stop at solid obstacles while the recovery animation may finish (PHY-068).
+- Keep parameters configurable until testing validates values; document chosen settings afterward. Do not imply that numeric balance targets are already decided.
+- The universal initial invulnerability duration is calibrated separately per PHY-075/076 and does not follow Mon morphology.
+- **Affected nodes:** recovery recoil movement parameters, animation timing, combat spacing, camera and collision response, playtest instrumentation. **This is a documentation decision, not authorization to modify Unity gameplay code now.**
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
