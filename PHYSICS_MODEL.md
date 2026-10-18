@@ -587,6 +587,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact protected-frame duration, how the transition from invulnerable to vulnerable aligns with animation stages, interaction with throws/sweeps/environmental damage, and cancellation after the recovery movement. These are tuning/implementation details, not implicit approvals.
 - **Affected nodes:** knockdown early-recovery action, recoil timeline, hurtbox/vulnerability state, animation, attack-hit resolution. No Unity code changes requested yet.
 
+### PHY-065 — No attacks until early-recovery recoil finishes (DECIDED, 2026-10-18)
+
+- **Option B adopted:** the Mon **cannot start an attack until the entire backward early-recovery movement/animation has completed**, even if the initial invulnerability window has already ended.
+- During the later part of the recoil, the Mon is **vulnerable to incoming attacks** per PHY-064, while still being **unable to attack** until recoil recovery completes.
+- A valid early-recovery recoil remains a fixed-intensity backward displacement (PHY-061/062), and only an initial portion of it is invulnerable (PHY-063/064).
+- **Not yet decided:** whether ordinary movement, defense, or special actions can cancel/interrupt the recoil; how hitstun affects the unfinished recoil; exact animation and invulnerability durations.
+- **Affected technical nodes:** early-recovery recoil state, attack availability, hurtbox vulnerability timing, animation and combat-state transitions. No Unity gameplay code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
