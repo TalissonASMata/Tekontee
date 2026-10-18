@@ -193,6 +193,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Keep the distinction between a **form's default passive-defense set** and the **members used by a particular active defensive move**.
 - **Not yet decided:** how forms declare anatomical participation, how missing body regions or number of repeated limbs are counted within this defensive set, and whether default passive sets change during non-transformative morphology growth.
 
+### PHY-022 — Configurable number of defending limbs per form/move (DECIDED, 2026-10-18)
+
+- **Option B adopted:** when a form or defensive move employs a repeated limb type (e.g. arms, tentacles), **the number of limbs that contribute to defense is explicitly configurable**, and does not automatically equal all available limbs.
+- This applies to the form-dependent passive-defense participation model (PHY-020/021) and enables different defensive moves or stances to recruit different numbers of limbs.
+- Participants contribute their shared anatomical tenacity according to the actual number involved; never count more participating limbs than the form has available. The precise defense equation and tuning remain pending.
+- **Future gameplay idea (NOT YET APPROVED AS A FULL MECHANIC):** a chargeable defense reminiscent of Mega Man weak/charged shots, where **holding the defense button progressively recruits more arms or octopus tentacles**, increasing defensive participation as charge builds. The user supplied this as an illustrative possibility, not a mandate to implement now.
+- **Undecided for chargeable defense:** input behavior, activation timing, ramp/steps, maximum charge, vulnerability, trade-offs, resource costs and whether passive defense itself can charge. Keep chargeable defense as an exploration candidate, not a coded commitment.
+- **Affected nodes:** morphology shared per-limb values and quantity; form definition; passive-defense participation; defensive move configurations; future hold/charge input and move-execution state.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -214,7 +223,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-022: When a form's passive-defense set includes a repeated anatomy type such as arms or legs, should all available limbs of that type contribute, or should the form specify an exact number of participating limbs?
+- PHY-023: Should the chargeable defensive action (progressively involving more limbs while holding a button) become an explicit core mechanic in the prototype, or remain a future move idea?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
