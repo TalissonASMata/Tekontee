@@ -62,6 +62,14 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - This is a design contract, **not** authorization to implement every reaction now.
 - **Not yet decided:** the full list of physical reaction types, interactions by Mon vs Tamer, and any object damage/destruction model.
 
+### PHY-008 — Conditional collision between Mons (DECIDED, 2026-10-18)
+
+- **Option C adopted:** by default, Mon bodies physically block each other, as in traditional fighting games; specific abilities/states can temporarily disable this body-to-body blocking so the Mons can pass through each other.
+- User examples: **invisibility or camouflage techniques that also remove physical contact**. This is the intended gameplay effect of those techniques, not an assertion that optical invisibility or ordinary camouflage physically causes intangibility.
+- Keep **visibility**, **targeting/detection**, **body collision**, and **attack hitboxes/hurtboxes** as independently configurable gameplay effects. An ability may combine multiple effects when its design explicitly requires it.
+- Whether the pass-through state also prevents receiving attacks, colliding with objects/walls, or being detected by AI is **not yet decided**. Do not silently infer general invulnerability from no body contact.
+- No need to implement special abilities in the current PHY decision stage.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -83,7 +91,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-008: Should physical collision between Mons block passage, allow passage, or depend on a defined state?
+- PHY-009: When one Mon hits another, should knockback depend on mass and impact properties, be a fixed gameplay value, or combine both?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
