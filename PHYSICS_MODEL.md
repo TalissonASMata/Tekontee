@@ -259,6 +259,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - This clarifies and supersedes the earlier PHY-026 implementation ambiguity about whether the first pair from chargeable groups could be instantaneous when fixed members are present: **yes, it is instantaneous**.
 - Stage timing, resource consumption and release/interruption behaviors remain open; do not invent them or change Unity code yet.
 
+### PHY-029 — Offensive recovery after charged defense (PARTIALLY DECIDED, 2026-10-18)
+
+- **Confirmed by user:** if a defensive action **has used its charging progression**, there must be a **delay before the Mon can attack** after that defense. This is the offensive trade-off for taking time to recruit additional defending limbs.
+- The cost applies specifically when **charge was actually used**, not merely because a defense is theoretically charge-capable.
+- **Not decided:** whether releasing the defense stops defensive protection immediately or after a recovery interval; whether attacks are delayed by a fixed or charge-level-dependent interval; whether movement is affected; exact timing, cancellation rules and other follow-up actions.
+- Do not treat the assistant's preceding Option A (instant end of defense on release) as confirmed: the user instead specified the **attack delay** requirement.
+- **Technical nodes:** defense charge progression/state, defense exit state, attack eligibility/input buffering, combat-state transitions. No implementation or timing values yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -280,7 +288,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-029: When the player releases defense before all pairs have joined, should protection stop immediately or include a brief recovery/exit interval?
+- PHY-030: Should the post-defense attack delay be fixed whenever charging occurred, or scale with the number of charged stages reached?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
