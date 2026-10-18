@@ -12,12 +12,12 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 | V1.3 | EnemyMon Morphology | Validated |
 | V1.4 | Weighted Morph Influence | Validated |
 | V1.5 | Move Morphology Requirements | Validated in Unity: Fail / Effective / Critical, damage/reinforcement multipliers, requirements independent from dominant form (Attack versus Air) |
+| V1.6 | Universal Moveset | Validated in Unity with keyboard: HeavyStrike (Attack), AerialStrike (Air), GuardBreak (Defense); manual and automatic execution share UniversalMoveSet; chord Shift+J resolves only AerialStrike; third move added without changing shared TryExecute combat calculations. Physical Xbox/PS5 controller testing deferred. |
 
 ## Active roadmap
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.6 | Universal Moveset | All Mons share universal moves; morphology determines Fail / Effective / Critical rather than availability. Validate two different moves, manual/automatic selection, and shared keyboard + modern gamepad (Xbox / PS5) input via Unity Input System actions; every move requires at most two simultaneous buttons (single press or two-button chord), with no mandatory complex input sequences. |
 | V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
 | V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
 | V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
