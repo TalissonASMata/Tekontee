@@ -92,6 +92,15 @@ The user's chosen model deliberately avoids separate per-limb constitution/HP tr
 - Movement velocity/acceleration and impact dynamics remain relevant under PHY-009; PHY-010 identifies core attribute inputs, not a complete damage equation.
 - **Not yet decided:** formulas, aggregation of per-part shell into general shell, choice of defensive body part, armor penetration, and balance coefficients. Avoid silently inventing these rules.
 
+### PHY-011 — Regional armor and additive global totals (DECIDED, 2026-10-18)
+
+- Every anatomical region has an explicit `Couraça` morphology parameter: `Cabeça.Couraça`, `Tronco.Couraça`, `Braços.Couraça`, `Pernas.Couraça`, `Cauda.Couraça`.
+- **Anything described as “Geral” is a sum of the corresponding regional values, not an average or weighted average.**
+- Thus `CouraçaGeral = Cabeça.Couraça + Tronco.Couraça + Braços.Couraça + Pernas.Couraça + Cauda.Couraça`. Likewise `MassaGeral` sums the regions' masses.
+- PHY-010 still applies: global HP uses global mass and armor; localized defense uses the involved region's armor together with defending state and total mass; attack uses attacking-part mass and hardness.
+- This is a **schema change** to the prior provisional anatomy table, not merely a calculation change. Keep `Couraça` distinct from `Dureza` until their precise mechanical distinction is defined; do not silently merge them or rename Torso.Coverage.
+- **Not yet decided:** whether paired limbs' regional values are totals across individual limbs, and how absent/added body parts contribute. Do not assume a distribution formula.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -113,7 +122,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-011: How should overall shell/armor (couraça geral) be derived from the anatomical regions: simple average, mass-weighted aggregation, or another model?
+- PHY-012: Should regional parameters such as Braços.Massa/Couraça represent the combined value of all arms or the value of each individual arm?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
