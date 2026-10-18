@@ -80,6 +80,18 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - **Not yet decided:** formulas/units, whether to use acceleration directly or derive contact speed, exact damage/health scaling, damage distribution by body part, and which additional morphology parameters influence each derived stat. Decide through vertical-slice tests rather than arbitrary assumptions.
 - **No change to the existing V1.6 combat code yet:** this is the physical/gameplay architecture target for the V1.7+ evolution.
 
+### PHY-010 — Global health, localized defense and attack (DECIDED, 2026-10-18)
+
+The user's chosen model deliberately avoids separate per-limb constitution/HP tracking:
+
+- **Life / Max HP:** derived from **overall shell/armor (couraça geral)** and **overall body mass (massa geral)**.
+- **Defense:** derived from **shell/armor of the involved defending body part**, **the defender's defensive action/state**, and **overall body mass**.
+- **Attack:** derived from **mass of the attacking body part** and **hardness of that same part**.
+- These are morphology-derived gameplay results, **not separately earned Attack/Defense/HP progression points**.
+- There is **one global life/HP measure**, not a separate HP pool for each body part. Limb-specific parameters may still affect action/defense quality.
+- Movement velocity/acceleration and impact dynamics remain relevant under PHY-009; PHY-010 identifies core attribute inputs, not a complete damage equation.
+- **Not yet decided:** formulas, aggregation of per-part shell into general shell, choice of defensive body part, armor penetration, and balance coefficients. Avoid silently inventing these rules.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -101,7 +113,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-010: How should maximum health relate to morphology—derived primarily from overall body mass, from resistance/coverage, or from a combination?
+- PHY-011: How should overall shell/armor (couraça geral) be derived from the anatomical regions: simple average, mass-weighted aggregation, or another model?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
