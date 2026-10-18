@@ -363,6 +363,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how truly simultaneous attack/contact and cancel inputs are ordered within the simulation tick, and whether cancelling an attack incurs a separate recovery cost. Do not infer a residual impact window.
 - **Affected technical nodes:** active hitbox lifecycle, move cancellation, damage event ordering, defense activation and combat-state transitions. No Unity gameplay code change requested yet.
 
+### PHY-041 — Defensive cancel wins same-tick collision tie (DECIDED, 2026-10-18)
+
+- **Option B adopted:** if an attack's hit/contact and a valid defensive-cancel input occur in the **same simulation tick**, resolve the **defensive cancel first**. Its attack hitbox is disabled before hit registration; that same-tick hit does **not** inflict damage.
+- **Design rationale from the user:** prioritizing defense on an exact timing tie favors continued exchanges over ending a match faster through a simultaneous hit.
+- **Only exact same-tick ties** follow this priority. Hits **already registered in an earlier tick remain valid** and are never undone (PHY-040).
+- This priority applies **only if the defensive cancel is legal for that attack and timing window** (PHY-036–039); otherwise the attack proceeds according to the ordinary rules.
+- Defense protection activates normally after successful cancellation (PHY-026–028). Do not conflate this tie-break with invincibility or with a universal priority for all defensive inputs.
+- **Implementation requirement for a future vertical slice:** evaluate eligible cancel inputs before committing collision-generated damage events for the same fixed simulation step; test same-step, previous-step and invalid-window cases. No code changes yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -384,7 +393,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-041: If an attack hit and valid defensive cancel occur on the exact same simulation tick, which should resolve first: the hit already in contact, or the cancel that removes the hitbox?
+- PHY-042: Should the same-tick defense-first priority apply only when cancelling one's own outgoing attack, or also when an incoming enemy hit coincides with initiating a valid defense?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
