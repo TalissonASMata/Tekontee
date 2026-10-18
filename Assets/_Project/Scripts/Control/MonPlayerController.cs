@@ -193,31 +193,76 @@ public class MonPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (Time.time < nextAttackTime || target == null || target.IsDead) return;
+        bool keyboardJ = Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame;
+        bool keyboardEnter = Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame;
+        bool keyboardK = Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame;
+        bool keyboardShiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
+        bool keyboardShiftPressed = Keyboard.current != null && Keyboard.current.leftShiftKey.wasPressedThisFrame;
+        bool keyboardJHeld = Keyboard.current != null && Keyboard.current.jKey.isPressed;
 
-        bool chordHeld = (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed) ||
-                         (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed);
+        bool gamepadSouth = Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame;
+        bool gamepadShoulderHeld = Gamepad.current != null && Gamepad.current.rightShoulder.isPressed;
+        bool gamepadShoulderPressed = Gamepad.current != null && Gamepad.current.rightShoulder.wasPressedThisFrame;
+        bool gamepadSouthHeld = Gamepad.current != null && Gamepad.current.buttonSouth.isPressed;
+
+        // Instrumentacao de input: registra o comando observado mesmo quando
+        // cooldown ou alcance impedem a execucao. Evita logs em todos os frames.
+        bool inputEvent = keyboardJ || keyboardEnter || keyboardK ||
+                          (keyboardShiftPressed && keyboardJHeld) ||
+                          gamepadSouth || (gamepadShoulderPressed && gamepadSouthHeld);
+        if (!inputEvent) return;
+
+        bool keyboardChord = keyboardShiftHeld && keyboardJ;
+        bool gamepadChord = gamepadShoulderHeld && gamepadSouth;
+        bool chordAfterBase = (keyboardShiftPressed && keyboardJHeld && !keyboardJ) ||
+                              (gamepadShoulderPressed && gamepadSouthHeld && !gamepadSouth);
         bool aerialPressed = aerialAction != null && aerialAction.WasPressedThisFrame();
         bool heavyPressed = heavyAction != null && heavyAction.WasPressedThisFrame();
 
-        // A combinacao tem prioridade sobre o golpe de um botao.
-        // Mesmo no quadro em que ambos os botoes sao pressionados juntos,
-        // uma combinacao nao executa dois movimentos.
-        UniversalMoveId selectedMove;
-        if (aerialPressed || (chordHeld && heavyPressed))
-            selectedMove = UniversalMoveId.AerialStrike;
-        else if (heavyPressed)
-            selectedMove = UniversalMoveId.HeavyStrike;
-        else
+        UniversalMoveId selectedMove = keyboardChord || gamepadChord || keyboardK || aerialPressed
+            ? UniversalMoveId.AerialStrike
+            : UniversalMoveId.HeavyStrike;
+
+        string inputSource = keyboardK ? "Teclado K" :
+            keyboardChord ? "Teclado Shift+J" :
+            gamepadChord ? "Gamepad Shoulder+South" :
+            keyboardJ ? "Teclado J" :
+            keyboardEnter ? "Teclado Enter" :
+            gamepadSouth ? "Gamepad South" :
+            chordAfterBase ? "Modificador apos botao-base" : "Outro";
+
+        if (chordAfterBase)
+        {
+            Debug.Log($"[V1.6 INPUT] {gameObject.name}: {inputSource}; nenhum novo golpe iniciado. " +
+                      "A ordem inversa depende de uma janela de combinacao, ainda nao implementada.");
             return;
+        }
+
+        string blocked = Time.time < nextAttackTime ? "cooldown" :
+            target == null ? "alvo ausente" :
+            target.IsDead ? "alvo morto" : "nenhum";
+        Debug.Log($"[V1.6 INPUT] {gameObject.name}: origem={inputSource}; " +
+                  $"heavyAction={heavyPressed}; aerialAction={aerialPressed}; " +
+                  $"resolvido={selectedMove}; bloqueio={blocked}");
+
+        if (blocked != "nenhum") return;
 
         if (universalMoves != null)
         {
-            if (!universalMoves.TryExecute(selectedMove, target))
+            UniversalMoveDefinition definition = universalMoves.Find(selectedMove);
+            if (definition == null)
             {
-                Debug.Log($"{gameObject.name} tentou {selectedMove}, mas estava fora do alcance ou sem definicao.");
+                Debug.LogWarning($"[V1.6 INPUT] {gameObject.name}: movimento {selectedMove} nao definido.");
                 return;
             }
+            float distance = Mathf.Abs(target.transform.position.x - transform.position.x);
+            if (distance > definition.range)
+            {
+                Debug.Log($"[V1.6 INPUT] {gameObject.name}: {selectedMove} fora do alcance " +
+                          $"(distancia {distance:0.00}, alcance {definition.range:0.00}).");
+                return;
+            }
+            if (!universalMoves.TryExecute(selectedMove, target)) return;
 
             SetState(CombatState.Attacking, 0.12f);
             ApplyBonusRepelToTarget();
@@ -225,26 +270,20 @@ public class MonPlayerController : MonoBehaviour
             return;
         }
 
-        // Compatibilidade com a cena anterior caso o novo componente nao esteja instalado.
-        float distance = Mathf.Abs(target.transform.position.x - transform.position.x);
-        if (distance > attackRange)
+        // Compatibilidade com a cena V1.5 sem UniversalMoveSet.
+        float legacyDistance = Mathf.Abs(target.transform.position.x - transform.position.x);
+        if (legacyDistance > attackRange)
         {
-            Debug.Log($"{gameObject.name} atacou, mas o alvo estava fora do alcance.");
+            Debug.Log($"[V1.6 INPUT] {gameObject.name}: ataque legado fora do alcance.");
             return;
         }
-
         SetState(CombatState.Attacking, 0.12f);
         MoveExecutionQuality quality = EvaluateMoveQuality();
         int finalDamage = GetFinalDamage(quality);
         target.TakeDamage(finalDamage, transform);
         ApplyBonusRepelToTarget();
-
-        Debug.Log(
-            $"Ataque manual do Mon acertou com qualidade {quality} e dano final {finalDamage}. " +
-            $"Requisito: {GetRequirementDebugText()}. " +
-            $"Forma dominante: {GetCurrentFormName()}"
-        );
-
+        Debug.Log($"Ataque manual legado do Mon: {quality}, dano {finalDamage}. " +
+                  $"Requisito: {GetRequirementDebugText()}. Forma: {GetCurrentFormName()}");
         AddMorphInfluencesOnHit(quality);
         nextAttackTime = Time.time + attackCooldown;
     }
