@@ -230,6 +230,17 @@ The user defines **four separate roles** for leg properties, without automatical
 - Defense at each stage incorporates the tenacity of the actual participating members and global mass (PHY-019), without inventing a numeric formula yet.
 - **Not yet decided:** time needed for each stage, initial activation timing, release behavior, and whether charging consumes resources. No gameplay implementation requested at this point.
 
+### PHY-026 — Immediate baseline defense, near-instant incremental reinforcement (DECIDED, 2026-10-18)
+
+- **Option A, with clarification:** defensive protection **starts immediately** when the player presses defense, based on the **participating members/components that do not require charging**.
+- **Additional charge-eligible limbs** are progressively recruited **in pairs**, according to PHY-023/024/025, increasing defense in very rapid successive stages. The purpose is **reaction timing / how early the player commits to the defensive action before an incoming hit**, not a prolonged power-up.
+- The defense is **active and protective during the progression**: there is no need to release the button to start protecting.
+- If a defensive move has **no charge-eligible member type**, it simply applies its defined protection immediately without stages.
+- **Important interpretation of earlier examples:** tables that start with a 2+2 charged stage describe the *first added pair stage*, not necessarily the entire instantaneous baseline. Baseline participation comes from the specific move's non-charging defensive members. Do not automatically count an initial pair from every charging type as instantaneous unless explicitly designed.
+- **No fixed charging duration or step interval has been decided**. These should be short and tuned for fighting-game readability/responsiveness.
+- **Pending:** behavior when the defense uses only charging member types with no fixed baseline members, and whether/how defense ends on button release or interruption.
+- **Affected nodes:** move participant definitions (immediate versus chargeable); defense activation state; staged limb contribution; collision/strike timing; derived defense formula. No code change required yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -251,7 +262,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-026: When holding a chargeable defense, does its initial two-member-per-type defensive stage protect immediately, or does protection start only when the button is released?
+- PHY-027: When a defense lists only chargeable member types (e.g. `Braços (4)`), does its first pair protect immediately, or is an independent non-charging baseline always required?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
