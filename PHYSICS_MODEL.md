@@ -667,6 +667,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** the exact invulnerability duration, which kinds of non-damaging statuses might persist after the window, and interaction with non-environmental force effects not otherwise covered. No Unity code changes requested yet.
 - **Affected nodes:** early-recovery invulnerability window, environmental effects application, forced movement/slowdown filters, damage resolution, solid-contact collision. Record only; implement in the smallest later test slice.
 
+### PHY-074 — Hazard effects resume immediately when invulnerability ends (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if a Mon remains in contact with a hazardous or effect-producing environmental surface when the early-recovery invulnerability window ends, **the hazard/effect becomes applicable immediately**, without requiring the Mon to leave and make a new contact.
+- While the initial invulnerability window is active, enemy attacks and all damaging/nondamaging environmental effects are ignored as established in PHY-071–073. **When the window closes, evaluate the Mon's current contacts and apply their ordinary effects again.**
+- Example: if the Mon is still touching spikes, spikes may deal damage as soon as invulnerability finishes, subject to any normal hazard tick/cooldown rules established later.
+- **No collision bypass:** walls and other solid objects continue to block movement at all times (PHY-068).
+- **Not yet decided:** precise hazard tick rates, repeated-contact cooldowns, status-effect duration or immunity-window length. “Immediate” means no new-entry requirement, not overriding an as-yet-undefined periodic damage schedule.
+- **Affected nodes:** early-recovery vulnerability transition, persistent environmental contact tracking, hazard/effect evaluation, damage/status application and collision resolution. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
