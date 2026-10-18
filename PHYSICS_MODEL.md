@@ -221,6 +221,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how to handle distinct maxima (such as 4 arms and 6 tentacles), timing per stage, whether the base stage starts instantly, and on-release behavior. Do not invent these rules.
 - **Affected nodes:** defensive move participation, grouped charging state, morphology counts and tenacity-derived defense evaluation. This is a documented design decision, **not an instruction to implement now**.
 
+### PHY-025 — Continue charging until each member type reaches its own maximum (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a defense uses multiple charge-eligible member types with different even quantities, a single charge **continues until every type has reached its own available maximum**, even after one type has stopped gaining participants.
+- At each stage, a qualifying type increases its number of participating members by **two**, capped at its configured available count; types at their maximum **stay at that maximum** while others continue charging.
+- Example with `Braços.Quantidade = 4` and `Tentáculos.Quantidade = 6`: **stage 1 = 2 arms + 2 tentacles; stage 2 = 4 arms + 4 tentacles; stage 3 = 4 arms + 6 tentacles**.
+- One shared charge progression still applies (PHY-024), not separate independent inputs or meters.
+- Defense at each stage incorporates the tenacity of the actual participating members and global mass (PHY-019), without inventing a numeric formula yet.
+- **Not yet decided:** time needed for each stage, initial activation timing, release behavior, and whether charging consumes resources. No gameplay implementation requested at this point.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -242,7 +251,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-025: If two qualifying member types have different maximum counts (e.g. 4 arms and 6 tentacles), should the charge continue for the type with more members after the other reaches its limit?
+- PHY-026: When holding a chargeable defense, does its initial two-member-per-type defensive stage protect immediately, or does protection start only when the button is released?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
