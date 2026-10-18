@@ -621,6 +621,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** edge cases involving moving obstacles, wall-contact effects and whether the recoil's original animation duration is ever modified by other hitstun states. No Unity implementation requested yet.
 - **Affected nodes:** recoil movement, solid collision resolution, animation/state timer, combat input lockouts.
 
+### PHY-069 — An incoming hit interrupts vulnerable early-recovery recoil (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if an enemy attack successfully hits the Mon **after the initial invulnerability window of early-recovery recoil has ended** (PHY-063/064), the hit **interrupts the remaining recoil movement and recovery animation immediately**.
+- The Mon enters its **normal damage reaction / hitstun or knockdown state**, according to the incoming attack's established effects. Do not force every attack to cause a knockdown.
+- The recovery recoil does **not** continue playing through a valid damaging hit. Remaining fixed recoil displacement is canceled, then normal hit response/knockback collision rules apply.
+- Hits during the valid initial invulnerability window are still prevented according to PHY-063/064; an attack must actually resolve as a hit to trigger interruption.
+- **Not yet decided:** exact hitstun durations, animation blending, knockdown chaining, combo scaling and invulnerability interaction with grab/sweep categories.
+- **Affected nodes:** early-recovery state machine, vulnerability timeline, hit resolution, hitstun/knockdown transitions and recoil movement. No Unity gameplay changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
