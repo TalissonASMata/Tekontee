@@ -125,6 +125,19 @@ The user's chosen model deliberately avoids separate per-limb constitution/HP tr
 - Do not automatically multiply properties such as extension, hardness, or drag by quantity; their effects depend on the mechanics and require explicit definitions.
 - **Not yet decided:** how number of legs influences stability, locomotion and jumping; likewise how armor aggregates when repeated limbs contribute to `CouraçaGeral`.
 
+### PHY-015 — Distinct gameplay effects of leg morphology (DECIDED, 2026-10-18)
+
+The user defines **four separate roles** for leg properties, without automatically treating extra legs as extra movement speed:
+
+- **`Pernas.Quantidade`**: contact/adhesion to surfaces, including **resistance to knockback (anti-repel)** and resistance to slipping on **vertical or inclined surfaces**. Whether a given surface is climbable and the precise adhesion formula remain open.
+- **`Pernas.Massa`**: contributes to **damage of leg-based attacks**, alongside the **hardness of the leg**. It also contributes to global body mass as `Pernas.Massa × Pernas.Quantidade` per PHY-014.
+- **`Pernas.Extensão`**: affects **locomotion/displacement and speed**; it should not merely scale the visible sprite.
+- **`Pernas.Arrasto`**: affects **falling speed** (aerial resistance), consistent with universal gravity in PHY-002; it is not a change to each Mon's gravity.
+- These are **directional mappings, not finalized equations**. Surface friction, adhesion, knockback, motion, air resistance and damage remain separately tunable derived mechanics.
+- **Dependency families:** ground mobility/adhesion; air mobility/falling; striking with legs; defense/knockback. Validate individually with small Unity tests, preserving existing movement.
+- **Schema note:** PHY-015 refers to `Pernas.Dureza` for leg strikes, but the provisional morphology list does not currently contain leg Hardness. Add/confirm this field before implementing leg damage.
+- **Not yet decided:** whether and how `Pernas.Quantidade` influences acceleration or stamina beyond surface adhesion; falling drag formula, and the exact leg hardness specification.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -146,7 +159,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-015: Should additional legs automatically improve ground stability/traction, improve acceleration, or both depending on morphology and locomotion mechanics?
+- PHY-016: Confirm adding `Pernas.Dureza` to the morphology schema as a per-leg shared property, required for leg-strike damage.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
