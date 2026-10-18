@@ -150,6 +150,13 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 - Elemental affinity/state
 
+Confirmed leg gameplay mappings (PHY-015):
+- `Legs.Quantity` → surface adhesion, knockback resistance and slipping on slopes/vertical surfaces.
+- `Legs.Weight` → leg-attack damage together with leg hardness; total leg mass also contributes to global mass.
+- `Legs.Extension` → displacement and movement speed.
+- `Legs.Drag` → falling speed/aerial resistance, **not** personal gravity.
+- `Legs.Hardness` is **proposed/pending schema confirmation** because leg strikes require a hardness input; not yet in the provisional parameter list.
+
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
 **Global totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Couraça and Hardness are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
