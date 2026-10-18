@@ -432,6 +432,17 @@ The user defines **four separate roles** for leg properties, without automatical
 - `MassaGeral` follows the established additive regional contributions, including repeated-member quantity (PHY-011/012/014).
 - **Not yet decided:** the mathematical relationship between intellect, mass, input skill and recovery time. No numerical values or implementation are authorized by this decision.
 
+### PHY-049 — Conditional early knockdown recovery by morphology thresholds (DECIDED IN PRINCIPLE, 2026-10-18)
+
+- The user's proposed unlock condition for **player-triggered early recovery from a knockdown** is **`Cabeça.Intelecto > 40%` AND `MassaGeral (PesoGeral) < 40%`**.
+- The recovery action is **allowed only if both conditions hold**. This is a **threshold-gated capability**, not the previously suggested continuous formula where more intellect always reduces recovery time and more mass always increases it.
+- The two comparisons are **strict inequalities** (> and <), not inclusive at 40%.
+- **The morphology point ranges, percentage denominators, and normalization rules have not yet been designed.** Therefore the percentages are **provisional design thresholds**, not executable checks against raw point values. Do not implement them before defining how percentage is measured.
+- `MassaGeral` remains the total body mass confirmed in PHY-048. The user's word `peso` refers to this total, rather than to a particular limb.
+- A Mon that does not qualify for early recovery still needs a normal knockdown recovery path; its exact duration and input handling have not been defined.
+- **Not yet decided:** what counts as 100% for intellect or mass, whether these thresholds are final after morphology scaling is defined, the recovery input/timing and the normal rise duration.
+- **Affected nodes:** morphology normalization and total mass aggregation, knockdown state, input gating and recovery action. No Unity code implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -453,7 +464,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-049: Should higher `Cabeça.Intelecto` shorten knockdown recovery time while greater `MassaGeral` lengthens it, or should the relationship be different?
+- PHY-050: When designing the morphology range, should the percentage thresholds for Intelecto and Peso be relative to a fixed maximum for each parameter, or to the current Mon/form's morphology distribution?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
