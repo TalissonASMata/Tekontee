@@ -563,6 +563,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** magnitude, speed, duration, dependence on mass/morphology, whether movement and stand-up animation overlap fully, edge/wall collision, and invulnerability/hit vulnerability during movement.
 - **Affected nodes:** grounded knockdown recovery state, directional double-tap recognition, backward physical displacement, collisions and animation transitions. No Unity implementation requested yet.
 
+### PHY-062 — Fixed backward recovery recoil for all eligible Mons (DECIDED, 2026-10-18)
+
+- **Option A adopted:** every Mon eligible for early knockdown recovery uses **the same backward recoil intensity**, independent of `MassaGeral` or other morphology parameters.
+- Treat this as a **shared gameplay movement response** with fixed intended strength/displacement, rather than scaling the recovery recoil by body mass. Preserve the physical-looking knockback-style motion of PHY-061, not teleportation.
+- Morphology **still determines eligibility** and the **time benefit** of early recovery (PHY-049/050); this decision only fixes the backward recoil across eligible Mons.
+- The actual numerical distance, speed, animation timing, handling of collisions, and whether a fixed impulse or fixed travel distance best preserves the identical recoil result remain **to be established through playtesting**.
+- **Affected nodes:** knockdown early-recovery action, backward-recoil movement, body/environment collision, animation/state transitions. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
