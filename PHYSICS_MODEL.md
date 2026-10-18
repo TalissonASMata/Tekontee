@@ -554,6 +554,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - This is a relative-direction rule, not a new facing lock, animation override or teleport behavior.
 - **Affected technical nodes:** opponent-relative input direction, grounded knockdown detection, double-tap recognizer and recovery eligibility. No Unity gameplay code change yet.
 
+### PHY-061 — Early knockdown recovery includes backward knockback-like movement (DECIDED, 2026-10-18)
+
+- **Option B adopted:** on successful early knockdown recovery, the Mon **moves backward, away from the opponent, while recovering**, rather than merely standing up in place.
+- The movement should **behave like a knockback/repel displacement** (a physical-looking impulse or displacement response), not a teleport. Keep it compatible with arena collision and existing knockback behavior.
+- The backward direction uses **the opponent's current side** (PHY-059/060), while eligibility, grounded double-tap input and morphology-dependent recovery benefit remain as decided in PHY-049–060.
+- This is an early-recovery repositioning behavior; it should not be confused with the opponent's attack knockback, and it does not automatically imply damage, invulnerability or guaranteed escape from combos.
+- **Not yet decided:** magnitude, speed, duration, dependence on mass/morphology, whether movement and stand-up animation overlap fully, edge/wall collision, and invulnerability/hit vulnerability during movement.
+- **Affected nodes:** grounded knockdown recovery state, directional double-tap recognition, backward physical displacement, collisions and animation transitions. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
