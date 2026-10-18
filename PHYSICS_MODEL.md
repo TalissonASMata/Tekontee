@@ -101,6 +101,14 @@ The user's chosen model deliberately avoids separate per-limb constitution/HP tr
 - This is a **schema change** to the prior provisional anatomy table, not merely a calculation change. Keep `Couraça` distinct from `Dureza` until their precise mechanical distinction is defined; do not silently merge them or rename Torso.Coverage.
 - **Not yet decided:** whether paired limbs' regional values are totals across individual limbs, and how absent/added body parts contribute. Do not assume a distribution formula.
 
+### PHY-012 — Shared per-arm mass and arm count (DECIDED, 2026-10-18)
+
+- `Braços.Massa` is the mass of **one arm**, not the sum of all arms.
+- **All arms have the same mass** as defined by that single morphology value.
+- Therefore, the arms' contribution to total body mass is `Braços.Massa × Braços.Quantidade`. `MassaGeral` sums the total mass contributed by each anatomical region, including this quantity-based calculation.
+- Do **not** infer that armor, hardness, reach, or other limb parameters are necessarily identical across limbs from this mass decision. Their representation remains to be decided.
+- Do not instantiate per-arm morphology records for mass; the shared value and count suffice.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -122,7 +130,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-012: Should regional parameters such as Braços.Massa/Couraça represent the combined value of all arms or the value of each individual arm?
+- PHY-013: Should other arm properties (Couraça, Dureza, Extensão, Arrasto) also be shared by all arms, or may individual arms differ?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
