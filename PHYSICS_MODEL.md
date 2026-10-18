@@ -472,6 +472,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** maximum interval between taps, whether the input is accepted during the entire knockdown or a specific window, which opponent is the reference in multi-combatant situations, and interruption/reversal edge cases.
 - **Affected nodes:** relative combat direction detection, double-tap input recognition, knockdown recovery eligibility, morphology, animation and state timing. No Unity implementation requested yet.
 
+### PHY-052 — Early-recovery input window begins on ground contact (DECIDED, 2026-10-18)
+
+- The knockdown has a **falling animation/phase before the Mon touches the floor**. During that airborne/falling phase, the early-recovery input is **not accepted**.
+- The valid input window **opens when the knocked-down Mon makes contact with the ground** and enters the grounded knockdown/recovery phase.
+- From ground contact onward, the player may perform the PHY-051 **double-tap away from the opponent** to attempt early recovery, provided the PHY-049 morphology eligibility thresholds are met.
+- The normal recovery animation remains available to every Mon. The early-recovery window naturally ends when normal recovery is complete; no additional arbitrary narrow reaction window has been confirmed.
+- **This combines the user's intent behind options A and B:** a specific **state-gated** window, rather than any moment of falling or an unnecessarily short timed cue.
+- **Not yet decided:** exact ground-contact validation, knockdown animation lengths, whether input pairs crossing the contact boundary count, and whether the early-recovery command can be repeated after an invalid attempt.
+- **Affected nodes:** knockdown falling vs grounded phases, ground contact/collision normals, double-tap input handling, recovery animation and eligibility. No Unity implementation yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
