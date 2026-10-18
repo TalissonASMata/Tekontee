@@ -730,6 +730,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - This **does not authorize a specific friction curve, easing formula, velocity, distance or duration yet**. Calibrate physical/arcade feel in a Unity gameplay test, preserving the same intended movement across eligible Mons.
 - **Affected nodes:** early-recovery recoil movement profile, physics velocity/deceleration, fixed-direction collision response, animation synchronization and invulnerability timing. No Unity implementation requested yet.
 
+### PHY-081 — Ease-out deceleration for early-recovery recoil (DECIDED, 2026-10-18)
+
+- **Option B adopted:** the backward early-recovery recoil uses **ease-out deceleration**, losing speed more quickly near the beginning and tapering toward a progressively smaller movement at the end, rather than reducing speed by a constant linear amount throughout.
+- The recoil still **starts immediately with a fast impulse** on the valid early-recovery command (PHY-079/080). Its direction is fixed and non-steerable (PHY-067), with a common intended movement response across eligible Mons (PHY-062).
+- **Ease-out describes the intended motion profile, not a final mathematical easing curve**. The specific curve, duration, maximum velocity and displacement require tuning/validation in Unity.
+- If a wall or solid obstacle blocks the recoil, horizontal displacement stops without rebounding, while recovery animation continues (PHY-068).
+- Invulnerability remains limited to the initial universal window (PHY-063/064/075), and attack/defense inputs cannot interrupt the active recoil (PHY-065/066).
+- **Affected nodes:** recoil velocity profile, movement animation synchronization, collision handling, early recovery state and gameplay tuning. No Unity gameplay code modification requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
