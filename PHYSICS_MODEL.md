@@ -462,6 +462,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Intelecto governs eligibility, not the magnitude of the linear mass-dependent benefit** under PHY-049.
 - **Affected nodes:** normalized morphological values, early-recovery eligibility, knockdown timer, animation timing and combat follow-up/combos. No Unity implementation approved yet.
 
+### PHY-051 — Double-tap away from opponent for early knockdown recovery (DECIDED, 2026-10-18)
+
+- **User-selected input:** while knocked down, initiate eligible early recovery by **quickly tapping twice in the direction away from the opponent** (relative back direction), rather than using a dedicated recovery button or button mashing.
+- If opponent is **to the right**, press **Left, Left** quickly; if opponent is **to the left**, press **Right, Right** quickly.
+- The direction is **relative to opponent position**, not permanently mapped to the screen's left or right. It must be evaluated using current combat orientation/positions.
+- This gesture attempts early recovery only if PHY-049 conditions hold (`Cabeça.Intelecto > 40%` and normalized `MassaGeral < 40%`). The recovery time benefit still decreases linearly with mass under PHY-050.
+- Otherwise the Mon stands using ordinary automatic recovery; the gesture never prevents normal recovery.
+- **Not yet decided:** maximum interval between taps, whether the input is accepted during the entire knockdown or a specific window, which opponent is the reference in multi-combatant situations, and interruption/reversal edge cases.
+- **Affected nodes:** relative combat direction detection, double-tap input recognition, knockdown recovery eligibility, morphology, animation and state timing. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
