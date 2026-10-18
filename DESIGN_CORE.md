@@ -107,7 +107,7 @@ This architecture is important because future morphology is multidimensional. Av
 
 ## 5. Target anatomical morphology
 
-Current working model is evolving; the former approximately 18-parameter sketch is **not a fixed count**. PHY-011 explicitly added `Couraça` to every anatomical region.
+Current working model is evolving; the former approximately 18-parameter sketch is **not a fixed count**. PHY-011 explicitly added `Couraça` to every anatomical region, and PHY-016 confirms `Dureza` (Hardness) for every anatomical region.
 
 ### Head
 
@@ -128,6 +128,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 - Couraça
 - Weight (mass **per arm**, identical for all arms; total arms mass = per-arm mass × Quantity)
+- Hardness
 - Extension
 - Drag
 - Quantity
@@ -136,6 +137,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 - Couraça
 - Weight
+- Hardness
 - Extension
 - Drag
 - Quantity
@@ -144,6 +146,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 - Couraça
 - Weight
+- Hardness
 - Extension
 
 ### Element
@@ -155,7 +158,7 @@ Confirmed leg gameplay mappings (PHY-015):
 - `Legs.Weight` → leg-attack damage together with leg hardness; total leg mass also contributes to global mass.
 - `Legs.Extension` → displacement and movement speed.
 - `Legs.Drag` → falling speed/aerial resistance, **not** personal gravity.
-- `Legs.Hardness` is **proposed/pending schema confirmation** because leg strikes require a hardness input; not yet in the provisional parameter list.
+- `Legs.Hardness` is **confirmed** (PHY-016), as is hardness for every other anatomical region. Arms and legs share hardness across their respective repeated limbs.
 
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
