@@ -482,6 +482,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact ground-contact validation, knockdown animation lengths, whether input pairs crossing the contact boundary count, and whether the early-recovery command can be repeated after an invalid attempt.
 - **Affected nodes:** knockdown falling vs grounded phases, ground contact/collision normals, double-tap input handling, recovery animation and eligibility. No Unity implementation yet.
 
+### PHY-053 — Both backward taps must occur after ground contact (DECIDED, 2026-10-18)
+
+- **Option A adopted:** to trigger early knockdown recovery, **both directional taps** of the PHY-051 backward double-tap must happen **after the knocked-down Mon contacts the ground** and the valid window opens (PHY-052).
+- A tap made while the Mon is still falling **does not count toward the pair**, even if the second tap happens after contact.
+- Ground contact clears/discards any pre-contact tap sequence for purposes of early-recovery detection. Once grounded, the player must make a fresh two-tap input away from the opponent.
+- Eligibility thresholds and mass-dependent benefit remain unchanged (PHY-049/050).
+- **Not yet decided:** maximum interval between taps, and whether invalid/too-slow input sequences can be retried while grounded. Do not invent these numbers or restrictions.
+- **Affected nodes:** knockdown phase transition, grounded contact detection, direction-relative double-tap recognizer, input-state reset and recovery eligibility. No Unity implementation yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
