@@ -604,6 +604,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether normal movement inputs may alter the ongoing recoil, whether incoming hitstun interrupts the recoil, and exact animation/invulnerability lengths.
 - **Affected nodes:** early-recovery recoil state, active-defense eligibility, attack eligibility, passive defense fallback, animation/state transitions. No Unity implementation requested yet.
 
+### PHY-067 — Fixed trajectory during early-recovery backward recoil (DECIDED, 2026-10-18)
+
+- **Option A adopted:** the early-knockdown-recovery backward recoil follows an **automatic, fixed backward trajectory**; directional inputs cannot steer, accelerate, slow or reverse it while the recoil is executing.
+- This preserves the universal recoil behavior of PHY-061/062; the actual recoil strength/path is tuned later. The movement is physical-looking and respects arena collisions, **not a teleport or guaranteed fixed position regardless of obstacles**.
+- Active attacks (PHY-065) and new active defenses (PHY-066) remain unavailable until recoil ends. The initial portion grants limited invulnerability, while the later portion is vulnerable (PHY-063/064).
+- **Not yet decided:** how collisions with walls/obstacles affect the remaining recoil animation, whether incoming hitstun can interrupt the recoil, and exact travel speed/duration.
+- **Affected nodes:** early recovery recoil controller, movement-input gating, arena collision resolution, combat state and animation. No Unity implementation authorized yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
