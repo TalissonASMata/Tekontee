@@ -44,6 +44,9 @@ public class MonPlayerController : MonoBehaviour
     private CombatantStateMachine stateMachine;
     private MorphPointBank morphPointBank;
     private MoveMorphologyEvaluator moveEvaluator;
+    private UniversalMoveSet universalMoves;
+    private InputAction heavyAction;
+    private InputAction aerialAction;
 
     private void Awake()
     {
@@ -51,11 +54,42 @@ public class MonPlayerController : MonoBehaviour
         stateMachine = GetComponent<CombatantStateMachine>();
         morphPointBank = GetComponent<MorphPointBank>();
         moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
+        universalMoves = GetComponent<UniversalMoveSet>();
 
         if (formStats == null)
         {
             formStats = GetComponent<MonFormGameplayStats>();
         }
+    }
+
+    private void OnEnable()
+    {
+        // Os comandos logicos sao comuns a teclado e gamepad.
+        heavyAction = new InputAction("HeavyStrike", InputActionType.Button);
+        heavyAction.AddBinding("<Keyboard>/j");
+        heavyAction.AddBinding("<Keyboard>/enter");
+        heavyAction.AddBinding("<Gamepad>/buttonSouth");
+
+        aerialAction = new InputAction("AerialStrike", InputActionType.Button);
+        aerialAction.AddBinding("<Keyboard>/k");
+        aerialAction.AddCompositeBinding("OneModifier")
+            .With("Modifier", "<Keyboard>/leftShift")
+            .With("Binding", "<Keyboard>/j");
+        aerialAction.AddCompositeBinding("OneModifier")
+            .With("Modifier", "<Gamepad>/rightShoulder")
+            .With("Binding", "<Gamepad>/buttonSouth");
+        heavyAction.Enable();
+        aerialAction.Enable();
+    }
+
+    private void OnDisable()
+    {
+        heavyAction?.Disable();
+        aerialAction?.Disable();
+        heavyAction?.Dispose();
+        aerialAction?.Dispose();
+        heavyAction = null;
+        aerialAction = null;
     }
 
     private void Start()
@@ -89,18 +123,22 @@ public class MonPlayerController : MonoBehaviour
 
     private void HandleMovementAndJump()
     {
-        if (Keyboard.current == null) return;
-
         float horizontalInput = 0f;
 
-        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+        if (Keyboard.current != null && (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed))
         {
             horizontalInput -= 1f;
         }
 
-        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+        if (Keyboard.current != null && (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed))
         {
             horizontalInput += 1f;
+        }
+
+        if (Gamepad.current != null)
+        {
+            float stick = Gamepad.current.leftStick.x.ReadValue();
+            horizontalInput = Mathf.Abs(stick) > 0.2f ? stick : Gamepad.current.dpad.left.isPressed ? -1f : Gamepad.current.dpad.right.isPressed ? 1f : horizontalInput;
         }
 
         Vector3 position = transform.position;
@@ -110,9 +148,10 @@ public class MonPlayerController : MonoBehaviour
         position.x += horizontalInput * finalMoveSpeed * Time.deltaTime;
 
         bool jumpPressed =
-            Keyboard.current.spaceKey.wasPressedThisFrame ||
+            (Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame ||
             Keyboard.current.wKey.wasPressedThisFrame ||
-            Keyboard.current.upArrowKey.wasPressedThisFrame;
+            Keyboard.current.upArrowKey.wasPressedThisFrame)) ||
+            (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame);
 
         if (jumpPressed && isGrounded)
         {
@@ -154,19 +193,40 @@ public class MonPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
-        if (Keyboard.current == null) return;
-        if (Time.time < nextAttackTime) return;
-        if (target == null) return;
-        if (target.IsDead) return;
+        if (Time.time < nextAttackTime || target == null || target.IsDead) return;
 
-        bool attackPressed =
-            Keyboard.current.jKey.wasPressedThisFrame ||
-            Keyboard.current.enterKey.wasPressedThisFrame;
+        bool chordHeld = (Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed) ||
+                         (Gamepad.current != null && Gamepad.current.rightShoulder.isPressed);
+        bool aerialPressed = aerialAction != null && aerialAction.WasPressedThisFrame();
+        bool heavyPressed = heavyAction != null && heavyAction.WasPressedThisFrame();
 
-        if (!attackPressed) return;
+        // A combinacao tem prioridade sobre o golpe de um botao.
+        // Mesmo no quadro em que ambos os botoes sao pressionados juntos,
+        // uma combinacao nao executa dois movimentos.
+        UniversalMoveId selectedMove;
+        if (aerialPressed || (chordHeld && heavyPressed))
+            selectedMove = UniversalMoveId.AerialStrike;
+        else if (heavyPressed)
+            selectedMove = UniversalMoveId.HeavyStrike;
+        else
+            return;
 
+        if (universalMoves != null)
+        {
+            if (!universalMoves.TryExecute(selectedMove, target))
+            {
+                Debug.Log($"{gameObject.name} tentou {selectedMove}, mas estava fora do alcance ou sem definicao.");
+                return;
+            }
+
+            SetState(CombatState.Attacking, 0.12f);
+            ApplyBonusRepelToTarget();
+            nextAttackTime = Time.time + attackCooldown;
+            return;
+        }
+
+        // Compatibilidade com a cena anterior caso o novo componente nao esteja instalado.
         float distance = Mathf.Abs(target.transform.position.x - transform.position.x);
-
         if (distance > attackRange)
         {
             Debug.Log($"{gameObject.name} atacou, mas o alvo estava fora do alcance.");
@@ -174,12 +234,9 @@ public class MonPlayerController : MonoBehaviour
         }
 
         SetState(CombatState.Attacking, 0.12f);
-
         MoveExecutionQuality quality = EvaluateMoveQuality();
         int finalDamage = GetFinalDamage(quality);
-
         target.TakeDamage(finalDamage, transform);
-
         ApplyBonusRepelToTarget();
 
         Debug.Log(
@@ -189,7 +246,6 @@ public class MonPlayerController : MonoBehaviour
         );
 
         AddMorphInfluencesOnHit(quality);
-
         nextAttackTime = Time.time + attackCooldown;
     }
 
