@@ -127,7 +127,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 ### Arms
 
 - Couraça
-- Weight
+- Weight (mass **per arm**, identical for all arms; total arms mass = per-arm mass × Quantity)
 - Extension
 - Drag
 - Quantity
@@ -152,7 +152,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
-**Global totals are sums of their regional parameters** (e.g. global armor and global mass), not averages. Couraça and Hardness are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
+**Global totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Couraça and Hardness are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
 
 ## 6. Morphology should emerge from action
 
