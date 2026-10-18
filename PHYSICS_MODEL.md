@@ -391,6 +391,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** equations, order of modifiers, thresholds for sliding/knockback, and any guard-break conditions. No Unity implementation requested yet.
 - **Affected nodes:** attack impact evaluation, defense state/participants, mass and limb morphology, surface contact/adhesion and knockback movement.
 
+### PHY-044 — Defense is overcome by sweeps and grabs, not raw impact strength (DECIDED, 2026-10-18)
+
+- **User decision:** active defense **only loses to sweep (rasteira) and grab (agarrão) techniques**. A powerful ordinary strike does **not** break guard merely by exceeding an impact/strength threshold.
+- Defended ordinary strikes may still cause **damage and knockback** according to PHY-042/043, but they do not automatically terminate the guard or create an independent guard-break state through brute force.
+- **Sweeps and grabs are attack-category counters to defense**, not evidence of a generic power-based guard-break mechanic.
+- **Not yet decided:** precise conditions for a sweep to beat guard (e.g. stance or height), grab range/escape, resulting stagger/downed states, whether passive defense differs, or any special move exceptions. Do not silently add high/low block rules or a grab escape system.
+- **Compatibility note:** the V1.6 move named `GuardBreak` is a prototype action name; the approved target design **does not authorize universal raw-force guard breaking**. Revisit its function/name only when implementing these counter categories; do not change validated prototype code now.
+- **Affected nodes:** move classifications and outcomes (sweep/grab), defensive state, combat resolution priority, knockback and animation/state transitions.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -412,7 +421,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-044: Should a sufficiently powerful blocked attack be able to break the defender's active guard, or should defense only reduce damage and knockback without a guard-break state?
+- PHY-045: When a sweep successfully beats defense, should it always knock the defending Mon down, or may the result depend on the specific sweep technique?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
