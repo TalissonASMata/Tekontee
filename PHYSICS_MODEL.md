@@ -212,6 +212,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how multiple qualifying repeated member types charge simultaneously, hold durations, activation/release timing, and whether charging is restricted to active defensive moves. Do not assume these details.
 - **Technical nodes:** morphology member-type quantities, move participation data, charge stages/input, defense evaluation. No gameplay code change yet.
 
+### PHY-024 — Simultaneous charging of multiple qualifying limb types (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when a defensive move includes multiple distinct member types whose respective `Quantidade > 2`, **all qualifying types advance together during one shared defense charge**, not as separate independent charges.
+- At each charge stage, **add two participating members of each qualifying type** (e.g. with 4 arms and 4 tentacles: stage 1 = 2 arms + 2 tentacles; stage 2 = 4 arms + 4 tentacles).
+- Member types with `Quantidade <= 2` do not independently enable charging; they participate according to the configured move, not as additional charge tracks.
+- The existing even-count requirement (PHY-023) still applies.
+- **Not yet decided:** how to handle distinct maxima (such as 4 arms and 6 tentacles), timing per stage, whether the base stage starts instantly, and on-release behavior. Do not invent these rules.
+- **Affected nodes:** defensive move participation, grouped charging state, morphology counts and tenacity-derived defense evaluation. This is a documented design decision, **not an instruction to implement now**.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -233,7 +242,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-024: If a defensive move uses two distinct member types that each have Quantity > 2 (e.g. four arms and four tentacles), should they charge together or separately?
+- PHY-025: If two qualifying member types have different maximum counts (e.g. 4 arms and 6 tentacles), should the charge continue for the type with more members after the other reaches its limit?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
