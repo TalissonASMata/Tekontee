@@ -166,6 +166,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Formula `f`, normalization, numerical bounds and tuning have not been decided.** This is an agreed dependency, not a final numeric equation.
 - **Supersedes the obsolete HP inputs** involving `CouraçaGeral` in historical PHY-010/011, in line with PHY-017.
 
+### PHY-019 — Defense determined by participating limbs and overall mass (DECIDED, 2026-10-18)
+
+- **There is no damage localization by body part.** A Mon has one global HP pool; receiving a hit does not route damage to the anatomical region struck or track separate limb health.
+- For each **defensive action/stance**, the designer specifies **which anatomical members participate in that defense**. These are the defending members, not a struck-body-part detection system.
+- **Defense is a function of the sum of the tenacity of the members participating in the defense plus overall body mass**: `Defesa = f(SomaTenacidadeMembrosDaDefesa, MassaGeral)`.
+- The values for repeated limbs are shared by type under PHY-013/014. How a defense selects one, several or all repeated limbs, and any action coefficients, are to be specified with the move; do not silently assume all limbs participate.
+- `Revestimento` may create separate situational defense effects if individually designed, but is not inherently a flat numeric `Couraça` modifier.
+- Supersedes historical PHY-010 text about defense depending on the **body region struck**; no such hit-location mechanic is part of the agreed design.
+- **Not yet decided:** baseline/default defense behavior while not performing a defense action, formula scaling, and damage reduction bounds.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -187,7 +197,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-019: What should determine baseline defense against a hit: tenacity of the struck region plus global mass, the actively defending region/action, or a combination with different conditions?
+- PHY-020: What defense value applies when the Mon is not executing a designated defensive action: no participating-limb tenacity (mass only), or a passive default defense with defined participating limbs?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
