@@ -276,6 +276,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Recovery limits **attacking**; effects on movement, remaining defensive protection, input buffering and interruptions are still undecided.
 - Precise charge-time measurement and the start of the post-defense recovery interval must be settled during implementation, without guessing the move's timeline.
 
+### PHY-031 — Defense ends immediately on release; charged attack recovery persists (DECIDED, 2026-10-18)
+
+- **Option A adopted:** releasing the defense input ends its active defensive protection **immediately**; there is no additional protected exit window.
+- If charge actually occurred, the Mon **cannot attack until its charge-matched recovery time finishes** (PHY-029/030), even though its active defense has already ended.
+- If no charge occurred, there is **no charge-derived offensive recovery penalty**; ordinary move/action restrictions, if any, are separate.
+- **The Mon is therefore exposed between release and the end of any remaining attack recovery**. This does not remove the form's separately defined passive defense (PHY-020/021).
+- Effects on movement, attack input buffering, and interruptions are still not decided; do not infer extra penalties.
+- **Technical nodes:** defensive input and active-protection state, charge-time tracking, attack availability/recovery, passive defense fallback. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -297,7 +306,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-031: When the player releases defense, should the defense protection cease immediately while the charge-matched attack recovery continues, or should protection persist during an exit window?
+- PHY-032: During the attack-recovery interval after charged defense, can the Mon move normally, or is movement also restricted?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
