@@ -685,6 +685,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** actual window length in seconds/frames and its precise placement in animation; tune/validate these in a dedicated gameplay test rather than invent numbers.
 - **Affected nodes:** early-recovery timing, invulnerability/vulnerability state, hit and hazard evaluation, animation. No Unity code changes requested yet.
 
+### PHY-076 — Calibrate the universal invulnerability duration in Unity (DECIDED, 2026-10-18)
+
+- **Option A adopted:** do **not** select an arbitrary numerical invulnerability duration at the design stage.
+- When the early-recovery recoil mechanic is implemented and tested in Unity, make the shared initial invulnerability window **configurable** and **calibrate it through actual gameplay tests**.
+- The playtest goal is to balance a reliable opportunity to escape follow-up combos against vulnerability during the remainder of the recoil (PHY-063–075).
+- The duration remains **universal across all eligible Mons**, not modified by morphology (PHY-075). Its exact frame count/time will be recorded only after test validation.
+- Keep solid collisions enabled and reapply current environmental effects as soon as invulnerability ends, per PHY-068/074.
+- **Affected nodes:** recovery recoil timeline, invulnerability flag, collision/hit/hazard resolution, animation playtesting. This records a future implementation validation criterion; it does not authorize unrequested Unity code changes.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
