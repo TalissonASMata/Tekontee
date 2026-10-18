@@ -312,6 +312,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact timings/charge durations, queued attack-input behavior, interruptions and cancellation. Do not introduce arbitrary additive or reset penalties.
 - **Affected nodes:** charge-duration tracking, attack recovery deadlines, defense state transitions and attack eligibility.
 
+### PHY-035 — Ignore attack inputs during post-defense recovery (DECIDED, 2026-10-18)
+
+- **Option A adopted:** while the Mon is still subject to attack recovery from charged defense, **attack inputs are ignored**; they are **not buffered or automatically executed** after the lockout.
+- To attack once recovery ends, the player must issue a **new attack input**.
+- This applies specifically to recovery caused by charged defense (PHY-029–034), including successive defenses using the latest non-stacked deadline.
+- Movement remains free (PHY-032), and new defensive actions remain available (PHY-033).
+- The input must not be retroactively interpreted as a charge or queued attack; no automatic attack should fire without a new deliberate command.
+- **Not yet decided:** global attack-input buffering policy for unrelated states, attack button holds, and interruption by hitstun or other systems.
+- **Affected nodes:** input evaluation, attack availability checks, combat recovery state and move execution. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -333,7 +343,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-035: If an attack button is pressed during the post-defense attack recovery, should the command be ignored, or buffered to execute as soon as attacking becomes available?
+- PHY-036: Should the Mon be able to begin a new defense while currently attacking, or must its current attack finish first?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
