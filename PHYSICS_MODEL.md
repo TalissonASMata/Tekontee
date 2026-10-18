@@ -649,6 +649,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** interactions with environmental hazards, stage damage, or non-attack special effects; exact invulnerability frames/timing. Do not expand the approved immunity to arbitrary environmental effects without a decision.
 - **Affected nodes:** early-recovery invulnerability flag/hurtbox, strike/sweep/grab hit resolution, recoil animation phases and knockdown recovery state. No Unity gameplay implementation requested yet.
 
+### PHY-072 — Full damage invulnerability includes environmental hazards (DECIDED, 2026-10-18)
+
+- **Option A adopted:** during the **initial invulnerability window of successful early-recovery recoil**, the Mon is protected from **environmental damage** as well as all enemy attack categories (PHY-071).
+- Environmental examples include damaging spikes, fire and other stage hazards. While the window lasts, they **do not deal damage** to the recovering Mon.
+- This is a **brief invulnerability window**, not persistent immunity to environmental hazards after the window ends (PHY-064).
+- **Important distinction:** immunity to damage does **not** implicitly disable solid collision, walls, boundaries or physical blocking. PHY-068 still requires recoil movement to stop at solid obstacles.
+- **Not yet decided:** whether non-damaging environmental effects (e.g. slowdown, status conditions or forced movement) are suppressed, and exactly how long invulnerability lasts.
+- **Affected nodes:** early-recovery invulnerability status, environmental damage resolution, hazard contact, recoil animation timing and physical collision. No Unity gameplay changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
