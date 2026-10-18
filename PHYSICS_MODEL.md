@@ -70,6 +70,16 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - Whether the pass-through state also prevents receiving attacks, colliding with objects/walls, or being detected by AI is **not yet decided**. Do not silently infer general invulnerability from no body contact.
 - No need to implement special abilities in the current PHY decision stage.
 
+### PHY-009 — Morphology-derived impact and gameplay attributes (DECIDED, 2026-10-18)
+
+- **Option C adopted:** an attack defines a tunable baseline impact; the resulting impact and knockback depend on **attacker morphology and motion** as well as **defender morphology and physical response**.
+- Relevant attacker inputs include **mass/weight of the striking body part** and **its velocity/acceleration during the attack**. Defender inputs include **mass/weight**, **hardness**, and potentially other applicable defensive/body parameters.
+- **Crucial design principle:** gameplay attributes such as **health, attack, defense, speed and agility must be derived from morphology** (possibly alongside action and environmental conditions), not advanced as unrelated independent point systems. Do not equate an anatomical parameter to an abstract stat 1:1 without a reason.
+- Distinguish physical quantities: **mass** changes inertial response; **hardness** affects contact/damage response and does **not automatically imply larger resistance to displacement**. Strike impulse, damage and knockback may be related but are distinct outputs.
+- Baseline action properties and tuning factors can exist for stylized/arcade playability; they are not independently accumulated RPG attack/defense progression.
+- **Not yet decided:** formulas/units, whether to use acceleration directly or derive contact speed, exact damage/health scaling, damage distribution by body part, and which additional morphology parameters influence each derived stat. Decide through vertical-slice tests rather than arbitrary assumptions.
+- **No change to the existing V1.6 combat code yet:** this is the physical/gameplay architecture target for the V1.7+ evolution.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -91,7 +101,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-009: When one Mon hits another, should knockback depend on mass and impact properties, be a fixed gameplay value, or combine both?
+- PHY-010: How should maximum health relate to morphology—derived primarily from overall body mass, from resistance/coverage, or from a combination?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
