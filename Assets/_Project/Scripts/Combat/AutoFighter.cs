@@ -33,6 +33,8 @@ public class AutoFighter : MonoBehaviour
     private CombatantStateMachine stateMachine;
     private MorphPointBank morphPointBank;
     private MoveMorphologyEvaluator moveEvaluator;
+    private UniversalMoveSet universalMoves;
+    private int autoMoveIndex;
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
 
@@ -42,6 +44,7 @@ public class AutoFighter : MonoBehaviour
         stateMachine = GetComponent<CombatantStateMachine>();
         morphPointBank = GetComponent<MorphPointBank>();
         moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
+        universalMoves = GetComponent<UniversalMoveSet>();
 
         if (formStats == null)
         {
@@ -77,8 +80,11 @@ public class AutoFighter : MonoBehaviour
         }
 
         float distance = Mathf.Abs(target.transform.position.x - transform.position.x);
+        UniversalMoveId selectedMove = autoMoveIndex % 2 == 0 ? UniversalMoveId.HeavyStrike : UniversalMoveId.AerialStrike;
+        UniversalMoveDefinition definition = universalMoves != null ? universalMoves.Find(selectedMove) : null;
+        float desiredRange = definition != null ? definition.range : attackRange;
 
-        if (distance > attackRange)
+        if (distance > desiredRange)
         {
             SetState(CombatState.Moving);
             MoveTowardTarget();
@@ -105,6 +111,18 @@ public class AutoFighter : MonoBehaviour
         if (Time.time < nextAttackTime) return;
         if (target == null) return;
         if (target.IsDead) return;
+
+        if (universalMoves != null)
+        {
+            UniversalMoveId selectedMove = autoMoveIndex % 2 == 0 ? UniversalMoveId.HeavyStrike : UniversalMoveId.AerialStrike;
+            if (!universalMoves.TryExecute(selectedMove, target)) return;
+            autoMoveIndex++;
+            SetState(CombatState.Attacking, attackPulseDuration);
+            ApplyBonusRepelToTarget();
+            PlayAttackPulse();
+            nextAttackTime = Time.time + attackCooldown;
+            return;
+        }
 
         SetState(CombatState.Attacking, attackPulseDuration);
 
