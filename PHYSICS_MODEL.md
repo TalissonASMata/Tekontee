@@ -176,6 +176,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Supersedes historical PHY-010 text about defense depending on the **body region struck**; no such hit-location mechanic is part of the agreed design.
 - **Not yet decided:** baseline/default defense behavior while not performing a defense action, formula scaling, and damage reduction bounds.
 
+### PHY-020 — Passive natural defense without active blocking (DECIDED, 2026-10-18)
+
+- **Option B adopted:** the Mon has **passive/natural defense even while not performing a defensive action**.
+- This default defense uses **the tenacity of a predefined set of anatomical members** and the **Mon's overall body mass**, consistent with PHY-019: `DefesaPassiva = f(SomaTenacidadeMembrosDefesaPassiva, MassaGeral)`.
+- An explicitly executed defensive move can designate **its own participating members**, providing a defense value distinct from passive defense. Do not assume a specific numerical bonus or calculation until defined.
+- No hit-location detection or limb-specific HP; damage continues to affect the single global HP pool.
+- **Not yet decided:** which limbs belong to the passive-defense set, whether they are defined per Mon/form or shared by all Mons, and the precise scaling of passive versus active defense.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -197,7 +205,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-020: What defense value applies when the Mon is not executing a designated defensive action: no participating-limb tenacity (mass only), or a passive default defense with defined participating limbs?
+- PHY-021: How is the passive-defense member set selected: a universal fixed set for every Mon, or a per-Mon/per-form configuration?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
