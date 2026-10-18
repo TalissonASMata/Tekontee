@@ -34,7 +34,7 @@ Validated through V1.5:
 
 V1.5 validated in Unity: move requirement type can be independent from the current dominant form; execution quality (Fail / Effective / Critical) adjusts damage and weighted morphology reinforcement. Both automatic and manual paths use the shared evaluator.
 
-Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog. The moveset must work on both keyboard and modern gamepads (Xbox and PS5/DualSense-class). Route both device types through common Unity Input System actions, with no gameplay logic tied to specific key/button labels. Establish keyboard/gamepad parity for these two moves and preserve an extensible input mapping for later actions. **Permanent control constraint:** any individual move uses one button or a chord of at most two simultaneous buttons, on both keyboard and gamepad (e.g. PlayStation R1 + Square, Xbox LT + A). No normal move may require three simultaneous buttons. Special techniques can be time-ordered combinations of existing moves/states; at any moment they must still respect the two-simultaneous-button maximum. Keep actual button mappings device-specific, but gameplay commands device-independent.
+V1.6 — Universal Moveset has been validated in Unity with keyboard (HeavyStrike, AerialStrike, GuardBreak; Shift+J chord precedence). Physical gamepad validation remains deferred. The active next milestone is V1.7 — Anatomical Morphology. Historical V1.6 validation criteria: Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog. The moveset must work on both keyboard and modern gamepads (Xbox and PS5/DualSense-class). Route both device types through common Unity Input System actions, with no gameplay logic tied to specific key/button labels. Establish keyboard/gamepad parity for these two moves and preserve an extensible input mapping for later actions. **Permanent control constraint:** any individual move uses one button or a chord of at most two simultaneous buttons, on both keyboard and gamepad (e.g. PlayStation R1 + Square, Xbox LT + A). No normal move may require three simultaneous buttons. Special techniques can be time-ordered combinations of existing moves/states; at any moment they must still respect the two-simultaneous-button maximum. Keep actual button mappings device-specific, but gameplay commands device-independent.
 
 ## Morphology — current prototype
 
@@ -190,6 +190,12 @@ Current camera behavior is validated:
 
 Do not replace this behavior casually when implementing unrelated features.
 
+## Technical dependency map and AI change-planning rule
+
+Before planning or coding **any new gameplay feature**, read `GAMEPLAY_TECHNICAL_MAP.md`. List movement family, affected technical nodes (change / verify / unaffected), inspected script and scene dependencies, smallest vertical slice, testable Unity acceptance criteria, and explicitly deferred systems. Do not use lore, art or feature-catalog expansion as a substitute for gameplay validation.
+
+V1.7 must separate continuous **functional** morphology (jump height, strike reach / hitbox) from **discrete visual transformation** at later morphology thresholds. Morphology point gains do not resize or replace the sprite themselves. Start with one jump and one punch-reach hypothesis; plan the movement taxonomy, but do not implement the entire catalog.
+
 ## Prototype development principles
 
 1. Make the smallest testable change that validates the next mechanic.
@@ -208,7 +214,7 @@ The human defines desired gameplay behavior, sensations and acceptance criteria.
 
 Typical loop:
 
-1. Read `AI_CONTEXT.md`, `DESIGN_CORE.md`, `ROADMAP.md` and `.github/copilot-instructions.md`.
+1. Read `AI_CONTEXT.md`, `DESIGN_CORE.md`, `ROADMAP.md`, `GAMEPLAY_TECHNICAL_MAP.md` and `.github/copilot-instructions.md`.
 2. Inspect current code before proposing changes.
 3. Plan the smallest implementation for the active milestone.
 4. Work on a feature branch.
