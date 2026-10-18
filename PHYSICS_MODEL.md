@@ -54,6 +54,14 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - This is a capability and design requirement; no immediate demand to implement all categories or detailed interactions.
 - **Not yet decided:** specific reactive object taxonomy, force formulas, damage/destruction, object-to-morphology conversion, and interactions triggered by Tamer versus Mon.
 
+### PHY-007 — Object reactions by contact and/or explicit actions (DECIDED, 2026-10-18)
+
+- **Option C adopted:** each object may react to **physical contact/forces**, **explicit Tamer/Mon actions**, or **both**, according to its defined properties.
+- Contact-driven responses (e.g. being pushed or struck) and action-driven responses (e.g. activating an object to release morphology opportunities) are distinct triggering mechanisms and may coexist on the same object.
+- Avoid implementing an interaction separately for each object; use reusable trigger/response capabilities where appropriate.
+- This is a design contract, **not** authorization to implement every reaction now.
+- **Not yet decided:** the full list of physical reaction types, interactions by Mon vs Tamer, and any object damage/destruction model.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -75,7 +83,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-007: Should objects react automatically to physical contact/impact, only to explicit Tamer/Mon actions, or to both depending on their properties?
+- PHY-008: Should physical collision between Mons block passage, allow passage, or depend on a defined state?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
