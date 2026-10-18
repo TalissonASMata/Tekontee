@@ -156,6 +156,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Important unresolved downstream impact:** PHY-010 used `CouraçaGeral` to derive HP and defense and PHY-011 defined `CouraçaGeral` as an additive sum. Since `Revestimento` is not a scalar, **do not sum coverings** or naively substitute `RevestimentoGeral` into those formulas. The global-life and defense derivations must be revisited before implementation. The established rule that numeric "Geral" totals are sums (e.g. mass) still stands.
 - **Also pending:** whether/how `Tenacidade` modifies attack damage as formerly ascribed to `Dureza`, how it influences life/defense, and which covering traits affect each interaction. No equations or code changes are authorized yet.
 
+### PHY-018 — Maximum HP from total mass and total tenacity (DECIDED, 2026-10-18)
+
+- **Approved:** `VidaMaxima = f(MassaGeral, TenacidadeGeral)`. Both are morphology-derived numerical inputs to the global health pool, not independently leveled RPG stats.
+- `MassaGeral` is the sum of anatomical mass contributions, counting repeated limbs using their per-limb mass × quantity (PHY-012/014).
+- `TenacidadeGeral` is **the sum of regional tenacity contributions**, not a mean or weighted average. Where limb tenacity is expressed per repeated limb, aggregate its contribution by quantity; the precise representation and balancing coefficient are implementation decisions.
+- `Revestimento` remains a separate categorical/configurable trait for situational effects (e.g., spines, scales, suction cups), **not a numeric term in the HP formula and not a simple additive `RevestimentoGeral`**.
+- Keep **one global HP pool** (PHY-010). Do not add separate limb HP.
+- **Formula `f`, normalization, numerical bounds and tuning have not been decided.** This is an agreed dependency, not a final numeric equation.
+- **Supersedes the obsolete HP inputs** involving `CouraçaGeral` in historical PHY-010/011, in line with PHY-017.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -177,7 +187,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-018: Given PHY-017, should global HP be based on global mass plus summed regional `Tenacidade`, or use a different rule? Coverings remain independent situational traits.
+- PHY-019: What should determine baseline defense against a hit: tenacity of the struck region plus global mass, the actively defending region/action, or a combination with different conditions?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
