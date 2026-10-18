@@ -500,6 +500,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** numerical double-tap timing threshold, whether a failed second tap can seed the next attempt, and the exact handling of directional changes. No Unity code implementation yet.
 - **Affected nodes:** relative-direction double-tap input recognition, grounded knockdown input window, failed-attempt reset/retry, recovery eligibility and timer.
 
+### PHY-055 — Universal double-tap recognition window (DECIDED, 2026-10-18)
+
+- **Option A adopted:** the maximum time interval allowed between the two backward-direction taps for early knockdown recovery is **the same for every Mon**.
+- The player's input execution skill is therefore assessed using a **universal timing window**, independent of `Cabeça.Intelecto`, `MassaGeral`, or other morphology attributes.
+- Morphology still determines **eligibility** for early recovery and **how much recovery time is saved** under PHY-049/050, but does not widen or narrow the double-tap recognition interval.
+- Both taps must occur after ground contact (PHY-052/053), and failed attempts may be retried while grounded (PHY-054).
+- **Not yet decided:** exact time-window duration in seconds/frames, input device tolerances, or edge handling around direction changes; calibrate against responsive fighting-game controls.
+- **Affected nodes:** shared relative-direction double-tap recognizer, grounded knockdown input state, morphology eligibility check and recovery-time calculation. No Unity code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
