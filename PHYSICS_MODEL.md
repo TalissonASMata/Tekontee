@@ -579,6 +579,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** exact invulnerability duration, where in the recoil animation the protected frames begin/end, whether grabs and sweeps bypass the invulnerability, whether environmental hazards/collision are affected, and how this interacts with the normal hurtbox.
 - **Affected nodes:** early-recovery state, animation timing, attack-vulnerability flags/hurtbox evaluation, combat hit resolution and recoil movement. Do not implement speculative frame counts.
 
+### PHY-064 — Invulnerability only during the initial part of early-recovery recoil (DECIDED, 2026-10-18)
+
+- **Option B adopted:** the backward recoil of a successful early knockdown recovery grants invulnerability **only during an initial, limited window**, not throughout the full backward movement.
+- Once that window ends, the Mon **can be hit again even if its backward recoil animation/displacement is still in progress**.
+- The recoil remains a fixed-intensity backward displacement (PHY-061/062), and it is only accessible after the valid grounded recovery double-tap and morphology eligibility checks (PHY-049–060).
+- **Not yet decided:** exact protected-frame duration, how the transition from invulnerable to vulnerable aligns with animation stages, interaction with throws/sweeps/environmental damage, and cancellation after the recovery movement. These are tuning/implementation details, not implicit approvals.
+- **Affected nodes:** knockdown early-recovery action, recoil timeline, hurtbox/vulnerability state, animation, attack-hit resolution. No Unity code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
