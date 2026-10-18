@@ -408,6 +408,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** knockdown animation, duration, invulnerability during knockdown, wake-up options, damage amount, or how sweeps interact with a Mon that is not defending.
 - **Affected technical nodes:** move classification, defense counter-resolution, knockdown combat state, animation and state recovery. No Unity gameplay code changes requested yet.
 
+### PHY-046 — Player-controlled knockdown recovery constrained by morphology (DECIDED, 2026-10-18)
+
+- **Option B adopted with a fundamental condition:** after a sweep knockdown, the player **may input a recovery action to rise sooner**, but the resulting recovery effectiveness/timing **depends on the Mon's morphology**.
+- The player does **not** receive an identical fixed recovery advantage for every Mon regardless of its anatomy.
+- A baseline automatic stand-up behavior may still exist, but its exact timing and relation to the manual recovery are not decided.
+- **Not yet decided:** which anatomical morphology parameters affect recovery, precise formulas and limits, recovery input/action, invulnerability, and exact timing. Do not select parameters or invent numerical values without confirmation.
+- **Affected nodes:** knockdown combat state, recovery input/eligibility, morphology-derived mobility and animation/state transitions. No Unity gameplay code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -429,7 +437,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-046: After a knockdown caused by a sweep, should the Mon automatically stand up after a fixed interval, or may the player influence the recovery timing?
+- PHY-047: Which morphological characteristics should determine the effectiveness of player-controlled recovery from knockdown?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
