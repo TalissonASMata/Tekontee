@@ -267,6 +267,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Do not treat the assistant's preceding Option A (instant end of defense on release) as confirmed: the user instead specified the **attack delay** requirement.
 - **Technical nodes:** defense charge progression/state, defense exit state, attack eligibility/input buffering, combat-state transitions. No implementation or timing values yet.
 
+### PHY-030 — Attack recovery duration equals defense charging duration (DECIDED, 2026-10-18)
+
+- **User decision:** after using charged defense, the delay before the Mon can attack is **equal to the time spent charging that defense**, a 1:1 time relationship.
+- Example for illustration only: if a defense has spent 0.2 seconds progressing through charge, the post-defense offensive recovery is 0.2 seconds. **No fixed numeric charge duration has been approved.**
+- A defense that **did not actually use charging** does not incur this charge-derived attack delay (PHY-029).
+- This replaces both proposed PHY-030 alternatives (“same fixed recovery whenever charged” or “arbitrary scaling by number of stages”): **recovery follows elapsed charging time**, not a separate duration chosen by charge level.
+- Recovery limits **attacking**; effects on movement, remaining defensive protection, input buffering and interruptions are still undecided.
+- Precise charge-time measurement and the start of the post-defense recovery interval must be settled during implementation, without guessing the move's timeline.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -288,7 +297,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-030: Should the post-defense attack delay be fixed whenever charging occurred, or scale with the number of charged stages reached?
+- PHY-031: When the player releases defense, should the defense protection cease immediately while the charge-matched attack recovery continues, or should protection persist during an exit window?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
