@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public enum UniversalMoveId { HeavyStrike, AerialStrike }
+public enum UniversalMoveId { HeavyStrike, AerialStrike, GuardBreak }
 
 [Serializable]
 public class UniversalMoveDefinition
@@ -37,6 +37,14 @@ public class UniversalMoveSet : MonoBehaviour
             id = UniversalMoveId.AerialStrike, displayName = "Golpe aereo",
             requirement = MorphPointType.Air, baseDamage = 10, range = 1.4f,
             primary = new MorphInfluence(MorphPointType.Air, 3),
+            secondary = new MorphInfluence(MorphPointType.Attack, 2),
+            tertiary = new MorphInfluence(MorphPointType.Energy, 1)
+        },
+        new UniversalMoveDefinition
+        {
+            id = UniversalMoveId.GuardBreak, displayName = "Quebra de guarda (teste)",
+            requirement = MorphPointType.Defense, baseDamage = 10, range = 1.4f,
+            primary = new MorphInfluence(MorphPointType.Defense, 3),
             secondary = new MorphInfluence(MorphPointType.Attack, 2),
             tertiary = new MorphInfluence(MorphPointType.Energy, 1)
         }
