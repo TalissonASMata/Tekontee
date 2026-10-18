@@ -34,7 +34,7 @@ Validated through V1.5:
 
 V1.5 validated in Unity: move requirement type can be independent from the current dominant form; execution quality (Fail / Effective / Critical) adjusts damage and weighted morphology reinforcement. Both automatic and manual paths use the shared evaluator.
 
-Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog. The moveset must work on both keyboard and modern gamepads (Xbox and PS5/DualSense-class). Route both device types through common Unity Input System actions, with no gameplay logic tied to specific key/button labels. Establish keyboard/gamepad parity for these two moves and preserve an extensible input mapping for later actions. **Permanent control constraint:** any individual move uses one button or a chord of at most two simultaneous buttons, on both keyboard and gamepad (e.g. PlayStation R1 + Square, Xbox LT + A). No mandatory three-button chords or complex directional input sequences. Keep actual button mappings device-specific, but gameplay commands device-independent.
+Active milestone: V1.6 — Universal Moveset. Minimal validation: two distinct moves with independent requirement axes and weighted influences, accessible to the same Mon without being gated by current morphology; test manual and automatic selection before expanding the catalog. The moveset must work on both keyboard and modern gamepads (Xbox and PS5/DualSense-class). Route both device types through common Unity Input System actions, with no gameplay logic tied to specific key/button labels. Establish keyboard/gamepad parity for these two moves and preserve an extensible input mapping for later actions. **Permanent control constraint:** any individual move uses one button or a chord of at most two simultaneous buttons, on both keyboard and gamepad (e.g. PlayStation R1 + Square, Xbox LT + A). No normal move may require three simultaneous buttons. Special techniques can be time-ordered combinations of existing moves/states; at any moment they must still respect the two-simultaneous-button maximum. Keep actual button mappings device-specific, but gameplay commands device-independent.
 
 ## Morphology — current prototype
 
@@ -89,6 +89,10 @@ All Mons should conceptually share the same base moveset. Examples include:
 
 Moves are universal, but each move has minimum morphology requirements. A Mon may know the move conceptually while being physically unable to execute it well.
 
+Example conceptual PlayStation inputs: Square = weak strike; R1 = dodge; R2 = scream; L1 = block; L2 = brace/retesar. R1+Square = teleport strike; R2+Square = Battle Cry; L1+Square = parry; L2+Square = grab. These **are all normal moves** even when using two buttons. Xbox and keyboard receive semantically equivalent mappings. Input chords must take precedence over their individual button actions to prevent accidental double-triggering.
+
+Example future special: `Retesar -> Battle Cry -> Triangle (elemental action)` produces `Water Shot`, a water sphere that travels across the screen. This is a **sequence of regular moves and an elemental action**, not a three-or-more-button simultaneous chord. Special input timing, state requirements and morphology requirements remain to be designed; do not implement the special during V1.6.
+
 ## Move execution quality
 
 A move should be evaluated against the Mon's current morphology and resolve as one of three qualities:
@@ -121,7 +125,7 @@ V1.4 validated this architecture using the current temporary Attack/Defense/Air/
 
 ## Specials
 
-Special techniques should require more advanced morphology combinations. This is important to avoid a simple projectile-spam feedback loop where repeatedly using one easy special endlessly feeds its own prerequisites.
+Special techniques are higher-order sequences/compositions of regular moves or states, not two-button normal-move combinations. Special techniques should require more advanced morphology combinations. This is important to avoid a simple projectile-spam feedback loop where repeatedly using one easy special endlessly feeds its own prerequisites.
 
 ## Original morphology and reversion
 
