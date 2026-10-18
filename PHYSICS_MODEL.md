@@ -425,6 +425,13 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** how intellect and mass interact, which mass aggregation is used, input timing, minimum/maximum recovery time and invulnerability.
 - **Affected nodes:** morphology, knockdown state, player recovery input, combat-state recovery timing. No implementation requested yet.
 
+### PHY-048 — Knockdown recovery uses total body mass (DECIDED, 2026-10-18)
+
+- **User clarification:** the `Massa` input for knockdown recovery in PHY-047 is specifically **`MassaGeral`**, the Mon's total body mass.
+- The two morphology-derived inputs are therefore **`Cabeça.Intelecto` and `MassaGeral`**, and player recovery action still affects the outcome (PHY-046).
+- `MassaGeral` follows the established additive regional contributions, including repeated-member quantity (PHY-011/012/014).
+- **Not yet decided:** the mathematical relationship between intellect, mass, input skill and recovery time. No numerical values or implementation are authorized by this decision.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -446,7 +453,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-048: For recovery after knockdown, does `Massa` mean `MassaGeral` (the Mon's total body mass)?
+- PHY-049: Should higher `Cabeça.Intelecto` shorten knockdown recovery time while greater `MassaGeral` lengthens it, or should the relationship be different?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
