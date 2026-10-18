@@ -117,6 +117,14 @@ The user's chosen model deliberately avoids separate per-limb constitution/HP tr
 - Do not assume that global armor, effective drag or reach simply multiply by arm quantity: those aggregations depend on each property's physical meaning and should be decided explicitly. Regional totals that are additive must sum contributions correctly under PHY-011.
 - This shared-arm choice does not yet establish whether legs and other repeatable anatomical structures follow the same representation.
 
+### PHY-014 — Shared morphology across all legs (DECIDED, 2026-10-18)
+
+- **Option A adopted:** all legs of one Mon share the same leg morphology parameters (including **Massa, Couraça, Extensão and Arrasto**); leg quantity is a separate parameter.
+- Each leg uses the shared per-leg morphology values. There is no independent morphology record per leg.
+- Consequently, the legs' contribution to overall body mass is `Pernas.Massa × Pernas.Quantidade`, consistent with PHY-011/PHY-012.
+- Do not automatically multiply properties such as extension, hardness, or drag by quantity; their effects depend on the mechanics and require explicit definitions.
+- **Not yet decided:** how number of legs influences stability, locomotion and jumping; likewise how armor aggregates when repeated limbs contribute to `CouraçaGeral`.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -138,7 +146,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-014: Should legs follow the same shared-per-limb morphology model as arms?
+- PHY-015: Should additional legs automatically improve ground stability/traction, improve acceleration, or both depending on morphology and locomotion mechanics?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
