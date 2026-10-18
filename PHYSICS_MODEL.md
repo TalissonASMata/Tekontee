@@ -354,6 +354,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Pressing defense **outside** a permitted window remains ignored and unbuffered (PHY-038).
 - **Affected nodes:** per-move cancel windows, attack active-frame state, hitbox lifecycle, strike resolution, combat-state transitions. No Unity implementation required yet.
 
+### PHY-040 — Cancelled attack hitbox ends immediately (DECIDED, 2026-10-18)
+
+- **Option A adopted:** when an attack is validly cancelled into defense during its active hit phase, **the attack's active hitbox disappears immediately when the defense starts**. No additional attack hits may register from that cancelled hitbox afterward.
+- **Hits that were already resolved before the cancellation remain valid**; cancellation does not undo prior damage, knockback or hit results.
+- The move's configurable defensive cancel eligibility/window (PHY-036–039) must be satisfied; outside a permitted window, defense input is discarded (PHY-038).
+- Defense protection begins on the valid transition, with its immediately participating members under PHY-026–028.
+- **Not yet decided:** how truly simultaneous attack/contact and cancel inputs are ordered within the simulation tick, and whether cancelling an attack incurs a separate recovery cost. Do not infer a residual impact window.
+- **Affected technical nodes:** active hitbox lifecycle, move cancellation, damage event ordering, defense activation and combat-state transitions. No Unity gameplay code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -375,7 +384,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-040: If defense cancels an attack during its active hit phase, should the attack hitbox disappear immediately, or remain active for the rest of its originally planned impact interval?
+- PHY-041: If an attack hit and valid defensive cancel occur on the exact same simulation tick, which should resolve first: the hit already in contact, or the cancel that removes the hitbox?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
