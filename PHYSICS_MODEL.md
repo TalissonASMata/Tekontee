@@ -241,6 +241,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Pending:** behavior when the defense uses only charging member types with no fixed baseline members, and whether/how defense ends on button release or interruption.
 - **Affected nodes:** move participant definitions (immediate versus chargeable); defense activation state; staged limb contribution; collision/strike timing; derived defense formula. No code change required yet.
 
+### PHY-027 — Immediate first pair for defenses made only of chargeable limbs (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if a defensive move contains **only a charge-eligible repeated member type** (e.g. four arms) and has no separately designated fixed/non-charging members, **its first pair of members protects immediately** when defense is pressed.
+- Subsequent pairs join after the brief progressive charge intervals established conceptually in PHY-026. Example for four arms: **2 arms immediately → 4 arms shortly after**.
+- This avoids an unprotected startup gap for a defense composed exclusively of repeated member types.
+- For mixed moves, members explicitly configured as non-charging still provide immediate baseline protection (PHY-026); how an initial pair from each charge-eligible group combines with that baseline is a separate detail to clarify if relevant.
+- Damage remains global, and defense at any instant depends on the participating members' tenacity and the Mon's total mass, not on a hit-location system.
+- Exact stage intervals, interruption rules and hold/release behavior remain unconfirmed; **do not implement speculative timing**.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -262,7 +271,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-027: When a defense lists only chargeable member types (e.g. `Braços (4)`), does its first pair protect immediately, or is an independent non-charging baseline always required?
+- PHY-028: When defense includes both fixed members (e.g. torso) and chargeable members (e.g. four arms), does the first arm pair protect immediately alongside fixed members, or join at the first very-short charge interval?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
