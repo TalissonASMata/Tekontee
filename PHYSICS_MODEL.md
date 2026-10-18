@@ -322,6 +322,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** global attack-input buffering policy for unrelated states, attack button holds, and interruption by hitstun or other systems.
 - **Affected nodes:** input evaluation, attack availability checks, combat recovery state and move execution. No Unity implementation requested yet.
 
+### PHY-036 — Defensive cancellation depends on the attack move (DECIDED, 2026-10-18)
+
+- **Option C adopted:** while an attack is executing, whether the Mon can cancel that attack to enter defense is **defined by the specific attack move**.
+- Some moves may allow a defensive cancel; other moves must finish their relevant committed portion before defense can start.
+- This is a **move-level execution rule**, not a universal always-allowed or always-forbidden defense cancel.
+- **Not yet decided:** cancellation windows, timing, effects on hitboxes, stamina/costs, recovery from interrupted attacks, and input buffering. Do not assume instant cancellation across all animations.
+- **Affected nodes:** move definitions, combat-state transitions, attack execution phases, defensive input gating and charge-start timing. Preserve existing V1.6 controls until a test slice is approved.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -343,7 +351,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-036: Should the Mon be able to begin a new defense while currently attacking, or must its current attack finish first?
+- PHY-037: For attacks that allow defensive cancellation, should cancellation be allowed at any point in the attack, or only within explicitly configured timing windows?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
