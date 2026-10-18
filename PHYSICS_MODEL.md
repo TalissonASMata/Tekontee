@@ -676,6 +676,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** precise hazard tick rates, repeated-contact cooldowns, status-effect duration or immunity-window length. “Immediate” means no new-entry requirement, not overriding an as-yet-undefined periodic damage schedule.
 - **Affected nodes:** early-recovery vulnerability transition, persistent environmental contact tracking, hazard/effect evaluation, damage/status application and collision resolution. No Unity implementation requested yet.
 
+### PHY-075 — Universal early-recovery invulnerability duration (DECIDED, 2026-10-18)
+
+- **Option A adopted:** every Mon eligible for early knockdown recovery receives **the same fixed-duration invulnerability window** at the beginning of the backward recoil, independent of morphology.
+- Morphology still controls **eligibility** and **time saved** in early recovery (PHY-049/050); it does not change the duration of the invulnerability window.
+- The invulnerability remains confined to the **initial portion of the recovery recoil** (PHY-063/064), protecting against enemy attacks, grabs, sweeps and environmental damage/effects (PHY-071–073).
+- Once this universal window ends, current environmental contacts and incoming hits are evaluated normally (PHY-069/074). Solid collision always remains active (PHY-068).
+- **Not yet decided:** actual window length in seconds/frames and its precise placement in animation; tune/validate these in a dedicated gameplay test rather than invent numbers.
+- **Affected nodes:** early-recovery timing, invulnerability/vulnerability state, hit and hazard evaluation, animation. No Unity code changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
