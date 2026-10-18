@@ -491,6 +491,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** maximum interval between taps, and whether invalid/too-slow input sequences can be retried while grounded. Do not invent these numbers or restrictions.
 - **Affected nodes:** knockdown phase transition, grounded contact detection, direction-relative double-tap recognizer, input-state reset and recovery eligibility. No Unity implementation yet.
 
+### PHY-054 — Retry early-recovery double-tap during grounded knockdown (DECIDED, 2026-10-18)
+
+- **Option A adopted:** if a player's backward double-tap attempt is invalid or too slow, they **may try the input again while their Mon remains grounded and knocked down**.
+- Each attempt must still contain **two valid taps away from the opponent after ground contact** (PHY-051–053). Do not count a tap made during the falling phase.
+- The available time to retry is naturally limited by the **remaining grounded knockdown period**, after which ordinary recovery completes.
+- Retry permission **does not bypass morphology eligibility**: `Cabeça.Intelecto > 40%` and `MassaGeral < 40%`, with linear mass-based early-recovery benefit (PHY-049/050).
+- **Not yet decided:** numerical double-tap timing threshold, whether a failed second tap can seed the next attempt, and the exact handling of directional changes. No Unity code implementation yet.
+- **Affected nodes:** relative-direction double-tap input recognition, grounded knockdown input window, failed-attempt reset/retry, recovery eligibility and timer.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
