@@ -31,6 +31,13 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - Do not build all Tamer platforming mechanics now; preserve the current validated movement/camera/combat loop and add the smallest collision slice when implementation requires it.
 - **Not yet decided:** walkable angle threshold, one-way platform behavior, grounding tolerances, collision layer policy, slope forces and friction models.
 
+### PHY-004 — Platform collision types (DECIDED, 2026-10-18)
+
+- **Option C adopted:** the arena supports both **fully solid platforms** (block top, bottom and sides) and **one-way platforms** (can pass upward from below and land from above).
+- Platform collision behavior is an explicit per-platform property, not inferred from sprite/artwork or automatically tied to a character.
+- This decision is a capability requirement; no need to implement all platform variants during the present V1.7 physics-design stage.
+- **Not yet decided:** whether the player can deliberately drop through one-way platforms, and the relevant input and collision rules.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -52,7 +59,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-004: Should platforms permit passing upward through them and landing from above (one-way), or remain solid on all sides by default?
+- PHY-005: Should the Tamer be able to intentionally drop through one-way platforms, or only pass through them from below?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
