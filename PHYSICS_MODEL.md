@@ -748,6 +748,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - The universal initial invulnerability duration is calibrated separately per PHY-075/076 and does not follow Mon morphology.
 - **Affected nodes:** recovery recoil movement parameters, animation timing, combat spacing, camera and collision response, playtest instrumentation. **This is a documentation decision, not authorization to modify Unity gameplay code now.**
 
+### PHY-083 — Responsive fighting movement and arena-bounded Mon flight (DECIDED, 2026-10-18)
+
+- **Mon baseline ground movement:** responsive, practically immediate horizontal walking speed, inspired by traditional Street Fighter; no long gradual acceleration ramp for standard directional walking. Morphology (e.g. `Pernas.Extensão`) may still determine walking speed. Special moves may use impulses or distinctive acceleration profiles.
+- **Tamer movement:** a separate responsive platforming controller inspired by Mega Man X, including platform traversal and eventual movement techniques, consistent with PHY-003. This does not authorize implementation of a full dash/move catalog now.
+- **Mon can jump and fly** as abilities/mechanics allow, **but remains inside the fight arena / fighting-screen play space**. Jumping or flying does not transition the Mon to the Tamer's platforming space or enable travel outside the bounded fighting area.
+- **Arena limits must constrain Mon movement in the relevant horizontal/vertical dimensions**, including air movement and flight. Do not assume the current camera rectangle is literally the physical collider boundary; distinguish camera framing from configurable arena bounds in implementation.
+- **Not yet decided:** maximum flight altitude, whether ceiling bounds are physical collisions or movement limits, flight control model, speed formulas, and any details of Tamer dash/jump. Preserve the validated dual-controller camera and switching model.
+- **Affected nodes:** Mon movement (ground/air/flight), fighting arena bounds, camera framing, morphology-derived locomotion, Tamer controller separation. No Unity code change authorized by this design confirmation.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -769,7 +778,8 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-050: When designing the morphology range, should the percentage thresholds for Intelecto and Peso be relative to a fixed maximum for each parameter, or to the current Mon/form's morphology distribution?
+- Fundamentals next: decide how the Mon's airborne movement respects the fight arena's vertical limit without conflating camera and physics bounds.
+- Deferred morphology-scale question: when implementation needs it, define fixed maxima vs per-form normalization for Intelecto and Peso thresholds.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
