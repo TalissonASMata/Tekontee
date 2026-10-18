@@ -192,7 +192,7 @@ Do not replace this behavior casually when implementing unrelated features.
 
 ## Technical dependency map and AI change-planning rule
 
-Before planning or coding **any new gameplay feature**, read `GAMEPLAY_TECHNICAL_MAP.md`. List movement family, affected technical nodes (change / verify / unaffected), inspected script and scene dependencies, smallest vertical slice, testable Unity acceptance criteria, and explicitly deferred systems. Do not use lore, art or feature-catalog expansion as a substitute for gameplay validation.
+Before planning or coding **any new gameplay feature**, read `GAMEPLAY_TECHNICAL_MAP.md` and `PHYSICS_MODEL.md` (the latter is the authoritative decision log for gameplay physics). List movement family, affected technical nodes (change / verify / unaffected), inspected script and scene dependencies, smallest vertical slice, testable Unity acceptance criteria, and explicitly deferred systems. Do not use lore, art or feature-catalog expansion as a substitute for gameplay validation.
 
 V1.7 must separate continuous **functional** morphology (jump height, strike reach / hitbox) from **discrete visual transformation** at later morphology thresholds. Morphology point gains do not resize or replace the sprite themselves. Start with one jump and one punch-reach hypothesis; plan the movement taxonomy, but do not implement the entire catalog.
 
@@ -214,7 +214,7 @@ The human defines desired gameplay behavior, sensations and acceptance criteria.
 
 Typical loop:
 
-1. Read `AI_CONTEXT.md`, `DESIGN_CORE.md`, `ROADMAP.md`, `GAMEPLAY_TECHNICAL_MAP.md` and `.github/copilot-instructions.md`.
+1. Read `AI_CONTEXT.md`, `DESIGN_CORE.md`, `ROADMAP.md`, `GAMEPLAY_TECHNICAL_MAP.md`, `PHYSICS_MODEL.md` and `.github/copilot-instructions.md`.
 2. Inspect current code before proposing changes.
 3. Plan the smallest implementation for the active milestone.
 4. Work on a feature branch.
