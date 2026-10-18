@@ -285,6 +285,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Effects on movement, attack input buffering, and interruptions are still not decided; do not infer extra penalties.
 - **Technical nodes:** defensive input and active-protection state, charge-time tracking, attack availability/recovery, passive defense fallback. No Unity implementation requested yet.
 
+### PHY-032 — Unrestricted mobility during post-defense attack recovery (DECIDED, 2026-10-18)
+
+- **Option A adopted:** after releasing a charged defense, the Mon may **move, jump and reposition normally** during its charge-matched attack recovery.
+- The recovery restriction applies **only to attacking**; it does not impose a movement-speed penalty, jump lock or other generic mobility restriction.
+- Active defensive protection still ends immediately on release (PHY-031). Passive natural defense remains available.
+- Attack availability returns after the recovery period equal to the actual elapsed defense charge time (PHY-030).
+- **Not yet decided:** whether a new defensive action can be started during the attack-recovery interval; handling of attack input buffering, and interruption by hitstun/other states.
+- **Affected technical nodes:** attack eligibility/recovery, Mon movement controller, defense state and input. No gameplay code changes yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -306,7 +315,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-032: During the attack-recovery interval after charged defense, can the Mon move normally, or is movement also restricted?
+- PHY-033: During the attack-recovery interval from charged defense, may the Mon start defending again, or must it wait until the recovery is complete?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
