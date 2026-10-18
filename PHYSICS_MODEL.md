@@ -13,6 +13,14 @@ Status: **iterative design contract**. Record decisions one at a time. Do not tu
 - Do not choose a fixed percentage of “stylized versus arcade” before testing. Make exceptions locally and document why.
 - **Not decided yet:** gravity model, units/scales, ground/platform/object collision contracts, mass-to-impulse mapping, drag, friction, restitution, detailed hitboxes and formulas.
 
+### PHY-002 — Universal arena gravity (DECIDED, 2026-10-18)
+
+- **One uniform, constant gravitational acceleration for all Mons in the arena.**
+- Differences in jumping and falling behavior arise from **individual morphology and mechanics**, such as propulsion/impulse, aerodynamics/drag and controlled airborne actions, not per-Mon gravity values.
+- Under the same gravity and neglecting drag, increased mass alone does **not** accelerate free fall.
+- A future explicit power or environmental effect could alter local gravity as an exception; it is **not part of the baseline**.
+- Gravity magnitude, coordinates, implementation and tuning **remain undecided**.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -34,7 +42,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-002: Which physical quantities should be **global world constants** and which can vary per Mon/move?
+- PHY-003: How should we detect and classify ground versus wall/platform contacts (contact normals and groundedness)?
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
