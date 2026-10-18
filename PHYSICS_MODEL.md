@@ -595,6 +595,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether ordinary movement, defense, or special actions can cancel/interrupt the recoil; how hitstun affects the unfinished recoil; exact animation and invulnerability durations.
 - **Affected technical nodes:** early-recovery recoil state, attack availability, hurtbox vulnerability timing, animation and combat-state transitions. No Unity gameplay code changes requested yet.
 
+### PHY-066 — Cannot defend again until early-recovery recoil finishes (DECIDED, 2026-10-18)
+
+- **Option B adopted:** during the backward recoil animation/movement of an early knockdown recovery, the Mon **cannot start another active defense**; the entire recoil must finish first.
+- Defense input during the recoil does **not cancel or interrupt the recoil**. Whether to buffer invalid commands is not separately approved; do not queue an automatic defense after the animation.
+- Existing restrictions also prohibit **attacks until recoil completion** (PHY-065).
+- The initial recoil portion retains its limited invulnerability window, while the later portion remains vulnerable to hits (PHY-063/064). Passive defense remains a separate morphology-derived baseline, not an active move activation.
+- **Not yet decided:** whether normal movement inputs may alter the ongoing recoil, whether incoming hitstun interrupts the recoil, and exact animation/invulnerability lengths.
+- **Affected nodes:** early-recovery recoil state, active-defense eligibility, attack eligibility, passive defense fallback, animation/state transitions. No Unity implementation requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
