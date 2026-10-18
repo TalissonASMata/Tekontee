@@ -107,46 +107,46 @@ This architecture is important because future morphology is multidimensional. Av
 
 ## 5. Target anatomical morphology
 
-Current working model is evolving; the former approximately 18-parameter sketch is **not a fixed count**. PHY-011 explicitly added `Couraça` to every anatomical region, and PHY-016 confirms `Dureza` (Hardness) for every anatomical region.
+Current working model is evolving; the former approximately 18-parameter sketch is **not a fixed count**. PHY-017 establishes **Tenacidade** (quantitative impact resistance) and **Revestimento** (surface traits, not a numeric armor stat) in every anatomical region. Earlier terms `Dureza` and `Couraça` are superseded.
 
 ### Head
 
-- Couraça
+- Revestimento
 - Weight
-- Hardness
+- Tenacidade
 - Fang/Beak capability
 - Intellect
 
 ### Torso
 
-- Couraça
+- Revestimento
 - Weight
-- Hardness
-- Coverage
+- Tenacidade
+- Coverage (pending: distinguish this from Revestimento)
 
 ### Arms
 
-- Couraça
+- Revestimento
 - Weight (mass **per arm**, identical for all arms; total arms mass = per-arm mass × Quantity)
-- Hardness
+- Tenacidade
 - Extension
 - Drag
 - Quantity
 
 ### Legs
 
-- Couraça
+- Revestimento
 - Weight
-- Hardness
+- Tenacidade
 - Extension
 - Drag
 - Quantity
 
 ### Tail
 
-- Couraça
+- Revestimento
 - Weight
-- Hardness
+- Tenacidade
 - Extension
 
 ### Element
@@ -155,14 +155,14 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 
 Confirmed leg gameplay mappings (PHY-015):
 - `Legs.Quantity` → surface adhesion, knockback resistance and slipping on slopes/vertical surfaces.
-- `Legs.Weight` → leg-attack damage together with leg hardness; total leg mass also contributes to global mass.
+- `Legs.Weight` → leg-attack damage together with leg tenacidade; total leg mass also contributes to global mass.
 - `Legs.Extension` → displacement and movement speed.
 - `Legs.Drag` → falling speed/aerial resistance, **not** personal gravity.
-- `Legs.Hardness` is **confirmed** (PHY-016), as is hardness for every other anatomical region. Arms and legs share hardness across their respective repeated limbs.
+- `Legs.Tenacidade` and tenacidade for every anatomical region are confirmed under the renamed PHY-017 schema. Arms and legs share tenacidade across their respective repeated limbs.
 
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
-**Global totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Couraça and Hardness are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
+**Global **numeric** totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Revestimento and Tenacidade are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
 
 ## 6. Morphology should emerge from action
 
