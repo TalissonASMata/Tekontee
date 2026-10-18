@@ -146,6 +146,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - `Dureza` remains **distinct from `Couraça`**. PHY-010 and PHY-015 establish hardness as relevant to striking; do not assume it contributes directly to global armor or health without a later decision.
 - No formula or Unity gameplay implementation is specified by this schema decision.
 
+### PHY-017 — Tenacidade and Revestimento: distinct morphology concepts (DECIDED, 2026-10-18)
+
+- **Terminology approved:** replace the previous anatomical numeric `Dureza` with **`Tenacidade`**, representing a body's ability to **withstand impact / absorb damage without breaking**. It is a physical resistance characteristic, not necessarily surface hardness in the strict material-science sense.
+- Replace the previous `Couraça` concept with **`Revestimento`**, representing **surface/body covering traits** that can grant distinctive situational advantages. Examples: **espinhos** (spines), **penas** (feathers), **escamas** (scales), **ventosas** (suction cups). These are examples, not a finalized trait catalog.
+- Both concepts belong to **each anatomical region**: head, torso, arms, legs and tail. Arms share their parameters across all arms; legs share theirs across all legs (PHY-013/014).
+- **`Tenacidade` is quantitative; `Revestimento` is a categorical/configurable morphology feature**, not automatically a number or a flat defense multiplier. Exact support for multiple coverings, compatibility rules and their reaction mechanics are pending.
+- **Supersedes terminology from PHY-010/011/013/014/015/016** wherever they call the prior concepts `Couraça` and `Dureza`; keep those prior entries as historical decision records, not current field names.
+- **Important unresolved downstream impact:** PHY-010 used `CouraçaGeral` to derive HP and defense and PHY-011 defined `CouraçaGeral` as an additive sum. Since `Revestimento` is not a scalar, **do not sum coverings** or naively substitute `RevestimentoGeral` into those formulas. The global-life and defense derivations must be revisited before implementation. The established rule that numeric "Geral" totals are sums (e.g. mass) still stands.
+- **Also pending:** whether/how `Tenacidade` modifies attack damage as formerly ascribed to `Dureza`, how it influences life/defense, and which covering traits affect each interaction. No equations or code changes are authorized yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -167,7 +177,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- PHY-017: Define the gameplay distinction between `Dureza` (material hardness) and `Couraça` (armor) so neither becomes a redundant stat.
+- PHY-018: Given PHY-017, should global HP be based on global mass plus summed regional `Tenacidade`, or use a different rule? Coverings remain independent situational traits.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
 - How anatomical parameters produce jump impulse, punch reach/hitbox and knockback without sprite changes.
