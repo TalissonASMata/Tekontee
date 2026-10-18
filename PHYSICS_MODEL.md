@@ -694,6 +694,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Keep solid collisions enabled and reapply current environmental effects as soon as invulnerability ends, per PHY-068/074.
 - **Affected nodes:** recovery recoil timeline, invulnerability flag, collision/hit/hazard resolution, animation playtesting. This records a future implementation validation criterion; it does not authorize unrequested Unity code changes.
 
+### PHY-077 — Invulnerability starts when the valid early-recovery input is recognized (DECIDED, 2026-10-18)
+
+- **Option A adopted:** the brief early-recovery invulnerability begins **immediately when the second valid backward-direction tap is recognized**, provided the Mon is grounded and meets the morphology eligibility requirements (PHY-049–060).
+- The Mon **does not wait for a visible backward-recoil animation frame** before gaining the invulnerability granted by PHY-063–076.
+- Invulnerability duration remains **universal for eligible Mons**, with the precise duration to be calibrated through Unity playtests (PHY-075/076).
+- The valid command also initiates the fixed backward recoil (PHY-061/062/067). Solid collisions stay active; protection includes attack and environmental effects as defined in PHY-071–074.
+- **Not yet decided:** how to resolve a valid recovery input and incoming hit in the exact same simulation tick, nor exact animation synchronization and frame duration. Do not invent a frame delay between accepted input and invulnerability.
+- **Affected nodes:** grounded knockdown input recognition, state transitions, invulnerability start, attack/hazard event ordering and recoil animation. No Unity code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
