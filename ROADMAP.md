@@ -18,7 +18,7 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.7 | Anatomical Morphology | Replace the temporary four-axis model with the real multidimensional anatomical model: Head, Torso, Arms, Legs, Tail and Element, totaling approximately 18 parameters. |
+| V1.7 | Anatomical Morphology | Plan the ~18-parameter anatomical schema, then validate continuous functional effects with two vertical slices: jump height and punch hitbox reach. No sprite changes from ordinary point gains; visual transformations remain separate threshold/pattern events. Use GAMEPLAY_TECHNICAL_MAP.md for node-impact planning. |
 | V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
 | V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
 | V1.10 | Original Morphology Baseline | Store the morphology each Mon had when entering the battle as `OriginalMorphology`. |
