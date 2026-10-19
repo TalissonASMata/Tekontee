@@ -1052,6 +1052,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Preserve the distinction between **body collision** (physical blocking/jump-over, PHY-095/096) and **attack hitboxes** (target contact/range), and between physical reach and elemental reach extension (PHY-099).
 - **Affected nodes:** morphology-driven combat hitbox size, form-based body collision configuration, transform visuals, hit detection and opponent physical blocking. **No Unity code change requested**.
 
+### PHY-120 — Jump performance evolves continuously with morphology (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** the Mon's **jump height / functional jump capability changes gradually as its current morphology changes**, even before it undergoes any discrete visual/form transformation.
+- Jump behavior derives from **`Pernas.Massa`, `Pernas.Extensão` and `.MassaGeral`** (PHY-088). Changes to those inputs must become noticeable through movement without requiring sprite resizing or a changed body collider.
+- Preserve universal arena gravity (PHY-002), the shared soft altitude limit for jumps and aerial abilities (PHY-084/085), partial airborne horizontal steering (PHY-089), and the clear separation between functional morphology and visual transformations (PHY-118/119).
+- **No formula, numerical jump height, curve or runtime update timing is prescribed now**; validate changes in the smallest testable Unity morphology-to-jump slice.
+- **Affected nodes:** anatomy-based derived jump impulse, Mon movement, morphology update propagation, shared gravity, combat arena limits, debug/playtesting. No Unity gameplay code change requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
