@@ -893,6 +893,13 @@ The user defines **four separate roles** for leg properties, without automatical
 - **No formula, coefficients, frame sampling, numeric damage values or animation-specific modifiers are selected yet.** They belong to implementation/tuning, not fundamental design.
 - **Affected nodes:** strike potency calculation, arm/leg anatomy, Mon movement velocity/acceleration, combat impact vector/knockback, eventual element effects. No Unity code implementation requested.
 
+### PHY-101 — Damage and physical knockback are distinct outcomes (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** an attack's **damage** and **physical knockback/displacement** are distinct results, not obligatorily proportional. An attack may cause high damage with little displacement, or low damage with strong repel/launch.
+- Physical knockback retains its established dependence on impact vector, receiving Mon mass, and grounded traction where applicable (PHY-093/094); damage can follow its own combat-effect rules. Shared move parameters may influence both, but **neither outcome is derived solely from the other**.
+- Do not establish damage equations, stun duration, combo implications, numerical coefficients, or special-move exceptions now; those are later test/tuning topics.
+- **Affected nodes:** combat hit resolution (damage versus impulses), health, knockback/vector motion, morphology-driven attack potency, terrain contact. **No Unity code change requested.**
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
