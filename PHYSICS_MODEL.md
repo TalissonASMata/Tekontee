@@ -1076,6 +1076,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Deferred until an actual Unity test:** exact morphology qualification/threshold, participating regions, input binding, glide strength/formula, visuals and control timing. Do not extrapolate an entire flight tree from this choice.
 - **Affected nodes:** anatomy-based ability availability, air movement/glide action, fall drag and arena bounds. **No Unity code change requested.**
 
+### PHY-123 — Universal move attempts; insufficient morphology causes a harmless animated Fail (DECIDED, 2026-10-19)
+
+- **User-confirmed rule:** a Mon may **attempt any universal movement**, including a second jump or glide, even if its anatomy does not support successful execution. The input is **recognized**, but the move resolves as **`Fail`** in the existing `Fail / Effective / Critical` execution-quality system.
+- On `Fail` due to insufficient morphology, give the player **clear visual feedback with a brief recoil/failed-action animation**, with **no self-damage** from the attempt. This is **feedback for an unsuccessful move**, not an enemy knockback impulse and not the previously discussed early-knockdown-recovery recoil.
+- **Clarification/supersession of PHY-121/122:** “requires morphology” means **requires it for successful/effective execution**, **not** that the universal command is unavailable or ignored. Therefore the base jump is universally executable; additional jumps and gliding can always be **attempted**, but fail harmlessly until the morphology supports them.
+- Maintain the core `DESIGN_CORE.md` principle of a universal move catalog and three execution-quality levels. Existing guidance that Fail may award minimal morphological reinforcement remains unchanged; no new gain amounts, exact thresholds, animation durations, stun or forced displacement are decided here.
+- Implement the simplest discernible failed-action feedback in Unity only when the corresponding vertical slice is requested; **no Unity code changes authorized**.
+- **Affected nodes:** universal input recognition, move morphology evaluation, Fail result, feedback/animation, jump/glide action gating, player comprehension.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
