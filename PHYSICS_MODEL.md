@@ -1019,6 +1019,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - The precise regeneration rate/curve, frame processing and exceptional states are **not** defined now; tune them with a Unity prototype slice instead of extending speculative edge-case discussions.
 - **Affected nodes:** continuously ticking health recovery, health-damaging hit counter and slowdown, transformation state, health UI. No Unity gameplay code requested.
 
+### PHY-116 — Universal starting health regeneration rate (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** all Mons start combat with the **same baseline natural health regeneration rate**, rather than deriving the initial regeneration speed from their morphology or current form.
+- During combat, life regenerates **continuously**, including while moving or attacking (PHY-115). The regeneration rate decreases as the **count of hits that actually damaged health** increases (PHY-112/113); the accumulated hit count and slowdown persist across form changes (PHY-114).
+- A transformation **does not reset regeneration wear**, and only remaps the current health percentage to the new form's maximum HP (PHY-111). Armor remains a separate, form-specific non-passively-regenerating resource (PHY-104/109).
+- **Deferred to actual Unity tuning:** whether the universal base rate is represented as HP per second or max-HP percentage per second, the slowdown curve and numerical values. Do not invent these or ask additional speculative balance questions now.
+- **Affected nodes:** health regeneration baseline/configuration, hit-count slowdown state, form change health conversion, health UI. No Unity gameplay code requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
