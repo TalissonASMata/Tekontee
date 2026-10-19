@@ -962,6 +962,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Still unresolved:** if returning to a previously used form restores that form's previously damaged armor, or starts it in another condition; whether the user's “damage from another form doesn't persist” applies exclusively to the armor resource or to both armor and health. **Do not invent either rule.**
 - **Affected nodes:** form transformation, per-form armor maxima and damage state, health/armor UI switching and damage routing. No code implementation requested.
 
+### PHY-109 — Full armor on every entry into a form (DECIDED, 2026-10-19)
+
+- **User's explicit option C:** when a Mon returns to a previously used form (e.g. A → B → A), it enters that form with **the form's armor at full capacity**, even if that same form had lost armor earlier in the battle.
+- More generally, on **each actual form change**, the entering form starts with its full current-form armor, derived from that form's `TenacidadeGeral` (PHY-107/108). Damage/armor depletion from earlier uses of this form or from other forms is **not retained** across form entry.
+- Within any one continuous stay in a form, armor **does not naturally regenerate** (PHY-104). This form-change restoration is **not** passive armor regeneration, and gaining morphology points without changing form does not restore armor.
+- **Still undecided:** whether life/HP damage persists across transformations. This decision specifically governs **armor**; do not infer a health reset.
+- **Affected nodes:** form entry/switching, armor current/max initialization, defensive resource state and UI. No Unity gameplay code changes requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
