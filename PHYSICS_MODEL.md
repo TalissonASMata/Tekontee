@@ -1060,6 +1060,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **No formula, numerical jump height, curve or runtime update timing is prescribed now**; validate changes in the smallest testable Unity morphology-to-jump slice.
 - **Affected nodes:** anatomy-based derived jump impulse, Mon movement, morphology update propagation, shared gravity, combat arena limits, debug/playtesting. No Unity gameplay code change requested.
 
+### PHY-121 — Additional jumps require supporting morphology (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** all Mons can perform the **basic ground jump**, but a **second or further airborne jump is available only when supported/unlocked by the Mon's morphology**. Double jump is **not guaranteed** as an effective action to every morphology.
+- Preserve the broader universal-moveset design principle as an **available action concept**, while distinguishing it from **actually satisfying the morphology requirements to execute additional jumps**. The current chosen gameplay rule is that the extra jump is gated by morphology, not universally granted.
+- Jump performance still derives from `Pernas.Massa`, `Pernas.Extensão` and `.MassaGeral` (PHY-088/120); **do not infer specific additional-jump thresholds, required regions, counts or exact input timings** without a later implementation decision.
+- Keep the shared altitude cap, gravity and partial horizontal aerial control (PHY-002/084/085/089). No requirement to implement multi-jump mechanics in the immediate morphology-to-jump validation slice.
+- **Affected nodes:** morphology-gated movement abilities, jump input/state, airborne jump counter, derived jump dynamics and combat bounds. No Unity gameplay code modifications requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
