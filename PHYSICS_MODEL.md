@@ -877,6 +877,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Avoid prescribing attack damage, hitbox equations, combo strings or animation timing now; they should follow the smallest testable basic-moveset slice.
 - **Affected nodes:** punch/kick move categories, morphology-derived move range, attack hitbox geometry, control input action mapping, future elemental move variants; existing universal moveset requires regression verification. No Unity code modifications authorized.
 
+### PHY-099 — Elemental strong strikes can extend beyond physical contact (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** the elemental part of a **strong punch (△)** or **strong kick (○)** may **extend the effective range beyond direct physical limb contact**, depending on the Mon's element and the move.
+- These remain unified **physical + elemental** moves (see PHY-098); an elemental reach extension does not create a separate optional attack command or remove the strike's physical/anatomical basis.
+- Distinguish the **anatomical contact range** (arm/leg plus torso extension, PHY-098) from the **elemental effect/reach geometry**, so each can be tuned independently without relying on visual sprite changes.
+- This is an **ability**, not a blanket rule that all elements increase reach. No default projectile, exact elemental shapes, range bonuses, hitboxes or effect timing are specified now.
+- **Affected nodes:** strong-strike definitions, physical versus elemental reach/hit detection, anatomy and element morphology, combat effects, controller button semantics. No Unity code changes requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
