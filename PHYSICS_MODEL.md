@@ -1044,6 +1044,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Physical hit range and any elemental range extension remain separate concepts (PHY-099).
 - **Affected nodes:** anatomy-derived reach, punch/kick hitboxes, morphology updates, combat target detection, visual transformation boundary, Unity debug/testing. This decision alone does not authorize code changes.
 
+### PHY-119 — Functional attack reach and physical body collision evolve separately (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** ongoing morphology development can change **punch/kick attack reach and attack hitbox geometry** continuously, while the Mon's **body collision/physical occupied space remains unchanged** until a discrete visual/form transformation.
+- This refines PHY-118: growth in `Braços.Extensão`, `Pernas.Extensão` and `Torso.Extensão` may affect attack reach without resizing the physical body collider or sprite on each increment.
+- At an actual transformation, body collider dimensions **may be updated according to the newly assumed form**, separately from functional hitbox changes. Exact transformation geometry and resizing mechanics are left for implementation validation.
+- Preserve the distinction between **body collision** (physical blocking/jump-over, PHY-095/096) and **attack hitboxes** (target contact/range), and between physical reach and elemental reach extension (PHY-099).
+- **Affected nodes:** morphology-driven combat hitbox size, form-based body collision configuration, transform visuals, hit detection and opponent physical blocking. **No Unity code change requested**.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
