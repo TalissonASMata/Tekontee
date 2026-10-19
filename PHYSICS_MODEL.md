@@ -994,6 +994,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Health still recovers gradually per PHY-102; armor does not naturally regenerate (PHY-104). Changes in form preserve the current health percentage (PHY-111).
 - **Affected nodes:** combat event/hit counting, health regeneration rate, armor-versus-health damage routing, debug feedback. No Unity code changes requested.
 
+### PHY-113 — Only hits damaging health slow natural health regeneration (DECIDED, 2026-10-19)
+
+- **Option B explicitly confirmed:** only a hit that **actually removes health/life** counts toward the cumulative hit count used to slow natural health regeneration (PHY-112).
+- Hits whose damage is **entirely absorbed by armor** do **not** add to the regeneration-slowdown count. A single hit that exhausts armor and carries excess damage into life **does count once**, because it damaged health (PHY-106).
+- Each qualifying hit counts as **one hit irrespective of how much health damage it causes**; the slowdown is based on hit quantity, not damage magnitude or the remaining life percentage.
+- Maintain established routing: piercing damage prioritizes health (PHY-103), and non-piercing damage prioritizes armor with overflow to life (PHY-106). No passive armor regeneration (PHY-104).
+- **Not yet decided:** whether accumulated health-hit count and its slowdown persist through transformations, the exact regeneration curve and reset conditions. Do not invent numeric penalties or timings.
+- **Affected nodes:** hit-resolution event, health-vs-armor damage accounting, regenerative slowdown state, form transitions and debug/UI. No Unity code implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
