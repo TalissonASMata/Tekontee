@@ -927,6 +927,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Preserve damage-type priority: piercing strikes prioritize life; other types prioritize armor (PHY-103). Routing overflow and exceptions remain undecided.
 - **Affected nodes:** separate armor and health resources, passive regeneration rules, UI displays, combat damage routing. No Unity code changes requested.
 
+### PHY-105 — Armor depletion exposes health without additional stagger penalty (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** once armor reaches zero, subsequent non-piercing strikes that would normally prioritize armor **apply their damage directly to health**.
+- **No automatic extra knockback, vulnerability multiplier, stun or special armor-break penalty** is introduced simply because armor was depleted.
+- Piercing strikes already prioritize health regardless of remaining armor (PHY-103). Damage and knockback remain separately calculated outcomes (PHY-101).
+- The armor bar still does not regenerate naturally during a fight (PHY-104); the health bar's gradual recovery and slowing after accumulated damage remain a separately defined concept (PHY-102).
+- No numerical coefficients, excess-damage/overflow rules for a single strike that depletes armor, or armor-break animations are specified now.
+- **Affected nodes:** damage destination selection at zero armor, health/armor resource state, combat hit routing and UI. No gameplay implementation authorized by this documentation update.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
