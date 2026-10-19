@@ -1011,6 +1011,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** the slowdown curve, base regeneration speed, and any reset outside the ongoing battle. Avoid unnecessary balance questions until Unity testing requires them.
 - **Affected nodes:** persistent combat health and regeneration hit-count state, form changes, armor reset, UI/debug. No Unity gameplay implementation requested.
 
+### PHY-115 — Health regenerates continuously during combat (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** the Mon's health **recovers continuously during combat**, including while it moves, attacks, or is otherwise fighting. Regeneration does **not** require waiting for a damage-free interval.
+- The rate of recovery progressively slows based on the **number of hits that actually dealt health damage** (PHY-112/113), irrespective of damage intensity. That accumulated slowdown persists across form changes (PHY-114).
+- This does not regenerate armor, which stays depleted during a continuous period in the same form and is fully restored only on changing forms (PHY-104/109). Form changes preserve the health **percentage** (PHY-111).
+- The precise regeneration rate/curve, frame processing and exceptional states are **not** defined now; tune them with a Unity prototype slice instead of extending speculative edge-case discussions.
+- **Affected nodes:** continuously ticking health recovery, health-damaging hit counter and slowdown, transformation state, health UI. No Unity gameplay code requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
