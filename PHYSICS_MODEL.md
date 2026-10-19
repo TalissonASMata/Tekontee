@@ -806,6 +806,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Do not define numerical steering coefficients, drag, maximum aerial speed or reversal timing yet.** Test/calibrate in Unity when implementing the minimal jump-movement slice.
 - **Affected nodes:** Mon airborne movement, horizontal velocity handling, shared physics/gravity, morphology movement modifiers and playtesting. No Unity code change requested.
 
+### PHY-090 — Normal landing stops horizontal momentum when no input is held (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** when a Mon lands after normal aerial movement **without an active horizontal movement input**, its horizontal locomotion stops immediately on ground contact, rather than adding a mass-dependent landing slide.
+- Preserve responsive on-ground fighting movement (PHY-083), partial aerial steering with retained momentum (PHY-089), and morphology-derived normal walking speed (PHY-087).
+- This rule applies to **ordinary locomotion and landing**. It does **not** eliminate specific slides, knockback, forced movement, active attacks, or terrain-dependent physical interactions; those remain governed by their own mechanics.
+- No landing friction coefficient, transitional frame count or animation-specific edge cases need definition at this fundamentals stage.
+- **Affected nodes:** Mon ground/air movement transition, horizontal velocity/input resolver, knockback state separation, ground detection. No Unity gameplay changes requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
