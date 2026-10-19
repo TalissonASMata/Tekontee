@@ -830,6 +830,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Deferred until a minimum test requires it:** terrain catalog, covering-versus-surface matrix, coefficients and exceptions. Preserve normal input-responsive ground control and PHY-090's stopping rule, with separately modeled forced displacement or slippery surfaces.
 - **Affected nodes:** surface/contact classification, anatomy covering and leg-count morphology, general mass, traction and knockback response; no gameplay code change requested yet.
 
+### PHY-093 — Grounded knockback depends on mass and surface adhesion (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** for a given external strike/impact, the Mon's physical knockback/displacement response depends on **`.MassaGeral`** and, **when grounded**, its **effective adhesion to the current surface**.
+- Effective ground adhesion is contextual: `Pernas.Quantidade`, `Pernas.Revestimento`, `.MassaGeral` and terrain/contact type, per PHY-091/092. Avoid accidentally applying grounded traction as an additional resistance while fully airborne.
+- **Airborne knockback still depends on mass and strike force**, but **ground adhesion is not applied while there is no ground contact**. Grounded and airborne reactions may therefore differ to the same hit.
+- Do not predefine coefficients, knockback equations, per-move multipliers or animation exceptions now; validate the minimum playable hit/repel slice when implementation is requested.
+- **Affected nodes:** combat impact/knockback, morphology-derived mass, surface traction and ground contact, airborne movement. No Unity code changes authorized by this documentation decision.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
