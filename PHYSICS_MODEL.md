@@ -1027,6 +1027,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Deferred to actual Unity tuning:** whether the universal base rate is represented as HP per second or max-HP percentage per second, the slowdown curve and numerical values. Do not invent these or ask additional speculative balance questions now.
 - **Affected nodes:** health regeneration baseline/configuration, hit-count slowdown state, form change health conversion, health UI. No Unity gameplay code requested.
 
+### PHY-117 — Defeat occurs when health reaches zero (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** the Mon is defeated **as soon as its health/life reaches zero**, irrespective of whether armor remains.
+- Armor is a distinct defensive resource, **not an extra defeat requirement**. Piercing hits can prioritize health even when armor remains (PHY-103), so such hits can cause defeat with armor still positive.
+- A life-damaging hit that overflows from armor into health (PHY-106) can likewise cause defeat if it reduces health to zero.
+- This completes the baseline defeat rule for the two-resource model; exact animation/timing/edge cases are deferred until the gameplay slice is implemented.
+- **Affected nodes:** combat outcome resolver, health and armor resources, damage routing, battle state/UI. No Unity implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
