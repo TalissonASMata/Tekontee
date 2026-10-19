@@ -986,6 +986,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - No numerical rounding, minimum/maximum HP or regeneration timing details are specified; defer them to Unity validation.
 - **Affected nodes:** form-specific derived max HP, health fraction mapping on transformation, armor resource reset, persistent battle health state, health/armor UI. No Unity gameplay code changes requested.
 
+### PHY-112 — Health regeneration slows by hit count, not damage magnitude (DECIDED, 2026-10-19)
+
+- **Explicit user correction:** the progressive reduction in the health regeneration rate depends on the **number of hits received**, **not the intensity of damage** dealt by each strike.
+- The accumulated **hit count** is the design driver for regeneration slowdown; a strong hit does not count as proportionally more hits merely because it deals more damage. Do not substitute total damage taken or current health percentage as the driver.
+- **Not yet decided:** whether a hit that damages **only armor** also counts toward this accumulated hit count, or only a hit that actually damages **health**; whether wholly blocked/missed attacks count (do not assume they do); the precise regeneration rate/curve and any reset rule.
+- Health still recovers gradually per PHY-102; armor does not naturally regenerate (PHY-104). Changes in form preserve the current health percentage (PHY-111).
+- **Affected nodes:** combat event/hit counting, health regeneration rate, armor-versus-health damage routing, debug feedback. No Unity code changes requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
