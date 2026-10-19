@@ -900,6 +900,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Do not establish damage equations, stun duration, combo implications, numerical coefficients, or special-move exceptions now; those are later test/tuning topics.
 - **Affected nodes:** combat hit resolution (damage versus impulses), health, knockback/vector motion, morphology-driven attack potency, terrain contact. **No Unity code change requested.**
 
+### PHY-102 — Tenacity affects maximum health; layered armor and recoverable health concept (PARTLY DECIDED, 2026-10-19)
+
+- **Option A explicitly confirmed:** `TenacidadeGeral` influences **maximum HP**, but does **not** also apply a generic passive damage-reduction multiplier to each incoming hit. Active defense and other specific mechanics remain separate.
+- **User-proposed design direction, not yet completely specified or committed as a mechanical contract:** a separate **outer armor bar** and an **inner life/health bar**. Health lost to damage would **recover gradually by itself**, with the **recovery becoming slower after successive damage events / accumulated damage**. This is a candidate high-level combat survivability loop, not permission to invent timings, rules or exact resource equations.
+- **User raised an open architecture question:** whether **damage to armor** and **damage to health** should be separate outputs so that **armor-piercing effects** can be added **in the future**. Do not establish armor piercing, damage classes, bypass percentages or a full damage taxonomy now.
+- To minimize future rework, consider **separating armor and health as damage destinations/resources** without mandating distinct physical/elemental damage types. This is an architectural recommendation awaiting user confirmation, not a settled PHY-102 rule.
+- **Reconcile later when implementing:** previous design established a single HP pool (no per-limb HP). A separate armor bar would be an independent defensive resource, not per-limb HP, and its relationship to active guarding/tenacity must be expressly confirmed.
+- **Affected nodes:** maximum HP derived from tenacity; possible armor resource and health regeneration; combat hit resolution; future armor piercing. Only tenacity's absence of passive per-hit damage mitigation is fully decided here; no Unity code change requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
