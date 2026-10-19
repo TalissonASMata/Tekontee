@@ -838,6 +838,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Do not predefine coefficients, knockback equations, per-move multipliers or animation exceptions now; validate the minimum playable hit/repel slice when implementation is requested.
 - **Affected nodes:** combat impact/knockback, morphology-derived mass, surface traction and ground contact, airborne movement. No Unity code changes authorized by this documentation decision.
 
+### PHY-094 — Hits use directional vector knockback (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** a combat impact can impart a **two-dimensional knockback vector**, with horizontal and vertical components. Depending on the particular move, this permits pushing, lifting, or launching an opposing Mon, rather than limiting ordinary impact responses to horizontal displacement.
+- This reuses the same physical response model for grounded and airborne hits, while respecting grounded effective adhesion and general mass (PHY-093). Ground-contact traction may resist horizontal displacement when grounded; it must not be applied while airborne.
+- No default launch angle, per-move vectors, strengths, input special cases, extra animation states or detailed combos are decided now. Tune and specify only when the smallest Unity strike/knockback slice requires it.
+- Preserve the shared arena movement boundaries (PHY-084/085) and common gravity.
+- **Affected nodes:** combat hit response/knockback, 2D motion, ground contact/traction, morphology-derived mass, arena bounds. This records design only; no Unity code implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
