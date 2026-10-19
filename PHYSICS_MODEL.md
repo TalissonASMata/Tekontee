@@ -970,6 +970,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Still undecided:** whether life/HP damage persists across transformations. This decision specifically governs **armor**; do not infer a health reset.
 - **Affected nodes:** form entry/switching, armor current/max initialization, defensive resource state and UI. No Unity gameplay code changes requested.
 
+### PHY-110 — Health damage persists across transformations (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** changing forms **fully restores the entering form's armor** (PHY-109), but **does not heal or reset damage already suffered by the Mon's health/life bar**.
+- Health is a persistent combat resource across form changes; armor is a fresh, form-specific resource on each form entry. Health may continue its separately proposed gradual natural recovery (PHY-102), but transformation itself is **not an instant health heal**.
+- This maintains consequences for damage that bypasses or exceeds armor, including piercing priority (PHY-103) and non-piercing overflow (PHY-106).
+- **Not yet decided:** if different forms have different derived maximum HP, the exact rule for carrying current HP across a change in its maximum (fixed damage, fixed percentage, current points/clamping etc.). Do not invent a conversion rule.
+- **Affected nodes:** persistent health combat state, form switch resource initialization, armor reset, max-health recalculation and health/armor UI. No gameplay implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
