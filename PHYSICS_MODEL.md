@@ -791,6 +791,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Do not invent** the weighting, mathematical formula, normalization, numerical ranges or extreme-case balance now. Those are calibrated with the smallest playable morphology-movement test.
 - **Affected nodes:** morphology-derived locomotion attributes, Mon ground movement, speed/debug display and Unity playtest parameters. This does not yet mandate changing code.
 
+### PHY-088 — Jump impulse depends on leg mass, leg extension and total mass (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** Mon jump capability/height depends jointly on **`Pernas.Massa`**, **`Pernas.Extensão`** and **`.MassaGeral`**.
+- Leg mass/structure contributes to the ability to produce the jump impulse; extension contributes to the movement's mechanical reach/impulse potential; total mass influences the resulting motion. This is a **gameplay design mapping**, not a claim that limb mass alone is a real-world physiological force.
+- Maintain the universal gravity and shared combat-arena altitude limit (PHY-084/085). A morphology's attainable jump height may be below the arena maximum.
+- **Do not preselect a formula, weights, minimum jump height, or numeric limits**. Validate the mapping and tune through the smallest Unity jump morphology test.
+- **Affected nodes:** anatomy/morphology derived jumping, Mon jump impulse, common gravity, arena bounds and test/debug UI. No gameplay implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
