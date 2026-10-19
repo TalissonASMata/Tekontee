@@ -936,6 +936,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - No numerical coefficients, excess-damage/overflow rules for a single strike that depletes armor, or armor-break animations are specified now.
 - **Affected nodes:** damage destination selection at zero armor, health/armor resource state, combat hit routing and UI. No gameplay implementation authorized by this documentation update.
 
+### PHY-106 — Excess non-piercing damage carries from armor into health (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** when a non-piercing strike prioritizes armor and **its damage exceeds the remaining armor**, the remaining armor is depleted and **all excess damage from that same hit is applied to health**.
+- Example: with 10 armor remaining, a 30-damage non-piercing hit deals **10 to armor + 20 to health** (before any other explicitly defined move-specific rules). Excess damage is **not discarded**.
+- Consistent with PHY-103/105: piercing attacks prioritize health, while damage prioritizing armor routes directly to health if armor is already zero. Armor does not recover passively (PHY-104).
+- Does not decide special piercing overflow handling, alternate damage distributions, armor max source, recovery rate or numerical balancing; defer until needed.
+- **Affected nodes:** damage distribution/overflow, combat hit resolution, armor and health resource tracking, damage UI feedback. No gameplay implementation authorized.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
