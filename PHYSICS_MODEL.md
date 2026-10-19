@@ -1035,6 +1035,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - This completes the baseline defeat rule for the two-resource model; exact animation/timing/edge cases are deferred until the gameplay slice is implemented.
 - **Affected nodes:** combat outcome resolver, health and armor resources, damage routing, battle state/UI. No Unity implementation requested.
 
+### PHY-118 — Morphology changes physical strike reach continuously, independent of visual transformation (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** as the Mon's morphology develops, the **functional reach/hitbox of a physical punch or kick updates gradually**, without waiting for a discrete transformation into a new visible form.
+- Punch reach derives from `Braços.Extensão` together with `Torso.Extensão`; kick reach derives from `Pernas.Extensão` together with `Torso.Extensão` (PHY-098).
+- **Visual form/sprite changes are separate, threshold-based events**, not triggered on each incremental morphology change. The physical strike reach can therefore evolve while the visible body appearance remains the same.
+- The basic experiment should vary morphology and confirm measurable attack-reach/hitbox changes **without resizing the sprite or physical body collider**. Actual geometry formula, offsets, interpolation and numerical tuning are postponed to Unity validation.
+- Physical hit range and any elemental range extension remain separate concepts (PHY-099).
+- **Affected nodes:** anatomy-derived reach, punch/kick hitboxes, morphology updates, combat target detection, visual transformation boundary, Unity debug/testing. This decision alone does not authorize code changes.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
