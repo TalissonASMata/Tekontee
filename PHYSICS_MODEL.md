@@ -814,6 +814,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - No landing friction coefficient, transitional frame count or animation-specific edge cases need definition at this fundamentals stage.
 - **Affected nodes:** Mon ground/air movement transition, horizontal velocity/input resolver, knockback state separation, ground detection. No Unity gameplay changes requested yet.
 
+### PHY-091 — Ground adhesion uses leg count, leg covering and general mass (DECIDED, 2026-10-19)
+
+- **User-confirmed option B, plus explicit addition:** Mon ground adhesion/stability depends jointly on **`Pernas.Quantidade`**, **`Pernas.Revestimento`** (categorical features such as claws or suction cups, with context-specific effects), **and `.MassaGeral`**.
+- The three contributions are considered for traction, slipping and resistance to external pushes/repel while in contact with ground; their precise relative impact and interaction with particular surfaces/terrain must be validated during the smallest Unity test, not assumed numerically.
+- Do not reduce the categorical `Revestimento` to an unconditional scalar armor/grip coefficient: its effect must make sense for the contact surface and morphology. Do not assume more mass always produces a specific numeric grip multiplier without tests.
+- Preserve PHY-090: ordinary landing without directional input halts horizontal locomotion immediately; separate forced displacement, knockback, environmental slip and special terrain behavior.
+- **Affected nodes:** morphology/anatomy, contact and grounding, terrain/surface properties, external forces/knockback, locomotion stability. **No Unity code implementation authorized yet.**
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
