@@ -885,6 +885,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - This is an **ability**, not a blanket rule that all elements increase reach. No default projectile, exact elemental shapes, range bonuses, hitboxes or effect timing are specified now.
 - **Affected nodes:** strong-strike definitions, physical versus elemental reach/hit detection, anatomy and element morphology, combat effects, controller button semantics. No Unity code changes requested.
 
+### PHY-100 — Physical strike potency incorporates limb mass, total mass and movement dynamics (DECIDED, 2026-10-19)
+
+- **Option B confirmed, with explicit user addition:** the physical potency/impact of punches and kicks depends on **the striking limb's mass**, **`.MassaGeral`** and **movement dynamics** at impact. The Mon's **acceleration may contribute** to the resulting strike, as well as motion/speed.
+- For a punch consider the relevant arm mass; for a kick consider the relevant leg mass. Their anatomy and movement participate in the physical component of the attack. The existing strong elemental strike remains a unified physical-plus-elemental move (PHY-098/099).
+- Distinguish **movement acceleration** from current velocity conceptually; **do not assume an arbitrary real-world equation or that merely accelerating in any direction buffs an attack**. The contribution of movement and acceleration needs to respect the strike's relevant direction and be validated through a small gameplay test.
+- **No formula, coefficients, frame sampling, numeric damage values or animation-specific modifiers are selected yet.** They belong to implementation/tuning, not fundamental design.
+- **Affected nodes:** strike potency calculation, arm/leg anatomy, Mon movement velocity/acceleration, combat impact vector/knockback, eventual element effects. No Unity code implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
