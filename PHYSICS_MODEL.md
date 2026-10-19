@@ -978,6 +978,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** if different forms have different derived maximum HP, the exact rule for carrying current HP across a change in its maximum (fixed damage, fixed percentage, current points/clamping etc.). Do not invent a conversion rule.
 - **Affected nodes:** persistent health combat state, form switch resource initialization, armor reset, max-health recalculation and health/armor UI. No gameplay implementation requested.
 
+### PHY-111 — Preserve health percentage across form changes (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** when a form change alters `VidaMáxima`, preserve the Mon's **current health fraction**, then express it against the new form's maximum HP.
+- Example: 60/100 HP (60%) in form A becomes **120/200 HP (60%)** in form B. Transformation **does not reset the health fraction** or heal the Mon to full.
+- This refines PHY-110: damage to life persists **as a fraction of the life bar**, not as an unchanged absolute damage-point total. The armor bar independently resets to the entering form's full `TenacidadeGeral` (PHY-107–109).
+- No numerical rounding, minimum/maximum HP or regeneration timing details are specified; defer them to Unity validation.
+- **Affected nodes:** form-specific derived max HP, health fraction mapping on transformation, armor resource reset, persistent battle health state, health/armor UI. No Unity gameplay code changes requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
