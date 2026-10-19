@@ -909,6 +909,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Reconcile later when implementing:** previous design established a single HP pool (no per-limb HP). A separate armor bar would be an independent defensive resource, not per-limb HP, and its relationship to active guarding/tenacity must be expressly confirmed.
 - **Affected nodes:** maximum HP derived from tenacity; possible armor resource and health regeneration; combat hit resolution; future armor piercing. Only tenacity's absence of passive per-hit damage mitigation is fully decided here; no Unity code change requested.
 
+### PHY-103 — Damage category determines priority between health and armor (DECIDED, 2026-10-19)
+
+- **User's explicit option C:** incoming damage is routed by its **damage type** to one of the two defensive resources as its **priority destination**.
+- **Piercing damage (`perfurante`): prioritize the health/life bar.**
+- **All non-piercing damage: prioritize the armor bar.**
+- **Priority does not yet prescribe exclusive targeting, overflow, bypass percentages, splitting between bars, or what happens if a preferred bar is exhausted.** Decide such details only when implementing and testing the health/armor damage slice.
+- This supersedes the premature binary options “armor first for every strike” versus “both simultaneously for every strike.” Keep damage and physical knockback independent (PHY-101).
+- The two-bar health/armor concept from PHY-102 is now **necessary to this selected routing model**; the exact source of armor maximum, regeneration/depletion mechanics, and how slower health recovery accumulates with damage are still undecided. The health pool remains global, not per limb.
+- **Affected nodes:** damage type/category, combat hit routing, separate armor and health resources, UI bars and eventual recovery, future move damage definitions. No Unity gameplay code change requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
