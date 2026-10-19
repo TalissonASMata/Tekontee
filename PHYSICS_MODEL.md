@@ -919,6 +919,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - The two-bar health/armor concept from PHY-102 is now **necessary to this selected routing model**; the exact source of armor maximum, regeneration/depletion mechanics, and how slower health recovery accumulates with damage are still undecided. The health pool remains global, not per limb.
 - **Affected nodes:** damage type/category, combat hit routing, separate armor and health resources, UI bars and eventual recovery, future move damage definitions. No Unity gameplay code change requested.
 
+### PHY-104 — Armor does not regenerate naturally during combat (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** the outer **armor resource does not regenerate on its own** during the current fight; damage/depletion to armor persists rather than gradually refilling through passive recovery.
+- The inner health/life resource is conceptually recoverable over time, with its recovery becoming slower as damage is accumulated (PHY-102); timing, slowdown curve, cap and triggers are not decided.
+- **Do not infer that armor can never be restored by an explicit future ability/item or between fights**: the decision concerns **natural regeneration during combat only**.
+- Preserve damage-type priority: piercing strikes prioritize life; other types prioritize armor (PHY-103). Routing overflow and exceptions remain undecided.
+- **Affected nodes:** separate armor and health resources, passive regeneration rules, UI displays, combat damage routing. No Unity code changes requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
