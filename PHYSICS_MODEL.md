@@ -1068,6 +1068,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Keep the shared altitude cap, gravity and partial horizontal aerial control (PHY-002/084/085/089). No requirement to implement multi-jump mechanics in the immediate morphology-to-jump validation slice.
 - **Affected nodes:** morphology-gated movement abilities, jump input/state, airborne jump counter, derived jump dynamics and combat bounds. No Unity gameplay code modifications requested.
 
+### PHY-122 — Gliding requires supporting morphology (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** gliding is **not an automatically available capability for every Mon**. A Mon must develop/have morphology that **supports gliding** to use the aerial descent-slowing action.
+- When supported and used, gliding reduces descent rate through applicable morphology **`Arrasto`** while universal gravity still acts (PHY-002/086). More effective drag can prolong time airborne; the action is **not** indefinite hovering or powered sustained flight.
+- Preserve the separate mechanics: all Mons can perform their basic jump (PHY-121), while extra jumps and gliding are morphology-dependent capabilities. Both remain bounded by the shared fight arena (PHY-084/085).
+- **Deferred until an actual Unity test:** exact morphology qualification/threshold, participating regions, input binding, glide strength/formula, visuals and control timing. Do not extrapolate an entire flight tree from this choice.
+- **Affected nodes:** anatomy-based ability availability, air movement/glide action, fall drag and arena bounds. **No Unity code change requested.**
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
