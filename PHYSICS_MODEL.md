@@ -953,6 +953,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Numerical normalization and scaling from morphology values to UI resource points are deferred until the Unity vertical slice. **No code change requested.**
 - **Affected nodes:** morphology aggregation, derived maximum armor, global health/armor resource model, combat hit routing, UI bars.
 
+### PHY-108 — Armor is form-specific, not incrementally evolved (DECIDED, 2026-10-19)
+
+- **User correction to the prior proposed question:** **armor does not evolve incrementally** when morphology points are earned. Armor is defined by the Mon's **current form**.
+- The current form's `TenacidadeGeral` determines that form's maximum armor, consistently with PHY-107. Changes to armor capacity are associated with **actual form changes**, not gradual morphology gain.
+- **When changing form, damage suffered by the previous form does not carry over to the newly assumed form.** Do not treat armor as one continuously degraded resource pooled across different forms.
+- Preserve the already decided general rules: armor does not passively regenerate during combat (PHY-104), and non-piercing damage prioritizes armor with excess reaching health (PHY-103/106).
+- **Still unresolved:** if returning to a previously used form restores that form's previously damaged armor, or starts it in another condition; whether the user's “damage from another form doesn't persist” applies exclusively to the armor resource or to both armor and health. **Do not invent either rule.**
+- **Affected nodes:** form transformation, per-form armor maxima and damage state, health/armor UI switching and damage routing. No code implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
