@@ -1003,6 +1003,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** whether accumulated health-hit count and its slowdown persist through transformations, the exact regeneration curve and reset conditions. Do not invent numeric penalties or timings.
 - **Affected nodes:** hit-resolution event, health-vs-armor damage accounting, regenerative slowdown state, form transitions and debug/UI. No Unity code implementation requested.
 
+### PHY-114 — Health regeneration slowdown persists through form changes (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** the cumulative number of **hits that actually damaged health** and its consequent slowdown of natural health regeneration **persist when the Mon changes form**.
+- Transforming does not reset the regeneration penalty. Life retains its percentage of the current form's maximum (PHY-110/111), while armor is restored to the newly entered form's full capacity (PHY-108/109).
+- Hits absorbed completely by armor do not increase the life-hit count (PHY-113), and each life-damaging hit counts once regardless of damage magnitude (PHY-112).
+- **Not yet decided:** the slowdown curve, base regeneration speed, and any reset outside the ongoing battle. Avoid unnecessary balance questions until Unity testing requires them.
+- **Affected nodes:** persistent combat health and regeneration hit-count state, form changes, armor reset, UI/debug. No Unity gameplay implementation requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
