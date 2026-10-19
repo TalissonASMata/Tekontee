@@ -799,6 +799,13 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Do not preselect a formula, weights, minimum jump height, or numeric limits**. Validate the mapping and tune through the smallest Unity jump morphology test.
 - **Affected nodes:** anatomy/morphology derived jumping, Mon jump impulse, common gravity, arena bounds and test/debug UI. No gameplay implementation requested.
 
+### PHY-089 — Partial horizontal steering during jumps (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** while airborne after a jump, the Mon can **correct its horizontal trajectory**, but **retains part of its existing horizontal momentum** rather than having the same instant acceleration, braking and direction reversal as when grounded.
+- This is consistent with responsive ground walking (PHY-083), morphology-derived horizontal movement (`.MassaGeral` and `Pernas.Extensão`, PHY-087), and morphology-derived jumping (PHY-088). It should preserve a sense of weight without making air control unavailable.
+- **Do not define numerical steering coefficients, drag, maximum aerial speed or reversal timing yet.** Test/calibrate in Unity when implementing the minimal jump-movement slice.
+- **Affected nodes:** Mon airborne movement, horizontal velocity handling, shared physics/gravity, morphology movement modifiers and playtesting. No Unity code change requested.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
