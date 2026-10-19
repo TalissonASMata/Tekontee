@@ -846,6 +846,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Preserve the shared arena movement boundaries (PHY-084/085) and common gravity.
 - **Affected nodes:** combat hit response/knockback, 2D motion, ground contact/traction, morphology-derived mass, arena bounds. This records design only; no Unity code implementation requested.
 
+### PHY-095 — Solid body collision without passive body pushing (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** under ordinary movement, two Mons' solid bodies **block one another**; neither can pass through the other and **walking into an opponent does not passively shove or displace them according to mass/traction**.
+- Distinguish this from **explicit combat knockback or other forces**, which can displace a Mon according to their separate vector-impact physics (PHY-093/094). Avoid turning ordinary locomotion collision into an unintended attack.
+- Existing intentionally defined intangibility/phasing techniques remain possible exceptions, and do not alter the default solid-body rule.
+- Do not decide collision shape details, per-animation contact reactions, or separation tolerances now; tune them in the minimum Unity collision test.
+- **Affected nodes:** Mon–Mon solid collision, walking movement constraints, combat force/knockback separation and any explicit phase-through state. No gameplay code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
