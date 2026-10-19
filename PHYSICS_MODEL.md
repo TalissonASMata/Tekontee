@@ -944,6 +944,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - Does not decide special piercing overflow handling, alternate damage distributions, armor max source, recovery rate or numerical balancing; defer until needed.
 - **Affected nodes:** damage distribution/overflow, combat hit resolution, armor and health resource tracking, damage UI feedback. No gameplay implementation authorized.
 
+### PHY-107 — Maximum armor equals total tenacity (DECIDED, 2026-10-19)
+
+- **Explicit user decision:** **`ArmaduraMáxima = TenacidadeGeral`**. The Mon's maximum armor resource is the **sum of the anatomical regions' tenacity contributions**, following the established global-addition rule, including the established repeated-limb accounting.
+- `Revestimento` remains a **categorical surface/anatomy trait**, not the direct numeric source of the armor bar. `Tenacidade` is the quantitative structural resistance property formerly called `Dureza` (PHY-017).
+- This **does not modify** the existing rule **`VidaMáxima = f(MassaGeral, TenacidadeGeral)`** or create passive percentage-based damage reduction from tenacity (PHY-102). A single morphological parameter can currently contribute to both maximum resources; revisiting that coupling requires a separate explicit decision.
+- Armor still **does not regenerate naturally during combat** (PHY-104); non-piercing damage prioritizes armor and overflows into health (PHY-103/106), while piercing damage prioritizes health.
+- Numerical normalization and scaling from morphology values to UI resource points are deferred until the Unity vertical slice. **No code change requested.**
+- **Affected nodes:** morphology aggregation, derived maximum armor, global health/armor resource model, combat hit routing, UI bars.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
