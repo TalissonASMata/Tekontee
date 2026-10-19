@@ -784,6 +784,13 @@ The user defines **four separate roles** for leg properties, without automatical
 - This decision replaces the premature PHY-086 choice between continuous flight propulsion and repeated impulses. **Prioritize the simple glide vertical slice over speculative air-movement feature trees.**
 - **Affected nodes:** Mon jump/fall controller, morphology-derived drag, air-action input, arena bounds, animation verification. No Unity code change requested yet.
 
+### PHY-087 — Horizontal locomotion depends on general mass and leg extension (DECIDED, 2026-10-18)
+
+- **User-confirmed rule:** the Mon's horizontal displacement/walking speed must depend jointly on **`.MassaGeral`** and **`Pernas.Extensão`**. Do not treat leg extension as its sole determinant or confine mass effects to impact/knockback only.
+- Preserve the responsive **immediate walking input** chosen in PHY-083: morphology determines achievable movement speed, but normal walking need not introduce a long acceleration ramp.
+- **Do not invent** the weighting, mathematical formula, normalization, numerical ranges or extreme-case balance now. Those are calibrated with the smallest playable morphology-movement test.
+- **Affected nodes:** morphology-derived locomotion attributes, Mon ground movement, speed/debug display and Unity playtest parameters. This does not yet mandate changing code.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
