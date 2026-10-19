@@ -869,6 +869,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Keep this as a core combat-space rule across ground and air positioning, including jump-over crossovers (PHY-096); no extra animation frames, directional-input exceptions or turnaround windows are prescribed now.
 - **Affected nodes:** opponent relative positioning, Mon orientation/facing, attack direction/hitboxes, input movement interpretation and camera verification. This records design only, not authorization to implement code.
 
+### PHY-098 — Punch reach uses arm and torso extension; kicks require analogous anatomy (DECIDED, 2026-10-19)
+
+- **User confirms option B:** punch reach depends on **`Braços.Extensão` and `Torso.Extensão`**. The torso's contribution allows reach via body projection rather than relying on arm length alone.
+- **User adds that kicks also exist:** kick reach should analogously reflect **`Pernas.Extensão` and `Torso.Extensão`**. This is a core distinction in the basic moveset, not a punch-only game.
+- **Proposed, not yet finally validated control layout (PlayStation face buttons):** □ = weak punch; ✕ = weak kick; △ = strong/elemental punch; ○ = strong/elemental kick. Do not silently replace existing keyboard/controller input until this mapping is confirmed and implementation requested. Elemental variants and what triggers them are not specified.
+- Avoid prescribing attack damage, hitbox equations, combo strings or animation timing now; they should follow the smallest testable basic-moveset slice.
+- **Affected nodes:** punch/kick move categories, morphology-derived move range, attack hitbox geometry, control input action mapping, future elemental move variants; existing universal moveset requires regression verification. No Unity code modifications authorized.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
