@@ -862,6 +862,13 @@ The user defines **four separate roles** for leg properties, without automatical
 - Do not decide collider geometry, height thresholds, exact overhead crossing frames or implementation details before the minimal Unity test.
 - **Affected nodes:** Mon–Mon body collision/filtering, jumping/groundedness detection, jump-over positioning and landing, combat hit detection separation. No Unity code change authorized.
 
+### PHY-097 — Automatic facing toward opposing Mon (DECIDED, 2026-10-19)
+
+- **Option A confirmed:** a Mon **automatically faces the opposing Mon** when the combatants switch left/right positions, like a traditional Street Fighter duel.
+- Facing is determined by relative opponent position, not independently chosen using a manual turn command. Horizontal movement away from the opponent therefore remains compatible with facing the opponent.
+- Keep this as a core combat-space rule across ground and air positioning, including jump-over crossovers (PHY-096); no extra animation frames, directional-input exceptions or turnaround windows are prescribed now.
+- **Affected nodes:** opponent relative positioning, Mon orientation/facing, attack direction/hitboxes, input movement interpretation and camera verification. This records design only, not authorization to implement code.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
