@@ -822,6 +822,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Preserve PHY-090: ordinary landing without directional input halts horizontal locomotion immediately; separate forced displacement, knockback, environmental slip and special terrain behavior.
 - **Affected nodes:** morphology/anatomy, contact and grounding, terrain/surface properties, external forces/knockback, locomotion stability. **No Unity code implementation authorized yet.**
 
+### PHY-092 — Ground adhesion is contextual to terrain and morphology (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** ground adhesion depends on the interaction of **the ground/surface type** with Mon morphology, not morphology alone.
+- The previously established `Pernas.Quantidade`, `Pernas.Revestimento` and `.MassaGeral` contributions (PHY-091) still apply. Categorical coverings such as claws and suction cups can provide different traction depending on which surface they contact.
+- Terrain may therefore meaningfully alter slipping, stability and resistance to pushes; do not assign universal numerical bonuses to specific coverings or enumerate every terrain type at this fundamentals stage.
+- **Deferred until a minimum test requires it:** terrain catalog, covering-versus-surface matrix, coefficients and exceptions. Preserve normal input-responsive ground control and PHY-090's stopping rule, with separately modeled forced displacement or slippery surfaces.
+- **Affected nodes:** surface/contact classification, anatomy covering and leg-count morphology, general mass, traction and knockback response; no gameplay code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
