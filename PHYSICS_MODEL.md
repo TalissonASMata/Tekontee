@@ -854,6 +854,14 @@ The user defines **four separate roles** for leg properties, without automatical
 - Do not decide collision shape details, per-animation contact reactions, or separation tolerances now; tune them in the minimum Unity collision test.
 - **Affected nodes:** Mon–Mon solid collision, walking movement constraints, combat force/knockback separation and any explicit phase-through state. No gameplay code change requested yet.
 
+### PHY-096 — Lateral body collision during jumps; aerial crossovers permitted (DECIDED, 2026-10-19)
+
+- **Option B confirmed:** opposing Mons' bodies block lateral overlap during normal movement, including airborne lateral contact, but **one Mon may jump above and cross over the other** as in conventional fighting games.
+- An opposing Mon's body **does not act as a standable platform**. Passing above an opponent must not cause the airborne Mon to land on the opponent's head.
+- This refines the normal rigid Mon–Mon collision decision (PHY-095), preserving blocking on comparable lateral/body heights while permitting jump-over positioning. Explicit strike/knockback physics and intentionally defined intangibility remain independent.
+- Do not decide collider geometry, height thresholds, exact overhead crossing frames or implementation details before the minimal Unity test.
+- **Affected nodes:** Mon–Mon body collision/filtering, jumping/groundedness detection, jump-over positioning and landing, combat hit detection separation. No Unity code change authorized.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
