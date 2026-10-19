@@ -774,6 +774,16 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Not yet decided:** maximum numerical height, how vertical velocity behaves at the soft cap, mapping of morphology to jump impulse and flight control; tune when Unity vertical-slice tests require them.
 - **Affected nodes:** shared arena bounds, Mon jump/air/flight movement, morphology-derived movement, camera framing verification. No Unity gameplay code changes requested yet.
 
+### PHY-086 — Basic aerial glide governed by morphology drag (DECIDED, 2026-10-18)
+
+- **Scope correction by user:** do **not** expand this into a detailed sustained-flight/propulsion system now. The initial airborne capability should feel like **Mario's cape glide**: the Mon jumps, then uses an aerial action to slow its descent.
+- **Core physical effect:** greater applicable morphology **Arrasto** means **lower falling speed / longer airborne time** while gliding, under the already-shared arena gravity (PHY-002). The Mon still descends; sustained powered flight, indefinite hovering and rising by propulsion are **not** established by this decision.
+- The user referenced a command involving **jump plus another action** (wording needs clarification when implementing controls). Do **not** invent an exact key binding, input chord or activation window at this design stage.
+- Preserve the previously defined shared arena altitude cap for jumps and aerial movement (PHY-084/085). No transition to the Tamer's platforming space.
+- **Morphology input details** (which regional drag parameters contribute and how they combine), glide steering, maximum descent speed, animations and tuning are postponed until the minimal Unity test actually needs them.
+- This decision replaces the premature PHY-086 choice between continuous flight propulsion and repeated impulses. **Prioritize the simple glide vertical slice over speculative air-movement feature trees.**
+- **Affected nodes:** Mon jump/fall controller, morphology-derived drag, air-action input, arena bounds, animation verification. No Unity code change requested yet.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
@@ -795,7 +805,7 @@ For every new physics decision:
 
 ## Pending design questions (not decisions)
 
-- Fundamentals next: specify the physical distinction between jumping and sustained flight (impulse-based movement versus continued airborne propulsion), without selecting numerical values.
+- Fundamentals next: establish a minimal, testable mapping from anatomy to horizontal movement and falling drag; defer detailed glide inputs and timing until that Unity slice.
 - Deferred morphology-scale question: when implementation needs it, define fixed maxima vs per-form normalization for Intelecto and Peso thresholds.
 - Groundedness and normals: solid floor, walls, slopes, one-way platforms.
 - Player-versus-environment collision and Mon-versus-Mon physical interaction.
