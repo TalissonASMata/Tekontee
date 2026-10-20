@@ -116,11 +116,9 @@ public class MonPlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!canControl)
-        {
-            physicsController?.StopHorizontalMovement();
-            return;
-        }
+        // Quando o jogador controla o Tamer, a IA e dona da intencao de movimento.
+        // Nao limpar o comando do AutoFighter a cada Update.
+        if (!canControl) return;
 
         if (selfHealth != null && selfHealth.IsDead)
         {
