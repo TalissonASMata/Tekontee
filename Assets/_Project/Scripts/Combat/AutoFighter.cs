@@ -34,6 +34,7 @@ public class AutoFighter : MonoBehaviour
     private MorphPointBank morphPointBank;
     private MoveMorphologyEvaluator moveEvaluator;
     private UniversalMoveSet universalMoves;
+    private MonPhysicsController2D physicsController;
     private int autoMoveIndex;
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
@@ -45,6 +46,7 @@ public class AutoFighter : MonoBehaviour
         morphPointBank = GetComponent<MorphPointBank>();
         moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
         universalMoves = GetComponent<UniversalMoveSet>();
+        physicsController = GetComponent<MonPhysicsController2D>();
 
         if (formStats == null)
         {
@@ -54,28 +56,37 @@ public class AutoFighter : MonoBehaviour
         originalScale = transform.localScale;
     }
 
+    private void OnDisable()
+    {
+        physicsController?.StopHorizontalMovement();
+    }
+
     private void Update()
     {
         if (target == null)
         {
+            physicsController?.StopHorizontalMovement();
             SetState(CombatState.Idle);
             return;
         }
 
         if (selfHealth != null && selfHealth.IsDead)
         {
+            physicsController?.StopHorizontalMovement();
             SetState(CombatState.Dead);
             return;
         }
 
         if (target.IsDead)
         {
+            physicsController?.StopHorizontalMovement();
             SetState(CombatState.Idle);
             return;
         }
 
         if (stateMachine != null && stateMachine.IsLocked)
         {
+            physicsController?.StopHorizontalMovement();
             return;
         }
 
@@ -91,6 +102,7 @@ public class AutoFighter : MonoBehaviour
         }
         else
         {
+            physicsController?.StopHorizontalMovement();
             SetState(CombatState.Idle);
             TryAttack();
         }
@@ -103,7 +115,14 @@ public class AutoFighter : MonoBehaviour
         float directionX = Mathf.Sign(target.transform.position.x - transform.position.x);
         float finalMoveSpeed = moveSpeed * GetMoveSpeedMultiplier();
 
-        transform.position += new Vector3(directionX * finalMoveSpeed * Time.deltaTime, 0f, 0f);
+        if (physicsController != null)
+        {
+            physicsController.SetHorizontalMovement(directionX, finalMoveSpeed);
+        }
+        else
+        {
+            transform.position += new Vector3(directionX * finalMoveSpeed * Time.deltaTime, 0f, 0f);
+        }
     }
 
     private void TryAttack()
@@ -199,7 +218,15 @@ public class AutoFighter : MonoBehaviour
         float directionX = Mathf.Sign(target.transform.position.x - transform.position.x);
         float bonusRepelDistance = baseBonusRepelDistance * (repelMultiplier - 1f);
 
-        target.transform.position += new Vector3(directionX * bonusRepelDistance, 0f, 0f);
+        MonPhysicsController2D targetPhysics = target.GetComponent<MonPhysicsController2D>();
+        if (targetPhysics != null)
+        {
+            targetPhysics.ApplyKnockback(new Vector2(directionX * bonusRepelDistance / 0.12f, 0f), 0.12f);
+        }
+        else
+        {
+            target.transform.position += new Vector3(directionX * bonusRepelDistance, 0f, 0f);
+        }
 
         Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
     }
@@ -222,6 +249,9 @@ public class AutoFighter : MonoBehaviour
 
     private void PlayAttackPulse()
     {
+        // Nunca escalar a raiz do Rigidbody2D: isso alteraria o collider fisico.
+        if (physicsController != null) return;
+
         if (attackPulseRoutine != null)
         {
             StopCoroutine(attackPulseRoutine);
