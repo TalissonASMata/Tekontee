@@ -1191,6 +1191,8 @@ GameObject:
   - component: {fileID: 705824177}
   - component: {fileID: 705824176}
   - component: {fileID: 705824178}
+  - component: {fileID: 705824179}
+  - component: {fileID: 705824180}
   m_Layer: 0
   m_Name: EnemyMon
   m_TagString: Untagged
@@ -1210,7 +1212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 171a2bb65b7801a47a74a48ef8260c05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHP: 100
+  maxHP: 500
   currentHP: 0
 --- !u!114 &705824168
 MonoBehaviour:
@@ -1232,8 +1234,15 @@ MonoBehaviour:
   attackPulseScale: 1.25
   attackPulseDuration: 0.1
   baseBonusRepelDistance: 0.35
-  pointTypeOnHit: 0
-  pointsOnHit: 1
+  primaryInfluence:
+    type: 0
+    amount: 3
+  secondaryInfluence:
+    type: 2
+    amount: 2
+  tertiaryInfluence:
+    type: 3
+    amount: 0
   formStats: {fileID: 705824176}
 --- !u!212 &705824169
 SpriteRenderer:
@@ -1437,6 +1446,88 @@ MonoBehaviour:
   defenseScale: {x: 0.95, y: 0.95, z: 1}
   airScale: {x: 0.45, y: 1.35, z: 1}
   energyScale: {x: 1.15, y: 1.15, z: 1}
+--- !u!114 &705824179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705824166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2298d6df718d1da9810f4e75215452b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoveMorphologyEvaluator
+  requiredType: 0
+  effectiveThreshold: 5
+  criticalThreshold: 10
+  failDamageMultiplier: 0.5
+  effectiveDamageMultiplier: 1
+  criticalDamageMultiplier: 1.5
+  failReinforcementMultiplier: 0.5
+  effectiveReinforcementMultiplier: 1
+  criticalReinforcementMultiplier: 2
+--- !u!114 &705824180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705824166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82cee37e32c6be74da1a9bae8f2525f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UniversalMoveSet
+  moves:
+  - id: 0
+    displayName: Golpe pesado
+    requirement: 0
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 0
+      amount: 3
+    secondary:
+      type: 1
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
+  - id: 1
+    displayName: Golpe aereo
+    requirement: 2
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 2
+      amount: 3
+    secondary:
+      type: 0
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
+  - id: 2
+    displayName: Quebra de guarda (teste)
+    requirement: 1
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 1
+      amount: 3
+    secondary:
+      type: 0
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
 --- !u!1 &757721670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2957,6 +3048,8 @@ GameObject:
   - component: {fileID: 1784146744}
   - component: {fileID: 1784146745}
   - component: {fileID: 1784146746}
+  - component: {fileID: 1784146747}
+  - component: {fileID: 1784146748}
   m_Layer: 0
   m_Name: Mon
   m_TagString: Untagged
@@ -2976,7 +3069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 171a2bb65b7801a47a74a48ef8260c05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHP: 100
+  maxHP: 500
   currentHP: 0
 --- !u!114 &1784146734
 MonoBehaviour:
@@ -2998,8 +3091,15 @@ MonoBehaviour:
   attackPulseScale: 1.25
   attackPulseDuration: 0.1
   baseBonusRepelDistance: 0.35
-  pointTypeOnHit: 0
-  pointsOnHit: 1
+  primaryInfluence:
+    type: 0
+    amount: 3
+  secondaryInfluence:
+    type: 3
+    amount: 2
+  tertiaryInfluence:
+    type: 1
+    amount: 1
   formStats: {fileID: 1784146746}
 --- !u!212 &1784146735
 SpriteRenderer:
@@ -3172,8 +3272,15 @@ MonoBehaviour:
   attackRange: 1.4
   attackCooldown: 0.8
   baseBonusRepelDistance: 0.35
-  pointTypeOnHit: 1
-  pointsOnHit: 1
+  primaryInfluence:
+    type: 0
+    amount: 3
+  secondaryInfluence:
+    type: 3
+    amount: 2
+  tertiaryInfluence:
+    type: 1
+    amount: 1
   formStats: {fileID: 1784146746}
 --- !u!114 &1784146742
 MonoBehaviour:
@@ -3263,6 +3370,88 @@ MonoBehaviour:
   defenseRepelMultiplier: 4
   airJumpMultiplier: 2
   energyMoveSpeedMultiplier: 1.8
+--- !u!114 &1784146747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2298d6df718d1da9810f4e75215452b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MoveMorphologyEvaluator
+  requiredType: 2
+  effectiveThreshold: 5
+  criticalThreshold: 10
+  failDamageMultiplier: 0.5
+  effectiveDamageMultiplier: 1
+  criticalDamageMultiplier: 1.5
+  failReinforcementMultiplier: 0.5
+  effectiveReinforcementMultiplier: 1
+  criticalReinforcementMultiplier: 2
+--- !u!114 &1784146748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82cee37e32c6be74da1a9bae8f2525f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::UniversalMoveSet
+  moves:
+  - id: 0
+    displayName: Golpe pesado
+    requirement: 0
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 0
+      amount: 3
+    secondary:
+      type: 1
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
+  - id: 1
+    displayName: Golpe aereo
+    requirement: 2
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 2
+      amount: 3
+    secondary:
+      type: 0
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
+  - id: 2
+    displayName: Quebra de guarda (teste)
+    requirement: 1
+    effectiveThreshold: 5
+    criticalThreshold: 10
+    baseDamage: 10
+    range: 1.4
+    primary:
+      type: 1
+      amount: 3
+    secondary:
+      type: 0
+      amount: 2
+    tertiary:
+      type: 3
+      amount: 1
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
