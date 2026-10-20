@@ -45,6 +45,7 @@ public class MonPlayerController : MonoBehaviour
     private MorphPointBank morphPointBank;
     private MoveMorphologyEvaluator moveEvaluator;
     private UniversalMoveSet universalMoves;
+    private MonPhysicsController2D physicsController;
     private InputAction heavyAction;
     private InputAction aerialAction;
     private InputAction defenseAction;
@@ -56,6 +57,7 @@ public class MonPlayerController : MonoBehaviour
         morphPointBank = GetComponent<MorphPointBank>();
         moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
         universalMoves = GetComponent<UniversalMoveSet>();
+        physicsController = GetComponent<MonPhysicsController2D>();
 
         if (formStats == null)
         {
@@ -102,6 +104,8 @@ public class MonPlayerController : MonoBehaviour
 
     private void Start()
     {
+        if (physicsController != null) return;
+
         if (useInitialYAsGround)
         {
             groundY = transform.position.y;
@@ -112,16 +116,22 @@ public class MonPlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!canControl) return;
+        if (!canControl)
+        {
+            physicsController?.StopHorizontalMovement();
+            return;
+        }
 
         if (selfHealth != null && selfHealth.IsDead)
         {
+            physicsController?.StopHorizontalMovement();
             SetState(CombatState.Dead);
             return;
         }
 
         if (stateMachine != null && stateMachine.IsLocked)
         {
+            physicsController?.StopHorizontalMovement();
             return;
         }
 
@@ -149,11 +159,20 @@ public class MonPlayerController : MonoBehaviour
             horizontalInput = Mathf.Abs(stick) > 0.2f ? stick : Gamepad.current.dpad.left.isPressed ? -1f : Gamepad.current.dpad.right.isPressed ? 1f : horizontalInput;
         }
 
-        Vector3 position = transform.position;
-
         float finalMoveSpeed = moveSpeed * GetMoveSpeedMultiplier();
 
-        position.x += horizontalInput * finalMoveSpeed * Time.deltaTime;
+        // V1.7.1: quando existe motor fisico, ele e o unico dono da posicao.
+        // Sem ele, continua disponivel o movimento legado da V1.6.
+        if (physicsController != null)
+        {
+            physicsController.SetHorizontalMovement(horizontalInput, finalMoveSpeed);
+        }
+
+        Vector3 position = transform.position;
+        if (physicsController == null)
+        {
+            position.x += horizontalInput * finalMoveSpeed * Time.deltaTime;
+        }
 
         bool jumpPressed =
             (Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame ||
@@ -161,33 +180,43 @@ public class MonPlayerController : MonoBehaviour
             Keyboard.current.upArrowKey.wasPressedThisFrame)) ||
             (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame);
 
-        if (jumpPressed && isGrounded)
+        if (physicsController != null)
         {
-            verticalVelocity = jumpForce * GetJumpMultiplier();
-            isGrounded = false;
-
-            Debug.Log(
-                $"{gameObject.name} pulou com força {verticalVelocity}. " +
-                $"Forma dominante: {GetCurrentFormName()}"
-            );
+            if (jumpPressed && physicsController.TryJump(jumpForce * GetJumpMultiplier()))
+            {
+                Debug.Log($"[V1.7.1] {name} saltou com motor fisico.");
+            }
         }
-
-        verticalVelocity += gravity * Time.deltaTime;
-        position.y += verticalVelocity * Time.deltaTime;
-
-        if (position.y <= groundY)
+        else
         {
-            position.y = groundY;
-            verticalVelocity = 0f;
-            isGrounded = true;
-        }
+            if (jumpPressed && isGrounded)
+            {
+                verticalVelocity = jumpForce * GetJumpMultiplier();
+                isGrounded = false;
 
-        if (clampX)
-        {
-            position.x = Mathf.Clamp(position.x, minX, maxX);
-        }
+                Debug.Log(
+                    $"{gameObject.name} pulou com força {verticalVelocity}. " +
+                    $"Forma dominante: {GetCurrentFormName()}"
+                );
+            }
 
-        transform.position = position;
+            verticalVelocity += gravity * Time.deltaTime;
+            position.y += verticalVelocity * Time.deltaTime;
+
+            if (position.y <= groundY)
+            {
+                position.y = groundY;
+                verticalVelocity = 0f;
+                isGrounded = true;
+            }
+
+            if (clampX)
+            {
+                position.x = Mathf.Clamp(position.x, minX, maxX);
+            }
+
+            transform.position = position;
+        }
 
         if (Mathf.Abs(horizontalInput) > 0.01f)
         {
@@ -361,7 +390,16 @@ public class MonPlayerController : MonoBehaviour
         float directionX = Mathf.Sign(target.transform.position.x - transform.position.x);
         float bonusRepelDistance = baseBonusRepelDistance * (repelMultiplier - 1f);
 
-        target.transform.position += new Vector3(directionX * bonusRepelDistance, 0f, 0f);
+        MonPhysicsController2D targetPhysics = target.GetComponent<MonPhysicsController2D>();
+        if (targetPhysics != null)
+        {
+            // Impulso de teste; magnitude final sera definida na fase anatomica.
+            targetPhysics.ApplyKnockback(new Vector2(directionX * bonusRepelDistance / 0.12f, 0f), 0.12f);
+        }
+        else
+        {
+            target.transform.position += new Vector3(directionX * bonusRepelDistance, 0f, 0f);
+        }
 
         Debug.Log($"{gameObject.name} aplicou repel bônus x{repelMultiplier}.");
     }
