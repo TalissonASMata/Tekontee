@@ -19,6 +19,7 @@ public class DamageFeedback : MonoBehaviour
     public float deathRotationZ = 0f;
 
     private Health health;
+    private MonPhysicsController2D physicsController;
     private SpriteRenderer spriteRenderer;
     private Renderer normalRenderer;
 
@@ -34,6 +35,7 @@ public class DamageFeedback : MonoBehaviour
     private void Awake()
     {
         health = GetComponent<Health>();
+        physicsController = GetComponent<MonPhysicsController2D>();
 
         spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         normalRenderer = GetComponentInChildren<Renderer>();
@@ -107,34 +109,45 @@ public class DamageFeedback : MonoBehaviour
     {
         SetVisualColor(damageColor);
 
-        Vector3 startPosition = transform.position;
-        Vector3 knockbackTarget = startPosition;
-
-        if (attacker != null)
+        if (physicsController != null)
         {
-            Vector3 direction = (transform.position - attacker.position).normalized;
-
-            if (direction.sqrMagnitude < 0.01f)
+            // Apenas o motor fisico altera posicao/velocidade de Mons com Rigidbody2D.
+            if (attacker != null)
             {
-                direction = Vector3.right;
+                Vector2 direction = (Vector2)(transform.position - attacker.position);
+                if (direction.sqrMagnitude < 0.0001f) direction = Vector2.right;
+                direction.Normalize();
+                float duration = Mathf.Max(0.02f, knockbackDuration);
+                physicsController.ApplyKnockback(direction * (knockbackDistance / duration), duration);
             }
 
-            knockbackTarget = startPosition + direction * knockbackDistance;
+            yield return new WaitForSeconds(flashDuration);
         }
-
-        float elapsed = 0f;
-
-        while (elapsed < knockbackDuration)
+        else
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / knockbackDuration;
+            // Compatibilidade com o feedback da V1.6 na ausencia de motor fisico.
+            Vector3 startPosition = transform.position;
+            Vector3 knockbackTarget = startPosition;
 
-            transform.position = Vector3.Lerp(startPosition, knockbackTarget, t);
+            if (attacker != null)
+            {
+                Vector3 direction = (transform.position - attacker.position).normalized;
+                if (direction.sqrMagnitude < 0.01f) direction = Vector3.right;
+                knockbackTarget = startPosition + direction * knockbackDistance;
+            }
 
-            yield return null;
+            float elapsed = 0f;
+            float duration = Mathf.Max(0.02f, knockbackDuration);
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.Clamp01(elapsed / duration);
+                transform.position = Vector3.Lerp(startPosition, knockbackTarget, t);
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(flashDuration);
         }
-
-        yield return new WaitForSeconds(flashDuration);
 
         if (!isDead)
         {
