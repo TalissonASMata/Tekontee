@@ -14,6 +14,10 @@ public class ArenaBounds2D : MonoBehaviour
 
     private void LateUpdate()
     {
+        // Quando existe motor de física, não mover o Transform após a simulação.
+        // MonPhysicsController2D controla o limite horizontal; a altura não recebe teto rígido.
+        if (GetComponent<MonPhysicsController2D>() != null) return;
+
         Vector3 position = transform.position;
 
         if (clampX)
