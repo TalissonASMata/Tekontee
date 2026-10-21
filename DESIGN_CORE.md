@@ -122,6 +122,7 @@ Current working model is evolving; the former approximately 18-parameter sketch 
 - Revestimento
 - Weight
 - Tenacidade
+- Extension / `Tronco.Extensão` (PHY-098: body projection contributes to punch and kick reach)
 - Coverage (pending: distinguish this from Revestimento)
 
 ### Arms
@@ -162,7 +163,7 @@ Confirmed leg gameplay mappings (PHY-015):
 
 Element may need different rules from anatomical values and should not be forced into exactly the same mathematical model if gameplay testing shows that is inappropriate.
 
-**Global **numeric** totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Revestimento and Tenacidade are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
+**Global **numeric** totals are sums of the contributions of their anatomical regions**, not averages. For repeated arms, total arms mass = per-arm mass × arm quantity (PHY-012); do not treat the per-arm value itself as the region's total. Repeated legs follow the same per-leg mass × leg quantity rule (PHY-014). TenacidadeGeral also sums the tenacity contributions of anatomical regions including repeated members (PHY-018). Revestimento and Tenacidade are separate placeholders until their respective effects are defined. The exact parameter list is still designable. The architectural requirement is that the system support many independent morphology dimensions grouped by body region.
 
 ## 6. Morphology should emerge from action
 
