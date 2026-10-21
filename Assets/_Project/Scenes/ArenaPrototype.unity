@@ -3187,6 +3187,7 @@ GameObject:
   - component: {fileID: 1784146750}
   - component: {fileID: 1784146749}
   - component: {fileID: 1784146752}
+  - component: {fileID: 1784146753}
   m_Layer: 0
   m_Name: Mon
   m_TagString: Untagged
@@ -3718,6 +3719,23 @@ MonoBehaviour:
     extensao: 0
   elemento:
     afinidadeOuEstado: 
+--- !u!114 &1784146753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7a1253f934c4a8287116e9124fc695a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonAnatomicalJumpStats
+  legMassDrive: 0.25
+  legExtensionDrive: 0.25
+  globalMassPenalty: 0.08
+  minimumMultiplier: 0.5
+  maximumMultiplier: 2.25
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
