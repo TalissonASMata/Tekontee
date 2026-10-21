@@ -53,7 +53,7 @@ One concrete move can share nodes with several families. Do not create a new phy
 - **Unity acceptance:** add `Mon Anatomy` to `Mon` and `EnemyMon` (outside Play), save scene, ensure no Console compilation errors. Use component context menu **V1.7.2 - Mostrar resumo anatomico** to inspect current aggregate values. As a temporary calculation check, enter `tronco.massa=2`, `bracos.massa=1` with quantity 2, and `pernas.massa=1` with quantity 2, keeping other masses 0: expect `MassaGeral=6`; restore test values to 0 afterward. Combat, jump and cameras should behave identically to validated V1.7.1.
 - **Validated in Unity:** user confirmed `MassaGeral=6` with per-limb quantities, and committed `ArenaPrototype.unity` in `fd1dc79`. V1.7.3 independently tests anatomy-driven jump apex without resizing sprite or body collider.
 
-## V1.7.3 — Continuous anatomy-derived Mon jump (IMPLEMENTED IN CODE; UNITY TEST PENDING)
+## V1.7.3 — Continuous anatomy-derived Mon jump (UNITY VALIDATED; SCENE COMMITTED)
 
 **1. Player-visible hypothesis:** changing `Pernas.Massa` and `Pernas.Extensão` gradually changes the height of the basic jump; increasing `MassaGeral` creates an inertia penalty. No corresponding sprite/form/physical body collider resize; gravity remains universal. The coefficients are **test tuning, not a locked physics decision**.
 
@@ -84,7 +84,7 @@ This explicitly provisional mapping is **not** a fixed real-world physical equat
 
 These **are sample test inputs, not permanent character stats**. The logged real apex should increase A < B < C while same gravity, same sprite and same body collider are maintained. Actual peak depends on physical contacts; tests should avoid attacks and opponent interference. A `MonAnatomicalJumpStats` context menu **V1.7.3 - Mostrar calculo de salto** logs current morphology multiplier. Revert temporary anatomy values to zero after acceptance. Verify that controls, landing, collision, auto combat and three universal attacks still work. Gamepad testing remains deferred.
 
-**7. Versioning & known limits:** current branch `feature/v1.7-physics-foundation`; code plus `.meta` committed, Unity scene setup and runtime acceptance pending. No jump animation blending, partial air steering, physical leg strength calibration, dynamic morphology gains, AI jumping, airborne secondary action Fail recoil, or global altitude cap. Do **not** claim V1.7.3 validated before user confirms it and commits the scene.
+**7. Versioning & known limits:** user confirmed three Unity jump configurations, restored provisional anatomy to zero, and committed/synced the scene in `c1f2ffa`. Logs show A: `4.000 u/s`, apex `0.405 u`; B: `5.107 u/s`, repeated apex `0.674 u`; C: `6.093 u/s`, repeated apex `0.970 u`. **Continuous anatomy-to-jump impulse is runtime-validated.** Additional outlying heights (B up to `1.102 u`, C up to `1.421 u`) in combat indicate external interaction/interference; isolated physics calibration remains future work. The inherited `Air` form's temporary `Jump x2` no longer influences the anatomical basic jump while the new component is enabled. No jump animation blending, partial air steering, physical leg strength calibration, dynamic morphology gains, AI jumping, airborne secondary action Fail recoil, or global altitude cap. The coefficient formula remains experimental.
 
 ## Minimal anatomical gameplay hypotheses for V1.7
 
