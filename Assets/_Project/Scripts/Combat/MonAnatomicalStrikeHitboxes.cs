@@ -157,6 +157,8 @@ public class MonAnatomicalStrikeHitboxes : MonoBehaviour
             return;
         }
 
+        // Atualiza consultas quando o alvo foi reposicionado pelo Inspector em Play.
+        Physics2D.SyncTransforms();
         bool hit = OverlapsTarget(punch, opponent);
         float reach = punch ? PunchReach : KickReach;
         float centerDistance = Mathf.Abs(opponent.transform.position.x - transform.position.x);
