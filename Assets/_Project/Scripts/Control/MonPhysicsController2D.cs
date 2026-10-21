@@ -33,6 +33,12 @@ public class MonPhysicsController2D : MonoBehaviour
     private float knockbackControlUntil;
     private bool isGrounded;
 
+    // Diagnostico da V1.7.3: mede a altura realmente percorrida pelo Rigidbody2D.
+    private bool trackingJumpApex;
+    private float jumpStartY;
+    private float jumpMaxY;
+    private float jumpInitialSpeed;
+
     public bool IsGrounded => isGrounded;
 
     private void Awake()
@@ -59,6 +65,7 @@ public class MonPhysicsController2D : MonoBehaviour
     private void FixedUpdate()
     {
         UpdateGrounded();
+        TrackJumpApex();
 
         if (health != null && health.IsDead)
         {
@@ -113,7 +120,27 @@ public class MonPhysicsController2D : MonoBehaviour
 
         body.linearVelocity = new Vector2(body.linearVelocity.x, jumpSpeed);
         isGrounded = false;
+
+        trackingJumpApex = true;
+        jumpStartY = body.position.y;
+        jumpMaxY = jumpStartY;
+        jumpInitialSpeed = jumpSpeed;
         return true;
+    }
+
+    private void TrackJumpApex()
+    {
+        if (!trackingJumpApex) return;
+
+        jumpMaxY = Mathf.Max(jumpMaxY, body.position.y);
+        if (body.linearVelocity.y > 0f) return;
+
+        trackingJumpApex = false;
+        Debug.Log(
+            $"[V1.7.3 APEX] {name}: alturaReal={jumpMaxY - jumpStartY:0.###} u; " +
+            $"inicioY={jumpStartY:0.###}; picoY={jumpMaxY:0.###}; " +
+            $"impulsoInicial={jumpInitialSpeed:0.###} u/s."
+        );
     }
 
     /// <summary>
