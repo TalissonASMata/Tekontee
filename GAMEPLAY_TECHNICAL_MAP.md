@@ -30,7 +30,7 @@ A visual sprite can remain fixed while jump height or hitbox changes smoothly. A
 
 One concrete move can share nodes with several families. Do not create a new physics or damage pipeline per move. A taxonomy is a navigation aid, not a class inheritance requirement.
 
-## V1.7.1 — Shared Mon physics foundation (IMPLEMENTED IN CODE; UNITY TEST PENDING)
+## V1.7.1 — Shared Mon physics foundation (UNITY VALIDATED; SCENE COMMITTED)
 
 - **Player-visible hypothesis:** both Mons use solid 2D bodies, shared grounding, gravity and collision, while manual movement retains rapid horizontal response. With a ground collider correctly configured, a Mon can jump over the other instead of walking through it. The AI and player must share the same physical movement owner.
 - **Family:** ground locomotion / basic jumping / receiving knockback; no anatomical formula or new move yet.
@@ -40,9 +40,9 @@ One concrete move can share nodes with several families. Do not create a new phy
 - **Editor setup required** (not automatically serialized into ArenaPrototype): on **each** Mon, add `MonPhysicsController2D` (automatically requiring a Dynamic `Rigidbody2D` and `CapsuleCollider2D`); preserve root scale. For the current scene, Ground collider upper face is around world Y=-0.8; Mon roots begin at Y=-0.5. Suggested starting Capsule size is X=0.7, Y=1.1, center offset (0,0), which at 0.55 root scale places feet near the floor. Set ground object's layer to a dedicated `ArenaGround` layer and assign *only* that layer in both motors' `Ground Layers`; never include the Mon layer. UpperPlatform has no collider in this slice.
 - **Acceptance in Unity:** with no component errors, both Mons rest on ground (do not fall through); manual A/D movement and jump work, including landing; attempting to walk through the opponent physically blocks; jumping above opponent can change sides; Tamer/Mon switching hands movement control to AI without jitter; HeavyStrike/AerialStrike/GuardBreak, damage, Tamer collection, both camera modes and restart continue working. Inspect Console, collisions and the gizmo foot probe; measure/test tuning before calling this validated. Hardware gamepad acceptance still deferred.
 - **Known limitations:** provisional impulse/knockback values are not anatomical; no air-control model, platform one-way logic, polished recovery/animation, fixed collider changes on transformation, or height-based cap yet. No runtime test has occurred. If the grounded probe misses the Ground, verify the selected layer and capsule world-bottom geometry before changing movement code.
-- **Next:** once Unity verifies V1.7.1, begin V1.7.2 anatomy storage, then morphological jump and punch tests independently. Do not call this version validated until user confirms results.
+- **Validated:** user confirmed ground contact, jump, body blocking and jump-over; code plus scene/layer configurations committed in `997fde7`. Anatomical behavior is deferred to the later slices.
 
-## V1.7.2 — Independent Mon anatomy storage (IMPLEMENTED IN CODE; UNITY TEST PENDING)
+## V1.7.2 — Independent Mon anatomy storage (UNITY VALIDATED; SCENE COMMITTED)
 
 - **Contract:** `MonAnatomy` stores `Cabeca`, `Tronco`, shared `Bracos`, shared `Pernas`, `Cauda` and `Elemento` independent of V1.6's `MorphPointBank` and visual forms.
 - **Parameters:** each anatomical region exposes categorical `revestimento`, numerical `massa` and `tenacidade`; `cabeca` adds `presaOuBico` and `intelecto`; `tronco` adds `extensao` (PHY-098) and still-pending `cobertura`; shared arms and legs add `extensao`, `arrasto` and even `quantidade`; `cauda` adds `extensao`; `elemento` has an uncommitted-catalog `afinidadeOuEstado` text field. Categorical placeholders DO NOT affect combat formulas.
@@ -51,7 +51,40 @@ One concrete move can share nodes with several families. Do not create a new phy
 - **No behavior change yet:** no conversion of V1.6 Attack/Defense/Air/Energy points; no gameplay integration; no automatic changes in jump, attack damage, sprite, physical collider, arena, HP or AI. The conversion from move/collection influence to anatomical points is a **separate implementation task**, not assumed here.
 - **Files:** `Assets/_Project/Scripts/Morphology/MonAnatomy.cs` and `.meta`. `DESIGN_CORE.md` reconciles `Tronco.Extensão` with PHY-098.
 - **Unity acceptance:** add `Mon Anatomy` to `Mon` and `EnemyMon` (outside Play), save scene, ensure no Console compilation errors. Use component context menu **V1.7.2 - Mostrar resumo anatomico** to inspect current aggregate values. As a temporary calculation check, enter `tronco.massa=2`, `bracos.massa=1` with quantity 2, and `pernas.massa=1` with quantity 2, keeping other masses 0: expect `MassaGeral=6`; restore test values to 0 afterward. Combat, jump and cameras should behave identically to validated V1.7.1.
-- **Not yet validated in Unity**; close this slice only after user confirmation and scene commit. Next V1.7.3 is anatomy-driven jump apex using `Pernas.Massa`, `Pernas.Extensão`, `MassaGeral` without changing sprite or body collider.
+- **Validated in Unity:** user confirmed `MassaGeral=6` with per-limb quantities, and committed `ArenaPrototype.unity` in `fd1dc79`. V1.7.3 independently tests anatomy-driven jump apex without resizing sprite or body collider.
+
+## V1.7.3 — Continuous anatomy-derived Mon jump (IMPLEMENTED IN CODE; UNITY TEST PENDING)
+
+**1. Player-visible hypothesis:** changing `Pernas.Massa` and `Pernas.Extensão` gradually changes the height of the basic jump; increasing `MassaGeral` creates an inertia penalty. No corresponding sprite/form/physical body collider resize; gravity remains universal. The coefficients are **test tuning, not a locked physics decision**.
+
+**2. Family:** existing *basic ground jump* only. No double-jump, glide, special move, new input, auto-jumping AI or elemental effects.
+
+**3. Dependency nodes:** **change** morphology-to-gameplay derivation and player jump impulse, plus diagnostic height logging. **Verify** Rigidbody2D landing and physics collision, Mon/Tamer control switching, V1.6 three attacks, automatic fighting and form visual regression. **Unaffected** Tamer/EnemyTamer controllers, Mon auto attack selection, damage calculation, health, camera, collection and transformation.
+
+**4. Actual source and scene touchpoints:** new `Assets/_Project/Scripts/Morphology/MonAnatomicalJumpStats.cs` (+ Unity `.meta`); modified `MonPlayerController.cs` and `MonPhysicsController2D.cs`. Existing `MonAnatomy.cs` is the source of truth; currently both Mons already have `MonAnatomy`, dynamic Rigidbody2D and CapsuleCollider2D in `ArenaPrototype.unity`. **Unity Editor step:** add `Mon Anatomical Jump Stats` to Mon and optionally EnemyMon; test only the manually controlled Mon. Scene modification is intentionally not committed before local validation.
+
+**5. Minimum vertical slice:** `MonAnatomicalJumpStats` calculates a multiplier from `Pernas.Massa`, `Pernas.Extensão` and `MassaGeral`:
+
+```text
+propulsao = 1 + 0.25 * Pernas.Massa + 0.25 * Pernas.Extensao
+inercia   = sqrt(1 + 0.08 * MassaGeral)
+fator     = clamp(propulsao / inercia, 0.5, 2.25)
+impulso   = MonPlayerController.jumpForce * fator
+```
+
+This explicitly provisional mapping is **not** a fixed real-world physical equation; coefficients and limits are adjustable in the Inspector. With the component enabled, the provisional `MonFormGameplayStats.AirJumpMultiplier` does **not** influence the basic jump, decoupling functional anatomical growth from the previous four-axis discrete form. With it absent/disabled, the old V1.7.1 jump path remains unchanged. `MonPhysicsController2D.TryJump` continues to own Rigidbody2D velocity. No anatomy point awards or cross-conversion implemented.
+
+**6. Unity acceptance:** preserve the original `Mon` Inspector `jumpForce=4`, gravity `18`, and other masses `0`; stand away from the opponent to avoid physical interference. Edit `MonAnatomy` values **outside Play**, press Play, switch to Mon, jump once with Space, observe `[V1.7.3 SALTO]` and `[V1.7.3 APEX]`, then exit Play to configure the next case. Three cases:
+
+| Case | Pernas.Massa (each) | Pernas.Extensão | MassaGeral | Expected provisional multiplier (approx) |
+|---|---:|---:|---:|---:|
+| A: base | 0 | 0 | 0 | 1.000 |
+| B: medium | 1 | 0.5 | 2 | 1.277 |
+| C: advanced | 2 | 1 | 4 | 1.523 |
+
+These **are sample test inputs, not permanent character stats**. The logged real apex should increase A < B < C while same gravity, same sprite and same body collider are maintained. Actual peak depends on physical contacts; tests should avoid attacks and opponent interference. A `MonAnatomicalJumpStats` context menu **V1.7.3 - Mostrar calculo de salto** logs current morphology multiplier. Revert temporary anatomy values to zero after acceptance. Verify that controls, landing, collision, auto combat and three universal attacks still work. Gamepad testing remains deferred.
+
+**7. Versioning & known limits:** current branch `feature/v1.7-physics-foundation`; code plus `.meta` committed, Unity scene setup and runtime acceptance pending. No jump animation blending, partial air steering, physical leg strength calibration, dynamic morphology gains, AI jumping, airborne secondary action Fail recoil, or global altitude cap. Do **not** claim V1.7.3 validated before user confirms it and commits the scene.
 
 ## Minimal anatomical gameplay hypotheses for V1.7
 
