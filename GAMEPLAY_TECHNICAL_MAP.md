@@ -86,6 +86,30 @@ These **are sample test inputs, not permanent character stats**. The logged real
 
 **7. Versioning & known limits:** user confirmed three Unity jump configurations, restored provisional anatomy to zero, and committed/synced the scene in `c1f2ffa`. Logs show A: `4.000 u/s`, apex `0.405 u`; B: `5.107 u/s`, repeated apex `0.674 u`; C: `6.093 u/s`, repeated apex `0.970 u`. **Continuous anatomy-to-jump impulse is runtime-validated.** Additional outlying heights (B up to `1.102 u`, C up to `1.421 u`) in combat indicate external interaction/interference; isolated physics calibration remains future work. The inherited `Air` form's temporary `Jump x2` no longer influences the anatomical basic jump while the new component is enabled. No jump animation blending, partial air steering, physical leg strength calibration, dynamic morphology gains, AI jumping, airborne secondary action Fail recoil, or global altitude cap. The coefficient formula remains experimental.
 
+## V1.7.4 — Anatomical punch/kick hitbox probe (CODE COMMITTED; UNITY TEST PENDING)
+
+**Goal:** verify that **functional attack contact geometry** changes gradually with anatomical extension without changing the sprite, root `CapsuleCollider2D`, `Rigidbody2D`, gravity, damage formulas or the legacy universal move input/AI. This is the minimum safe first half of the punch/kick reach slice. It is not yet a playable new punch/kick move.
+
+**Why separate:** V1.6 `HeavyStrike`, `AerialStrike`, `GuardBreak` only check `abs(target.x - attacker.x) <= move.range` and immediately apply damage. They are generic prototype moves, *not* defined physical punches/kicks. The player controller also prechecks their range, and the AutoFighter uses range for chasing. Retrofitting only one of these checks could make AI or manual behavior inconsistent; reinterpreting the existing moves as punches violates the recorded universal-moveset / face-button semantics.
+
+**New component:** `Assets/_Project/Scripts/Combat/MonAnatomicalStrikeHitboxes.cs` (+ `.meta`), to be added to the **Mon** in Unity after local pull. It derives **punch reach** from `Braços.Extensão` and `Tronco.Extensão`; **kick reach** from `Pernas.Extensão` and `Tronco.Extensão`. Default experimental formulas:
+
+```text
+alcanceSoco = 1.0 + 0.40 * Bracos.Extensao + 0.25 * Tronco.Extensao
+alcanceChute = 1.0 + 0.40 * Pernas.Extensao + 0.25 * Tronco.Extensao
+```
+
+These lengths start **at the forward outside edge of the current body collider**, not at its center. A rectangular attack box has adjustable height 0.65 u and vertical offsets +0.08 u (punch) or -0.15 u (kick). The direction is computed toward the opposing Mon at the time of the probe (PHY-097). Calls use `Physics2D.OverlapBoxAll`, matching a target's `Health` component on the collider or its parent; the geometry is a **query**, not an actual trigger / physical collider. Scene View with the Mon selected and Gizmos enabled draws **cyan punch** / **yellow kick** outlines. Reach is calculated on demand, no visual transformation or anatomy event subscription necessary.
+
+**Unity check (no Play binding change):**
+1. Pull branch and open Unity, add **Mon Anatomical Strike Hitboxes** to Mon, leaving defaults; select Mon with Gizmos shown in the Scene View. The target is automatically derived from MonPlayerController / AutoFighter if the explicit Target field is empty.
+2. Keep all anatomy extensions at zero. Play, switch to Mon manual control, and temporarily disable EnemyMon's **Auto Fighter** component for predictable positioning. Walk Mon toward EnemyMon so the **space between body colliders** is between 1.0 and 1.4 u (approx. 1.2 u), then release movement.
+3. With the game still in Play and Mon selected, open the **Mon Anatomical Strike Hitboxes component context menu** and run **V1.7.4 - Testar hitbox de SOCO**. Expect `[V1.7.4 SOCO] ... resultado=FORA; alcance=1...` and inspect the printed `espacoEntreCorpos` rather than relying on transform-center distance. Do not move either character.
+4. Still in the **same Play session**, in Mon Anatomy set **Bracos.Extensao=1**, then invoke the same context menu again. Expect `resultado=CONTATO` and `alcance=1.4`, at unchanged center distance. Restore arms extension to 0, set **Pernas.Extensao=1**, and invoke **V1.7.4 - Testar hitbox de CHUTE**: expect `CONTATO` and `alcance=1.4`. `Tronco.Extensao=1` should increase either reach a further 0.25 u independently (optional additional test).
+5. Stop Play. Experimental anatomy values edited during Play revert automatically. Keep the new component attached to Mon, save scene. Confirm old J/K/L attacks still operate before closing the slice; do not rename or remap them yet.
+
+**Scope and limitations:** these queries only log `CONTATO` / `FORA`; **they do not inflict damage**, grant points, invoke cooldown, drive AI or create a playable attack. Input mapping (□ weak punch, ✕ weak kick, △ elemental strong punch, ○ elemental strong kick), state animations, strike damage scaling, contact timing, and elemental reach belong to later controlled slices. Do not confuse the existing V1.6 range-only attacks with validated strike hitboxes. Scene setup and physics overlap results **have not been validated by the user yet**, therefore V1.7.4 stays pending.
+
 ## Minimal anatomical gameplay hypotheses for V1.7
 
 **H1 — Jump:** an anatomical parameter (or derived combination of leg parameters, exact mapping to be decided) incrementally increases jump height, with **no sprite change**. Preserve current jump input and game loop. Test measurable jump apex at at least three parameter values, including baseline.
