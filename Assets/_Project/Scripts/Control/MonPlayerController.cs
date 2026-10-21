@@ -46,6 +46,7 @@ public class MonPlayerController : MonoBehaviour
     private MoveMorphologyEvaluator moveEvaluator;
     private UniversalMoveSet universalMoves;
     private MonPhysicsController2D physicsController;
+    private MonAnatomicalJumpStats anatomicalJumpStats;
     private InputAction heavyAction;
     private InputAction aerialAction;
     private InputAction defenseAction;
@@ -58,6 +59,7 @@ public class MonPlayerController : MonoBehaviour
         moveEvaluator = GetComponent<MoveMorphologyEvaluator>();
         universalMoves = GetComponent<UniversalMoveSet>();
         physicsController = GetComponent<MonPhysicsController2D>();
+        anatomicalJumpStats = GetComponent<MonAnatomicalJumpStats>();
 
         if (formStats == null)
         {
@@ -180,9 +182,28 @@ public class MonPlayerController : MonoBehaviour
 
         if (physicsController != null)
         {
-            if (jumpPressed && physicsController.TryJump(jumpForce * GetJumpMultiplier()))
+            if (jumpPressed)
             {
-                Debug.Log($"[V1.7.1] {name} saltou com motor fisico.");
+                // Com o novo componente, o salto depende da anatomia atual.
+                // Sem ele, a V1.7.1 continua usando o multiplicador legado.
+                float jumpSpeed = anatomicalJumpStats != null && anatomicalJumpStats.enabled
+                    ? anatomicalJumpStats.CalculateJumpSpeed(jumpForce)
+                    : jumpForce * GetJumpMultiplier();
+
+                if (physicsController.TryJump(jumpSpeed))
+                {
+                    if (anatomicalJumpStats != null && anatomicalJumpStats.enabled)
+                    {
+                        Debug.Log(
+                            $"[V1.7.3 SALTO] {name}: impulso={jumpSpeed:0.###} u/s; " +
+                            $"fatorAnatomico=x{anatomicalJumpStats.CalculateMultiplier():0.###}."
+                        );
+                    }
+                    else
+                    {
+                        Debug.Log($"[V1.7.1] {name} saltou com motor fisico.");
+                    }
+                }
             }
         }
         else
