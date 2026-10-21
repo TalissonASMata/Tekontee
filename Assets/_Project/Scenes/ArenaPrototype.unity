@@ -1196,6 +1196,7 @@ GameObject:
   - component: {fileID: 705824183}
   - component: {fileID: 705824182}
   - component: {fileID: 705824181}
+  - component: {fileID: 705824184}
   m_Layer: 0
   m_Name: EnemyMon
   m_TagString: Untagged
@@ -1615,6 +1616,51 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &705824184
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 705824166}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a974e2479cfe41d2bcb78cd2882563e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonAnatomy
+  cabeca:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    presaOuBico: 
+    intelecto: 0
+  tronco:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    cobertura: 
+  bracos:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    arrasto: 0
+    quantidade: 2
+  pernas:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    arrasto: 0
+    quantidade: 2
+  cauda:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+  elemento:
+    afinidadeOuEstado: 
 --- !u!1 &757721670
 GameObject:
   m_ObjectHideFlags: 0
@@ -3140,6 +3186,7 @@ GameObject:
   - component: {fileID: 1784146751}
   - component: {fileID: 1784146750}
   - component: {fileID: 1784146749}
+  - component: {fileID: 1784146752}
   m_Layer: 0
   m_Name: Mon
   m_TagString: Untagged
@@ -3626,6 +3673,51 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &1784146752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a974e2479cfe41d2bcb78cd2882563e2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonAnatomy
+  cabeca:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    presaOuBico: 
+    intelecto: 0
+  tronco:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    cobertura: 
+  bracos:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    arrasto: 0
+    quantidade: 2
+  pernas:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+    arrasto: 0
+    quantidade: 2
+  cauda:
+    revestimento: 
+    massa: 0
+    tenacidade: 0
+    extensao: 0
+  elemento:
+    afinidadeOuEstado: 
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
