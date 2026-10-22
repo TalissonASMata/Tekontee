@@ -54,6 +54,30 @@ The identity of a Mon should come from how well its current body can execute the
 - Maintain input priority/consumption so a chord does not accidentally trigger both individual moves. Special recognition should operate on semantic action/state events, independently of controller model.
 - V1.6 should establish and validate the shared input path for the first two test moves, rather than postponing controller compatibility until the full catalog exists.
 
+### Current approved keyboard layout (2026-10-21)
+
+The following is a **user-selected control contract**, not proof all listed actions are implemented:
+
+| PlayStation concept | Keyboard | Planned action |
+|---|---|---|
+| Square (□) | F | Weak punch |
+| Cross (✕) | V | Weak kick |
+| Triangle (△) | G | Strong punch **with intrinsic element** |
+| Circle (○) | B | Strong kick **with intrinsic element** |
+| R1 | / | Shoulder action, gameplay semantics pending |
+| R2 | ; | Shoulder action, gameplay semantics pending |
+| L1 | E | Shoulder action, gameplay semantics pending |
+| L2 | R | Shoulder action, gameplay semantics pending |
+
+**Current prototype behavior (control correction preceding V1.7.5):**
+- Horizontal movement for **both Mon and Tamer**: only keyboard **Left Arrow / Right Arrow**; WASD keys must not move either character.
+- **Mon jump:** exclusively **Up Arrow on keyboard**. Space, W, and the old gamepad Triangle / `buttonNorth` shortcut no longer cause Mon jump. The definitive gamepad jump action is still **unassigned**, rather than invented or overlapping the planned strong punch (Triangle).
+- **Tamer jump:** existing **Up Arrow or Space** retained, but **W** removed. Its future definitive mapping can be reviewed separately without changing the Mon rule.
+- **Battle restart:** **Enter** only after the fight has ended; remove legacy R-restart. Enter is no longer a manual HeavyStrike alias.
+- **Mode switch:** Tab stays. Existing J/K/L universal test strikes and their gamepad prototypes stay temporarily for V1.6 regressions until the new attack actions are validated.
+- **Existing Tamer collection:** E still collects in the current prototype; reserving E as L1 is a future semantic control-layer migration, not an implicit removal of collection. R is reserved for L2 and currently does not trigger a gameplay action. Q's prototype Intensify remains.
+- **F/V/G/B and shoulder commands** are the agreed **future bindings** for the new moves, not implemented attacks yet. New bindings should be routed through semantic Input System actions and tested for keyboard/gamepad equivalence, not directly conflated with the three V1.6 test moves.
+
 ## 3. Morphology requirements and execution quality
 
 Every move may define morphology requirements.
