@@ -53,12 +53,12 @@ public class TamerController : MonoBehaviour
 
         float input = 0f;
 
-        if (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed)
+        if (Keyboard.current.leftArrowKey.isPressed)
         {
             input -= 1f;
         }
 
-        if (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed)
+        if (Keyboard.current.rightArrowKey.isPressed)
         {
             input += 1f;
         }
@@ -86,7 +86,6 @@ public class TamerController : MonoBehaviour
 
         bool jumpPressed =
             Keyboard.current.spaceKey.wasPressedThisFrame ||
-            Keyboard.current.wKey.wasPressedThisFrame ||
             Keyboard.current.upArrowKey.wasPressedThisFrame;
 
         if (jumpPressed && isGrounded)
