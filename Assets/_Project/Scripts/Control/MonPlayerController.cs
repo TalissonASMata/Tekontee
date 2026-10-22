@@ -72,7 +72,6 @@ public class MonPlayerController : MonoBehaviour
         // Os comandos logicos sao comuns a teclado e gamepad.
         heavyAction = new InputAction("HeavyStrike", InputActionType.Button);
         heavyAction.AddBinding("<Keyboard>/j");
-        heavyAction.AddBinding("<Keyboard>/enter");
         heavyAction.AddBinding("<Gamepad>/buttonSouth");
 
         aerialAction = new InputAction("AerialStrike", InputActionType.Button);
@@ -143,12 +142,12 @@ public class MonPlayerController : MonoBehaviour
     {
         float horizontalInput = 0f;
 
-        if (Keyboard.current != null && (Keyboard.current.aKey.isPressed || Keyboard.current.leftArrowKey.isPressed))
+        if (Keyboard.current != null && Keyboard.current.leftArrowKey.isPressed)
         {
             horizontalInput -= 1f;
         }
 
-        if (Keyboard.current != null && (Keyboard.current.dKey.isPressed || Keyboard.current.rightArrowKey.isPressed))
+        if (Keyboard.current != null && Keyboard.current.rightArrowKey.isPressed)
         {
             horizontalInput += 1f;
         }
@@ -174,11 +173,10 @@ public class MonPlayerController : MonoBehaviour
             position.x += horizontalInput * finalMoveSpeed * Time.deltaTime;
         }
 
+        // Teclado: somente seta para cima. Gamepad: salto ainda sem mapeamento
+        // definitivo; buttonNorth/triangulo fica reservado para soco forte.
         bool jumpPressed =
-            (Keyboard.current != null && (Keyboard.current.spaceKey.wasPressedThisFrame ||
-            Keyboard.current.wKey.wasPressedThisFrame ||
-            Keyboard.current.upArrowKey.wasPressedThisFrame)) ||
-            (Gamepad.current != null && Gamepad.current.buttonNorth.wasPressedThisFrame);
+            Keyboard.current != null && Keyboard.current.upArrowKey.wasPressedThisFrame;
 
         if (physicsController != null)
         {
@@ -250,7 +248,6 @@ public class MonPlayerController : MonoBehaviour
     private void HandleAttack()
     {
         bool keyboardJ = Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame;
-        bool keyboardEnter = Keyboard.current != null && Keyboard.current.enterKey.wasPressedThisFrame;
         bool keyboardK = Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame;
         bool keyboardL = Keyboard.current != null && Keyboard.current.lKey.wasPressedThisFrame;
         bool keyboardShiftHeld = Keyboard.current != null && Keyboard.current.leftShiftKey.isPressed;
@@ -265,7 +262,7 @@ public class MonPlayerController : MonoBehaviour
 
         // Instrumentacao de input: registra o comando observado mesmo quando
         // cooldown ou alcance impedem a execucao. Evita logs em todos os frames.
-        bool inputEvent = keyboardJ || keyboardEnter || keyboardK || keyboardL || gamepadEast ||
+        bool inputEvent = keyboardJ || keyboardK || keyboardL || gamepadEast ||
                           (keyboardShiftPressed && keyboardJHeld) ||
                           gamepadSouth || (gamepadShoulderPressed && gamepadSouthHeld);
         if (!inputEvent) return;
@@ -290,7 +287,6 @@ public class MonPlayerController : MonoBehaviour
             keyboardChord ? "Teclado Shift+J" :
             gamepadChord ? "Gamepad Shoulder+South" :
             keyboardJ ? "Teclado J" :
-            keyboardEnter ? "Teclado Enter" :
             gamepadSouth ? "Gamepad South" :
             chordAfterBase ? "Modificador apos botao-base" : "Outro";
 
