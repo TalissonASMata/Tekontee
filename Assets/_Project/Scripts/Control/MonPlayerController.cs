@@ -47,6 +47,9 @@ public class MonPlayerController : MonoBehaviour
     private UniversalMoveSet universalMoves;
     private MonPhysicsController2D physicsController;
     private MonAnatomicalJumpStats anatomicalJumpStats;
+    private MonBasicStrikeSet basicStrikeSet;
+    private InputAction weakPunchAction;
+    private InputAction weakKickAction;
     private InputAction heavyAction;
     private InputAction aerialAction;
     private InputAction defenseAction;
@@ -60,6 +63,7 @@ public class MonPlayerController : MonoBehaviour
         universalMoves = GetComponent<UniversalMoveSet>();
         physicsController = GetComponent<MonPhysicsController2D>();
         anatomicalJumpStats = GetComponent<MonAnatomicalJumpStats>();
+        basicStrikeSet = GetComponent<MonBasicStrikeSet>();
 
         if (formStats == null)
         {
@@ -69,22 +73,30 @@ public class MonPlayerController : MonoBehaviour
 
     private void OnEnable()
     {
-        // Os comandos logicos sao comuns a teclado e gamepad.
+        // Golpes basicos: mesmas acoes logicas para teclado e controle.
+        weakPunchAction = new InputAction("WeakPunch", InputActionType.Button);
+        weakPunchAction.AddBinding("<Keyboard>/f");
+        weakPunchAction.AddBinding("<Gamepad>/buttonWest"); // Quadrado no PS
+
+        weakKickAction = new InputAction("WeakKick", InputActionType.Button);
+        weakKickAction.AddBinding("<Keyboard>/v");
+        weakKickAction.AddBinding("<Gamepad>/buttonSouth"); // X no PS
+
+        weakPunchAction.Enable();
+        weakKickAction.Enable();
+
+        // Golpes genericos V1.6 ficam somente no teclado J/K/L para
+        // liberar os face buttons do gamepad aos novos golpes anatomicos.
         heavyAction = new InputAction("HeavyStrike", InputActionType.Button);
         heavyAction.AddBinding("<Keyboard>/j");
-        heavyAction.AddBinding("<Gamepad>/buttonSouth");
 
         aerialAction = new InputAction("AerialStrike", InputActionType.Button);
         aerialAction.AddBinding("<Keyboard>/k");
         aerialAction.AddCompositeBinding("OneModifier")
             .With("Modifier", "<Keyboard>/leftShift")
             .With("Binding", "<Keyboard>/j");
-        aerialAction.AddCompositeBinding("OneModifier")
-            .With("Modifier", "<Gamepad>/rightShoulder")
-            .With("Binding", "<Gamepad>/buttonSouth");
         defenseAction = new InputAction("GuardBreak", InputActionType.Button);
         defenseAction.AddBinding("<Keyboard>/l");
-        defenseAction.AddBinding("<Gamepad>/buttonEast");
         defenseAction.Enable();
         heavyAction.Enable();
         aerialAction.Enable();
@@ -92,6 +104,13 @@ public class MonPlayerController : MonoBehaviour
 
     private void OnDisable()
     {
+        weakPunchAction?.Disable();
+        weakKickAction?.Disable();
+        weakPunchAction?.Dispose();
+        weakKickAction?.Dispose();
+        weakPunchAction = null;
+        weakKickAction = null;
+
         defenseAction?.Disable();
         defenseAction?.Dispose();
         defenseAction = null;
@@ -247,6 +266,50 @@ public class MonPlayerController : MonoBehaviour
 
     private void HandleAttack()
     {
+        // V1.7.5: soco/chute anatomicos tem prioridade e compartilham
+        // cooldown e estado de ataque com os movimentos legados.
+        bool punchPressed = weakPunchAction != null && weakPunchAction.WasPressedThisFrame();
+        bool kickPressed = weakKickAction != null && weakKickAction.WasPressedThisFrame();
+
+        if (punchPressed || kickPressed)
+        {
+            MonBasicStrikeId strike = punchPressed
+                ? MonBasicStrikeId.WeakPunch
+                : MonBasicStrikeId.WeakKick;
+
+            if (Time.time < nextAttackTime)
+            {
+                Debug.Log($"[V1.7.5 INPUT] {name}: {strike} bloqueado por cooldown.");
+                return;
+            }
+
+            if (target == null || target.IsDead)
+            {
+                Debug.Log($"[V1.7.5 INPUT] {name}: {strike} sem alvo valido.");
+                return;
+            }
+
+            if (basicStrikeSet == null || !basicStrikeSet.enabled)
+            {
+                Debug.LogWarning(
+                    $"[V1.7.5 INPUT] {name}: adicione Mon Basic Strike Set ao objeto Mon.",
+                    this
+                );
+                return;
+            }
+
+            // Uma tentativa gasta cooldown mesmo quando o golpe erra.
+            // Quando F e V chegam no mesmo frame, soco tem prioridade.
+            if (!basicStrikeSet.TryExecute(strike, target)) return;
+
+            SetState(CombatState.Attacking, 0.12f);
+            nextAttackTime = Time.time + attackCooldown;
+            return;
+        }
+
+        // V1.6: mantem J/K/L e Shift+J para testes de regressao.
+        // As bindings antigas de gamepad foram desativadas para nao
+        // disputar Quadrado/X com os golpes basicos.
         bool keyboardJ = Keyboard.current != null && Keyboard.current.jKey.wasPressedThisFrame;
         bool keyboardK = Keyboard.current != null && Keyboard.current.kKey.wasPressedThisFrame;
         bool keyboardL = Keyboard.current != null && Keyboard.current.lKey.wasPressedThisFrame;
@@ -254,40 +317,25 @@ public class MonPlayerController : MonoBehaviour
         bool keyboardShiftPressed = Keyboard.current != null && Keyboard.current.leftShiftKey.wasPressedThisFrame;
         bool keyboardJHeld = Keyboard.current != null && Keyboard.current.jKey.isPressed;
 
-        bool gamepadSouth = Gamepad.current != null && Gamepad.current.buttonSouth.wasPressedThisFrame;
-        bool gamepadEast = Gamepad.current != null && Gamepad.current.buttonEast.wasPressedThisFrame;
-        bool gamepadShoulderHeld = Gamepad.current != null && Gamepad.current.rightShoulder.isPressed;
-        bool gamepadShoulderPressed = Gamepad.current != null && Gamepad.current.rightShoulder.wasPressedThisFrame;
-        bool gamepadSouthHeld = Gamepad.current != null && Gamepad.current.buttonSouth.isPressed;
-
-        // Instrumentacao de input: registra o comando observado mesmo quando
-        // cooldown ou alcance impedem a execucao. Evita logs em todos os frames.
-        bool inputEvent = keyboardJ || keyboardK || keyboardL || gamepadEast ||
-                          (keyboardShiftPressed && keyboardJHeld) ||
-                          gamepadSouth || (gamepadShoulderPressed && gamepadSouthHeld);
+        bool chordAfterBase = keyboardShiftPressed && keyboardJHeld && !keyboardJ;
+        bool inputEvent = keyboardJ || keyboardK || keyboardL || chordAfterBase;
         if (!inputEvent) return;
 
         bool keyboardChord = keyboardShiftHeld && keyboardJ;
-        bool gamepadChord = gamepadShoulderHeld && gamepadSouth;
-        bool chordAfterBase = (keyboardShiftPressed && keyboardJHeld && !keyboardJ) ||
-                              (gamepadShoulderPressed && gamepadSouthHeld && !gamepadSouth);
         bool aerialPressed = aerialAction != null && aerialAction.WasPressedThisFrame();
         bool heavyPressed = heavyAction != null && heavyAction.WasPressedThisFrame();
         bool defensePressed = defenseAction != null && defenseAction.WasPressedThisFrame();
 
-        UniversalMoveId selectedMove = keyboardL || gamepadEast || defensePressed
+        UniversalMoveId selectedMove = keyboardL || defensePressed
             ? UniversalMoveId.GuardBreak
-            : keyboardChord || gamepadChord || keyboardK || aerialPressed
+            : keyboardChord || keyboardK || aerialPressed
                 ? UniversalMoveId.AerialStrike
                 : UniversalMoveId.HeavyStrike;
 
         string inputSource = keyboardL ? "Teclado L" :
-            gamepadEast ? "Gamepad East" :
             keyboardK ? "Teclado K" :
             keyboardChord ? "Teclado Shift+J" :
-            gamepadChord ? "Gamepad Shoulder+South" :
             keyboardJ ? "Teclado J" :
-            gamepadSouth ? "Gamepad South" :
             chordAfterBase ? "Modificador apos botao-base" : "Outro";
 
         if (chordAfterBase)
