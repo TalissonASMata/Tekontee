@@ -84,14 +84,14 @@ public class GameplayStatusUI : MonoBehaviour
     {
         if (controlManager == null || !controlManager.GameplayEnabled)
         {
-            return "R: reiniciar";
+            return "Enter: reiniciar";
         }
 
         if (controlManager.CurrentMode == PlayerControlMode.Tamer)
         {
-            return "E: coletar | Q: Intensify | Tab: controlar Mon";
+            return "Setas: mover/pular | E: coletar | Q: Intensify | Tab: Mon";
         }
 
-        return "A/D: mover | W/Espaço: pular | J: atacar | Tab: controlar Tamer";
+        return "Setas ←/→: mover | ↑: pular | J/K/L: golpes teste | Tab: Tamer";
     }
 }
