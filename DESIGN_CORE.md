@@ -74,9 +74,9 @@ The following is a **user-selected control contract**, not proof all listed acti
 - **Mon jump:** exclusively **Up Arrow on keyboard**. Space, W, and the old gamepad Triangle / `buttonNorth` shortcut no longer cause Mon jump. The definitive gamepad jump action is still **unassigned**, rather than invented or overlapping the planned strong punch (Triangle).
 - **Tamer jump:** existing **Up Arrow or Space** retained, but **W** removed. Its future definitive mapping can be reviewed separately without changing the Mon rule.
 - **Battle restart:** **Enter** only after the fight has ended; remove legacy R-restart. Enter is no longer a manual HeavyStrike alias.
-- **Mode switch:** Tab stays. Existing J/K/L universal test strikes and their gamepad prototypes stay temporarily for V1.6 regressions until the new attack actions are validated.
+- **Mode switch:** Tab stays. Existing J/K/L universal test strikes (plus keyboard Shift+J) remain for V1.6 regressions. Their **provisional gamepad attack bindings were removed in V1.7.5** to avoid conflicts with Square/Cross and reserve Circle for strong kick; the V1.6 universal move code and AutoFighter AI remain.
 - **Existing Tamer collection:** E still collects in the current prototype; reserving E as L1 is a future semantic control-layer migration, not an implicit removal of collection. R is reserved for L2 and currently does not trigger a gameplay action. Q's prototype Intensify remains.
-- **F/V/G/B and shoulder commands** are the agreed **future bindings** for the new moves, not implemented attacks yet. New bindings should be routed through semantic Input System actions and tested for keyboard/gamepad equivalence, not directly conflated with the three V1.6 test moves.
+- **F / Square and V / Cross:** V1.7.5 source code now binds weak punch and weak kick to new semantic Input System actions, applying temporary contact damage from anatomical attack hitboxes. **Unity runtime and gamepad hardware tests pending**. **G/B and shoulder commands** remain future reserved inputs, not implemented actions yet. Keep semantic input/gamepad mapping separate from the three V1.6 test moves.
 
 ## 3. Morphology requirements and execution quality
 
