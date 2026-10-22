@@ -92,6 +92,6 @@ public class GameplayStatusUI : MonoBehaviour
             return "Setas: mover/pular | E: coletar | Q: Intensify | Tab: Mon";
         }
 
-        return "Setas ←/→: mover | ↑: pular | J/K/L: golpes teste | Tab: Tamer";
+        return "←/→: mover | ↑: pular | F/V: soco/chute | Tab: Tamer";
     }
 }
