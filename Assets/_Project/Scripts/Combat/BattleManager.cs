@@ -40,7 +40,7 @@ public class BattleManager : MonoBehaviour
         if (!battleEnded) return;
         if (Keyboard.current == null) return;
 
-        if (Keyboard.current.rKey.wasPressedThisFrame)
+        if (Keyboard.current.enterKey.wasPressedThisFrame)
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
@@ -103,7 +103,7 @@ public class BattleManager : MonoBehaviour
 
         Invoke(nameof(ShowResult), endDelay);
 
-        Debug.Log($"Fim da batalha: {result}\nPressione R para reiniciar");
+        Debug.Log($"Fim da batalha: {result}\nPressione Enter para reiniciar");
 
         pendingResult = result;
     }
@@ -115,7 +115,7 @@ public class BattleManager : MonoBehaviour
         if (resultText == null) return;
 
         resultText.gameObject.SetActive(true);
-        resultText.text = $"{pendingResult}\nPressione R para\nreiniciar";
+        resultText.text = $"{pendingResult}\nPressione Enter para\nreiniciar";
     }
 
     private void StopCombatants()
