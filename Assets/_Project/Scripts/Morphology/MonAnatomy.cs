@@ -168,35 +168,33 @@ public class MonAnatomy : MonoBehaviour
         {
             case MonAnatomyParameter.ArmsExtension:
                 if (bracos == null) return 0f;
-                return AddAndMeasure(bracos.extensao, gain, SetArmExtension);
+                return AddAndMeasure(ref bracos.extensao, gain);
             case MonAnatomyParameter.ArmsTenacity:
                 if (bracos == null) return 0f;
-                return AddAndMeasure(bracos.tenacidade, gain, SetArmTenacity);
+                return AddAndMeasure(ref bracos.tenacidade, gain);
             case MonAnatomyParameter.ArmsMass:
                 if (bracos == null) return 0f;
-                return AddAndMeasure(bracos.massa, gain, SetArmMass);
+                return AddAndMeasure(ref bracos.massa, gain);
             case MonAnatomyParameter.LegsExtension:
                 if (pernas == null) return 0f;
-                return AddAndMeasure(pernas.extensao, gain, SetLegExtension);
+                return AddAndMeasure(ref pernas.extensao, gain);
             case MonAnatomyParameter.LegsTenacity:
                 if (pernas == null) return 0f;
-                return AddAndMeasure(pernas.tenacidade, gain, SetLegTenacity);
+                return AddAndMeasure(ref pernas.tenacidade, gain);
             case MonAnatomyParameter.LegsMass:
                 if (pernas == null) return 0f;
-                return AddAndMeasure(pernas.massa, gain, SetLegMass);
+                return AddAndMeasure(ref pernas.massa, gain);
             default:
                 return 0f;
         }
     }
 
-    private static float AddAndMeasure(float previous, float gain, Action<float> setter)
+    private float AddAndMeasure(ref float current, float gain)
     {
-        setter(previous + gain);
-        // SetValue normaliza numeros e ignora variacoes sub-precisao.
-        // O valor retornado corresponde ao acréscimo requisitado apenas
-        // quando o novo numero diferiu do anterior em precisao float.
-        return Mathf.Approximately(previous, previous + gain)
-            ? 0f : (previous + gain - previous);
+        float before = current;
+        SetValue(ref current, before + gain);
+        // Retorna a diferenca REAL depois de sanitizacao/precisao float.
+        return Mathf.Max(0f, current - before);
     }
 
     public void SetTorsoExtension(float value)
