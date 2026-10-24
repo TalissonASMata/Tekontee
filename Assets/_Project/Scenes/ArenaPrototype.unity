@@ -1237,6 +1237,7 @@ MonoBehaviour:
   attackCooldown: 1
   attackPulseScale: 1.25
   attackPulseDuration: 0.1
+  attackStartupSeconds: 0.45
   baseBonusRepelDistance: 0.35
   primaryInfluence:
     type: 0
@@ -3230,6 +3231,7 @@ MonoBehaviour:
   attackCooldown: 1
   attackPulseScale: 1.25
   attackPulseDuration: 0.1
+  attackStartupSeconds: 0.45
   baseBonusRepelDistance: 0.35
   primaryInfluence:
     type: 0
@@ -3774,6 +3776,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MonBasicStrikeSet
   weakPunchDamage: 10
   weakKickDamage: 10
+  enableAnatomicalGrowthOnHit: 1
+  armExtensionGainPerPunchHit: 0.1
+  legExtensionGainPerKickHit: 0.1
+  effectiveExtensionThreshold: 0.25
+  effectiveDamageMultiplier: 1
+  criticalDamageMultiplier: 1.5
+  failGrowthMultiplier: 0.5
+  effectiveGrowthMultiplier: 1
+  criticalGrowthMultiplier: 2
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
