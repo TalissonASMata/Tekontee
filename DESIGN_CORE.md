@@ -76,7 +76,7 @@ The following is a **user-selected control contract**, not proof all listed acti
 - **Battle restart:** **Enter** only after the fight has ended; remove legacy R-restart. Enter is no longer a manual HeavyStrike alias.
 - **Mode switch:** Tab stays. Existing J/K/L universal test strikes (plus keyboard Shift+J) remain for V1.6 regressions. Their **provisional gamepad attack bindings were removed in V1.7.5** to avoid conflicts with Square/Cross and reserve Circle for strong kick; the V1.6 universal move code and AutoFighter AI remain.
 - **Existing Tamer collection:** E still collects in the current prototype; reserving E as L1 is a future semantic control-layer migration, not an implicit removal of collection. R is reserved for L2 and currently does not trigger a gameplay action. Q's prototype Intensify remains.
-- **F / Square and V / Cross:** V1.7.5 source code now binds weak punch and weak kick to new semantic Input System actions, applying temporary contact damage from anatomical attack hitboxes. **F/V keyboard runtime contact/damage and anatomy-dependent growth tests validated in Unity (V1.7.5, V1.8.1). V1.8.2 anatomy-based quality implementation is awaiting Unity validation; physical gamepad hardware tests remain deferred**. **G/B and shoulder commands** remain future reserved inputs, not implemented actions yet. Keep semantic input/gamepad mapping separate from the three V1.6 test moves.
+- **F / Square and V / Cross:** V1.7.5 source code now binds weak punch and weak kick to new semantic Input System actions, applying temporary contact damage from anatomical attack hitboxes. **F/V keyboard contact/damage, growth and corrected anatomical Fail/Effective/timed Critical were validated in Unity through V1.8.2 (2026-10-24). V1.8.3 weighted anatomical reinforcement is source-committed but awaiting Unity test; physical gamepad hardware tests remain deferred**. **G/B and shoulder commands** remain future reserved inputs, not implemented actions yet. Keep semantic input/gamepad mapping separate from the three V1.6 test moves.
 
 ## 3. Morphology requirements and execution quality
 
@@ -131,6 +131,8 @@ Critical Headbutt:
 The amount actually applied depends on execution quality: Fail < Effective < Critical.
 
 This architecture is important because future morphology is multidimensional. Avoid designs where every move can only award one attribute.
+
+**V1.8.3 test hypothesis, not a definitive physiology rule:** F weak punch may grant Arms.Extension (primary), Arms.Tenacidade (secondary), Arms.Massa (tertiary); V weak kick may grant the corresponding three leg parameters. The temporary numerical weights for this test are `0.10/0.04/0.02`, respectively, before Fail/Effective/Critical multipliers. Existing extension-dependent eligibility, zero-damage Fail, timing-based Critical and lack of visual transformation remain unchanged. Tenacidade/Massa are **per limb** and aggregate sums include the limb quantity. Generalized influence routing beyond these six parameter IDs, move-specific authentic biological recipes and balance are separate future decisions. The current experiment must not harden the example weights into a universal rule.
 
 ## 5. Target anatomical morphology
 
