@@ -13,13 +13,13 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 | V1.4 | Weighted Morph Influence | Validated |
 | V1.5 | Move Morphology Requirements | Validated in Unity: Fail / Effective / Critical, damage/reinforcement multipliers, requirements independent from dominant form (Attack versus Air) |
 | V1.6 | Universal Moveset | Validated in Unity with keyboard: HeavyStrike (Attack), AerialStrike (Air), GuardBreak (Defense); manual and automatic execution share UniversalMoveSet; chord Shift+J resolves only AerialStrike; third move added without changing shared TryExecute combat calculations. Physical Xbox/PS5 controller testing deferred. |
+| V1.7 | Anatomical Morphology foundations | Validated in Unity and scene committed: shared physics/collisions (V1.7.1), anatomical storage (V1.7.2), anatomical jump (V1.7.3), punch/kick reach hitboxes (V1.7.4), F/V weak strikes applying damage on contact with dynamically extended limbs/torso (V1.7.5; baseline scene corrected in `ac245e0`). |
 
 ## Active roadmap
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.7 | Anatomical Morphology | Plan the ~18-parameter anatomical schema, then validate continuous functional effects with two vertical slices: jump height and punch hitbox reach. No sprite changes from ordinary point gains; visual transformations remain separate threshold/pattern events. Use GAMEPLAY_TECHNICAL_MAP.md for node-impact planning. |
-| V1.8 | Full Morphology Feedback Loop | Validate the complete cycle: morphology -> move quality -> weighted reinforcement -> changed morphology -> changed future move quality. |
+| V1.8 | Full Morphology Feedback Loop | **In progress.** V1.8.1 first validates a limited anatomy feedback link: successful F punch -> arms extension +0.1; successful V kick -> legs extension +0.1; increased live reach on subsequent strikes, without changing legacy four-axis points. Next slices must connect anatomy-aware move quality (Fail/Effective/Critical) and weighted reinforcement into the full loop. |
 | V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
 | V1.10 | Original Morphology Baseline | Store the morphology each Mon had when entering the battle as `OriginalMorphology`. |
 | V1.11 | Morph Reversion / Debuff | Add combat effects that pull current morphology back toward `OriginalMorphology`, partially dismantling morphology built during the match. |
