@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 /// <summary>
@@ -378,6 +379,7 @@ public class MonPhysicsController2D : MonoBehaviour
 
         Vector2 appliedDelta = requestedVelocityDelta * factor;
         float velocityBeforeX = body.linearVelocity.x;
+        float positionBeforeX = body.position.x;
         ApplyKnockback(appliedDelta, controlLockSeconds);
 
         Debug.Log(
@@ -386,7 +388,33 @@ public class MonPhysicsController2D : MonoBehaviour
             $"impulsoPedidoX={requestedVelocityDelta.x:0.###}; " +
             $"impulsoAplicadoX={appliedDelta.x:0.###}; " +
             $"velXAntes={velocityBeforeX:0.###}; velXDepois={body.linearVelocity.x:0.###}; " +
+            $"posX={positionBeforeX:0.###}; limiteX=[{minX:0.###},{maxX:0.###}]; " +
             $"tempoControle={Mathf.Max(0f, controlLockSeconds):0.###} s.", this);
+
+        StartCoroutine(LogAnatomicalHitDisplacement(
+            positionBeforeX, appliedDelta.x,
+            Mathf.Max(0.06f, controlLockSeconds)));
+    }
+
+    // Diagnostico temporario: velocidade pode ser bloqueada por borda/colisao.
+    // Compara coordenadas reais do Rigidbody2D apos o tempo de reacao.
+    private IEnumerator LogAnatomicalHitDisplacement(
+        float startX, float appliedImpulseX, float sampleDuration)
+    {
+        int physicsSteps = Mathf.Max(1,
+            Mathf.CeilToInt(sampleDuration / Mathf.Max(0.001f, Time.fixedDeltaTime)));
+        for (int step = 0; step < physicsSteps; step++)
+            yield return new WaitForFixedUpdate();
+
+        float actualDeltaX = body.position.x - startX;
+        bool nearLimit = clampX &&
+            (body.position.x <= minX + 0.05f || body.position.x >= maxX - 0.05f);
+
+        Debug.Log(
+            $"[V1.8.8 DESLOCAMENTO] {name}: posXAntes={startX:0.###}; " +
+            $"posXDepois={body.position.x:0.###}; deltaX={actualDeltaX:0.###}; " +
+            $"impulsoX={appliedImpulseX:0.###}; encostouLimite={(nearLimit ? "SIM" : "NAO")}; " +
+            $"limiteX=[{minX:0.###},{maxX:0.###}].", this);
     }
 
     /// <summary>
