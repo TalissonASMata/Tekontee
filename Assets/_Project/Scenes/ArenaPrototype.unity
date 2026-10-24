@@ -1225,7 +1225,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705824166}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18dab5a6765e7d6409d8df046322d31c, type: 3}
   m_Name: 
@@ -3779,7 +3779,22 @@ MonoBehaviour:
   enableAnatomicalGrowthOnHit: 1
   armExtensionGainPerPunchHit: 0.1
   legExtensionGainPerKickHit: 0.1
+  enableAdditionalAnatomicalInfluences: 1
+  punchSecondary:
+    parameter: 1
+    amount: 0.04
+  punchTertiary:
+    parameter: 2
+    amount: 0.02
+  kickSecondary:
+    parameter: 4
+    amount: 0.04
+  kickTertiary:
+    parameter: 5
+    amount: 0.02
   effectiveExtensionThreshold: 0.25
+  effectiveTenacityThreshold: 0.1
+  effectiveMassThreshold: 0.05
   effectiveDamageMultiplier: 1
   criticalDamageMultiplier: 1.5
   failGrowthMultiplier: 0.5
