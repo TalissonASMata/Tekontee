@@ -17,6 +17,10 @@ public class AutoFighter : MonoBehaviour
     public float attackPulseScale = 1.2f;
     public float attackPulseDuration = 0.12f;
 
+    [Header("V1.8.2 - Preparacao do ataque (teste)")]
+    [Tooltip("Intervalo entre intencao e impacto dos ataques universais automaticos. A IA fica vulneravel a um Critical valido nesta janela.")]
+    [Min(0f)] public float attackStartupSeconds = 0.45f;
+
     [Header("Repel bônus")]
     public float baseBonusRepelDistance = 0.35f;
 
@@ -38,6 +42,7 @@ public class AutoFighter : MonoBehaviour
     private int autoMoveIndex;
     private Vector3 originalScale;
     private Coroutine attackPulseRoutine;
+    private Coroutine pendingAttackRoutine;
 
     private void Awake()
     {
@@ -58,6 +63,16 @@ public class AutoFighter : MonoBehaviour
 
     private void OnDisable()
     {
+        if (pendingAttackRoutine != null)
+        {
+            StopCoroutine(pendingAttackRoutine);
+            pendingAttackRoutine = null;
+        }
+
+        // Troca para controle manual durante a preparacao cancela o ataque da IA.
+        if (stateMachine != null && stateMachine.IsInAttackStartup)
+            stateMachine.SetState(CombatState.Idle);
+
         physicsController?.StopHorizontalMovement();
     }
 
@@ -108,6 +123,43 @@ public class AutoFighter : MonoBehaviour
         }
     }
 
+    private IEnumerator ExecuteUniversalAfterStartup(UniversalMoveId selectedMove)
+    {
+        float startup = Mathf.Max(0.01f, attackStartupSeconds);
+        stateMachine.BeginAttackStartup(startup, attackPulseDuration);
+        Debug.Log(
+            $"[V1.8.2 JANELA] {name}: INICIO; movimento={selectedMove}; " +
+            $"duracao={startup:0.##} s; vulneravel a contra-ataque.", this
+        );
+
+        yield return new WaitForSeconds(startup);
+
+        bool interrupted = selfHealth == null || selfHealth.IsDead ||
+            target == null || target.IsDead ||
+            stateMachine.CurrentState != CombatState.Attacking;
+
+        if (interrupted)
+        {
+            Debug.Log($"[V1.8.2 JANELA] {name}: ATAQUE INTERROMPIDO.", this);
+        }
+        else
+        {
+            // Fecha o startup ANTES da tentativa de dano: nao e contra-ataque
+            // quando o golpe ja chegou na fase de impacto.
+            stateMachine.SetState(CombatState.Attacking, attackPulseDuration);
+
+            if (universalMoves != null && universalMoves.TryExecute(selectedMove, target))
+            {
+                autoMoveIndex++;
+                ApplyBonusRepelToTarget();
+                PlayAttackPulse();
+            }
+        }
+
+        nextAttackTime = Time.time + attackCooldown;
+        pendingAttackRoutine = null;
+    }
+
     private void MoveTowardTarget()
     {
         if (target == null) return;
@@ -128,12 +180,22 @@ public class AutoFighter : MonoBehaviour
     private void TryAttack()
     {
         if (Time.time < nextAttackTime) return;
+        if (pendingAttackRoutine != null) return;
         if (target == null) return;
         if (target.IsDead) return;
 
         if (universalMoves != null)
         {
             UniversalMoveId selectedMove = autoMoveIndex % 2 == 0 ? UniversalMoveId.HeavyStrike : UniversalMoveId.AerialStrike;
+
+            // Agora a IA declara intencao, entra em startup e so depois aplica
+            // dano. Se for atingida no startup, o golpe e interrompido.
+            if (stateMachine != null && attackStartupSeconds > 0f)
+            {
+                pendingAttackRoutine = StartCoroutine(ExecuteUniversalAfterStartup(selectedMove));
+                return;
+            }
+
             if (!universalMoves.TryExecute(selectedMove, target)) return;
             autoMoveIndex++;
             SetState(CombatState.Attacking, attackPulseDuration);
