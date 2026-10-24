@@ -365,7 +365,9 @@ public class MonPhysicsController2D : MonoBehaviour
     }
 
     // V1.8.8 / PHY-093: em um mesmo golpe, Mon mais pesado absorve
-    // maior parte do impulso. Ainda NAO inclui aderencia contextual ao solo
+    // maior parte da velocidade de reacao. F/V SUBSTITUEM o movimento X
+    // anterior, evitando amplificar o empurrao por velocidade residual.
+    // Ainda NAO inclui aderencia contextual ao solo
     // (revestimento, numero de pernas e terreno ficam para outra fatia).
     // Este metodo recebe um vetor 2D para ser reutilizavel em outros impactos.
     public void ApplyAnatomicalHitKnockback(Vector2 requestedVelocityDelta, float controlLockSeconds)
@@ -377,22 +379,32 @@ public class MonPhysicsController2D : MonoBehaviour
         float factor = 1f / Mathf.Sqrt(1f + totalMass * Mathf.Max(0f, massImpactResistance));
         factor = Mathf.Clamp(factor, Mathf.Clamp01(minimumImpactMultiplier), 1f);
 
-        Vector2 appliedDelta = requestedVelocityDelta * factor;
+        Vector2 reactionVelocity = requestedVelocityDelta * factor;
         float velocityBeforeX = body.linearVelocity.x;
         float positionBeforeX = body.position.x;
-        ApplyKnockback(appliedDelta, controlLockSeconds);
+
+        // F/V: velocidade de REACAO definida pelo golpe, nao velocidade acumulada.
+        // Uma velocidade anterior causada por colisao/movimento nao amplifica
+        // o empurrao. Preservamos o Y existente para nao cancelar saltos.
+        float responseX = Mathf.Abs(requestedVelocityDelta.x) > 0.0001f
+            ? reactionVelocity.x
+            : velocityBeforeX;
+        body.linearVelocity = new Vector2(
+            responseX, body.linearVelocity.y + reactionVelocity.y);
+        knockbackControlUntil = Mathf.Max(
+            knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
 
         Debug.Log(
             $"[V1.8.8 IMPACTO] {name}: massaGeral={totalMass:0.###}; " +
             $"emSolo={(isGrounded ? "SIM" : "NAO")}; fator=x{factor:0.###}; " +
             $"impulsoPedidoX={requestedVelocityDelta.x:0.###}; " +
-            $"impulsoAplicadoX={appliedDelta.x:0.###}; " +
+            $"impulsoAplicadoX={reactionVelocity.x:0.###}; modo=SUBSTITUICAO; " +
             $"velXAntes={velocityBeforeX:0.###}; velXDepois={body.linearVelocity.x:0.###}; " +
             $"posX={positionBeforeX:0.###}; limiteX=[{minX:0.###},{maxX:0.###}]; " +
             $"tempoControle={Mathf.Max(0f, controlLockSeconds):0.###} s.", this);
 
         StartCoroutine(LogAnatomicalHitDisplacement(
-            positionBeforeX, appliedDelta.x,
+            positionBeforeX, reactionVelocity.x,
             Mathf.Max(0.06f, controlLockSeconds)));
     }
 
