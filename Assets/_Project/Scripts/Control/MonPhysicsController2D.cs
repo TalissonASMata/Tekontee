@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// V1.7.1: motor fisico compartilhado por PlayerMon e EnemyMon.
 /// Os controladores (jogador/IA) apenas enviam intencao de movimento.
-/// Os valores de morfologia anatomica serao conectados em outra etapa.
+/// V1.8.5: velocidade de caminhada no solo deriva da anatomia atual.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -12,6 +12,15 @@ public class MonPhysicsController2D : MonoBehaviour
 {
     [Header("Gravidade universal do Mon (unidades/s²)")]
     [Min(0.1f)] public float gravityAcceleration = 18f;
+
+    [Header("V1.8.5 - Caminhada anatomica no solo (teste)")]
+    [Tooltip("Contribuicao da extensao das pernas a velocidade horizontal.")]
+    [Min(0f)] public float legExtensionSpeedGain = 0.25f;
+    [Tooltip("Penalidade da massa geral sobre a velocidade horizontal.")]
+    [Min(0f)] public float generalMassSpeedPenalty = 0.08f;
+    [Tooltip("Limites provisórios; nao representam balanceamento definitivo.")]
+    [Min(0.1f)] public float minimumGroundSpeedMultiplier = 0.5f;
+    [Min(0.1f)] public float maximumGroundSpeedMultiplier = 2f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -27,11 +36,14 @@ public class MonPhysicsController2D : MonoBehaviour
     private CapsuleCollider2D bodyCollider;
     private CombatantStateMachine stateMachine;
     private Health health;
+    private MonAnatomy anatomy;
 
     private float inputX;
     private float requestedSpeed;
     private float knockbackControlUntil;
     private bool isGrounded;
+    private float lastReportedGroundMultiplier = -1f;
+    private float lastReportedRequestedSpeed = -1f;
 
     // Diagnostico da V1.7.3: mede a altura realmente percorrida pelo Rigidbody2D.
     private bool trackingJumpApex;
@@ -47,6 +59,7 @@ public class MonPhysicsController2D : MonoBehaviour
         bodyCollider = GetComponent<CapsuleCollider2D>();
         stateMachine = GetComponent<CombatantStateMachine>();
         health = GetComponent<Health>();
+        anatomy = GetComponent<MonAnatomy>();
 
         body.bodyType = RigidbodyType2D.Dynamic;
         body.freezeRotation = true;
@@ -75,9 +88,25 @@ public class MonPhysicsController2D : MonoBehaviour
 
         if (Time.time >= knockbackControlUntil)
         {
-            float desiredX = stateMachine != null && stateMachine.IsLocked
-                ? 0f
-                : Mathf.Clamp(inputX, -1f, 1f) * Mathf.Max(0f, requestedSpeed);
+            bool locked = stateMachine != null && stateMachine.IsLocked;
+            // Somente caminhada NO SOLO nesta fatia. Preserva o movimento aereo
+            // existente ate a validacao separada de controle parcial no ar.
+            float groundMultiplier = isGrounded ? CalculateGroundSpeedMultiplier() : 1f;
+            float desiredX = locked ? 0f :
+                Mathf.Clamp(inputX, -1f, 1f) * Mathf.Max(0f, requestedSpeed) * groundMultiplier;
+
+            if (isGrounded && !locked && Mathf.Abs(inputX) > 0.01f && requestedSpeed > 0f &&
+                (Mathf.Abs(groundMultiplier - lastReportedGroundMultiplier) > 0.005f ||
+                 Mathf.Abs(requestedSpeed - lastReportedRequestedSpeed) > 0.005f))
+            {
+                Debug.Log(
+                    $"[V1.8.5 CAMINHADA] {name}: pernasExtensao={Mathf.Max(0f, anatomy?.pernas?.extensao ?? 0f):0.###}; " +
+                    $"massaGeral={Mathf.Max(0f, anatomy?.MassaGeral ?? 0f):0.###}; " +
+                    $"velocidadeBase={requestedSpeed:0.###}; fator=x{groundMultiplier:0.###}; " +
+                    $"velocidadeSolo={Mathf.Abs(desiredX):0.###} u/s.", this);
+                lastReportedGroundMultiplier = groundMultiplier;
+                lastReportedRequestedSpeed = requestedSpeed;
+            }
 
             body.linearVelocity = new Vector2(desiredX, body.linearVelocity.y);
         }
@@ -98,6 +127,34 @@ public class MonPhysicsController2D : MonoBehaviour
                 body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
             }
         }
+    }
+
+    // V1.8.5 / PHY-087: velocidade horizontal no solo depende de
+    // Pernas.Extensao E MassaGeral, sem alterar gravidade, colisor ou sprite.
+    // Coeficientes e limites sao exclusivamente hipoteses para teste no Unity.
+    public float CalculateGroundSpeedMultiplier()
+    {
+        if (anatomy == null) anatomy = GetComponent<MonAnatomy>();
+        if (anatomy == null || anatomy.pernas == null) return 1f;
+
+        float legExtension = Mathf.Max(0f, anatomy.pernas.extensao);
+        float totalMass = Mathf.Max(0f, anatomy.MassaGeral);
+        float drive = 1f + legExtension * Mathf.Max(0f, legExtensionSpeedGain);
+        float inertia = Mathf.Sqrt(1f + totalMass * Mathf.Max(0f, generalMassSpeedPenalty));
+        float rawMultiplier = drive / Mathf.Max(0.01f, inertia);
+        float minimum = Mathf.Max(0.1f, minimumGroundSpeedMultiplier);
+        float maximum = Mathf.Max(minimum, maximumGroundSpeedMultiplier);
+        return Mathf.Clamp(rawMultiplier, minimum, maximum);
+    }
+
+    [ContextMenu("V1.8.5 - Mostrar velocidade de caminhada")]
+    public void LogGroundSpeedCalculation()
+    {
+        Debug.Log(
+            $"[V1.8.5 CAMINHADA] {name}: pernasExtensao={Mathf.Max(0f, anatomy?.pernas?.extensao ?? 0f):0.###}; " +
+            $"massaGeral={Mathf.Max(0f, anatomy?.MassaGeral ?? 0f):0.###}; " +
+            $"velocidadeBase={requestedSpeed:0.###}; fator=x{CalculateGroundSpeedMultiplier():0.###}; " +
+            $"velocidadeSolo={requestedSpeed * CalculateGroundSpeedMultiplier():0.###} u/s.", this);
     }
 
     /// <summary>Recebe apenas direcao e velocidade; nao altera o Transform.</summary>
