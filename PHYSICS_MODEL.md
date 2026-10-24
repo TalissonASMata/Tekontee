@@ -1102,6 +1102,15 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Provisional tuning only:** startup 0.45 s, normal damage/reinforcement multiplier 1, Critical damage x1.5 and reinforcement x2. These values are for Unity validation and do not establish final balance.
 - **Affected nodes:** combat states, attack startup/impact timing, interrupts, contact resolution, critical quality and reinforcement, player feedback.
 
+### PHY-126 — Todos os requisitos morfológicos de um movimento são obrigatórios (DECIDED, 2026-10-24)
+
+- **Decisão explícita do usuário:** um movimento só alcança `Effective` quando **todos os atributos anatômicos mínimos exigidos por aquele movimento** estão atendidos. Não existe compensação por superdesenvolvimento de outro requisito.
+- Um único requisito abaixo do mínimo gera `Fail` anatômico: movimento tentado, nenhum dano, mas reforço mínimo dos parâmetros envolvidos, mesmo sem contato; preserva PHY-124.
+- Com todos os requisitos atendidos, o resultado normal é `Effective` se o golpe encontrar o alvo. `Critical` requer **além da elegibilidade anatômica** o contato na janela de oportunidade do adversário, preservando PHY-125. Um whiff com anatomia suficiente não recebe desenvolvimento por acerto.
+- A regra vale para o conjunto de requisitos **definido para cada movimento**, não para todos os atributos do corpo. Um soco não exige, por princípio, parâmetros da cauda ou da cabeça. Combinar requisitos pode incluir regiões distintas em movimentos futuros.
+- **Primeira hipótese parametrizada V1.8.4, ainda sem validação Unity:** F soco requer Braços.Extensão >= 0,25, Braços.Tenacidade >= 0,10 e Braços.Massa **por braço** >= 0,05. V chute exige os mesmos três limites nas Pernas. Estes mínimos são exclusivamente valores de teste — foram escolhidos para corresponder a cerca de cinco tentativas iniciais `Fail` com as influências de V1.8.3, não representam fisiologia final ou uma proporção universal.
+- **Afeta:** pré-condições de execução do movimento, logs diagnósticos de atributos presentes/ausentes. **Não altera:** regras de contato, dano, Critical, reforço ponderado, progressão visual, IA, câmera ou comandos.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
