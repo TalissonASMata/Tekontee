@@ -11,6 +11,12 @@ public class CombatantStateMachine : MonoBehaviour
 
     private Health health;
     private float lockedUntil;
+    private float attackStartupUntil;
+
+    // Janela de preparacao: alto comprometimento e vulnerabilidade a contra-ataque.
+    // CurrentState == Attacking por si so nao implica Critical.
+    public bool IsInAttackStartup =>
+        CurrentState == CombatState.Attacking && Time.time < attackStartupUntil;
 
     public bool IsLocked
     {
@@ -56,6 +62,17 @@ public class CombatantStateMachine : MonoBehaviour
         }
     }
 
+    // Mantem o estado Attacking durante a preparacao e libera uma janela
+    // explicitamente temporizada para que um acerto valido possa interromper.
+    public void BeginAttackStartup(float startupDuration, float followupLockDuration)
+    {
+        float startup = Mathf.Max(0f, startupDuration);
+        SetState(CombatState.Attacking,
+            Mathf.Max(0.01f, startup + Mathf.Max(0f, followupLockDuration)));
+        if (CurrentState == CombatState.Attacking)
+            attackStartupUntil = Time.time + startup;
+    }
+
     public void SetState(CombatState newState, float lockDuration = 0f)
     {
         if (CurrentState == CombatState.Dead) return;
@@ -63,6 +80,8 @@ public class CombatantStateMachine : MonoBehaviour
         if (CurrentState == newState && lockDuration <= 0f) return;
 
         CurrentState = newState;
+        // Qualquer transicao ou conclusao do ataque fecha a janela anterior.
+        attackStartupUntil = 0f;
 
         if (lockDuration > 0f)
         {
@@ -85,6 +104,7 @@ public class CombatantStateMachine : MonoBehaviour
     private void HandleDeath(Health deadHealth)
     {
         CurrentState = CombatState.Dead;
+        attackStartupUntil = 0f;
 
         if (logStateChanges)
         {
