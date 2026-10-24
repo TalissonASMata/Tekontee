@@ -5,6 +5,7 @@ using UnityEngine;
 // V1.8.2: Fail sem dano; Effective por capacidade; Critical por contra-ataque real.
 // V1.8.3: ate tres influencias anatomicas ponderadas por golpe (valores de teste).
 // V1.8.4: execucao exige TODOS os requisitos anatomicos do golpe (AND).
+// V1.8.8: golpes Effective/Critical aplicam impulso fisico de teste no alvo.
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -53,6 +54,14 @@ public class MonBasicStrikeSet : MonoBehaviour
     [Min(0f)] public float effectiveTenacityThreshold = 0.10f;
     [Tooltip("Minimo de massa POR membro de bracos/pernas para executar F/V.")]
     [Min(0f)] public float effectiveMassThreshold = 0.05f;
+
+    [Header("V1.8.8 - Empurrao fisico F/V (teste)")]
+    [Tooltip("Acertos Effective/Critical F/V aplicam impulso; Fail/whiff nao.")]
+    public bool enablePhysicalHitKnockback = true;
+    [Tooltip("Impulso horizontal base entregue ao alvo antes da resistencia pela massa dele.")]
+    [Min(0f)] public float baseHitKnockbackSpeed = 4f;
+    [Tooltip("Tempo de preservacao do impulso sem controle normal do alvo.")]
+    [Min(0f)] public float hitKnockbackControlSeconds = 0.20f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
@@ -121,6 +130,21 @@ public class MonBasicStrikeSet : MonoBehaviour
             damageApplied = Mathf.Max(1,
                 Mathf.RoundToInt(baseDamage * DamageMultiplier(quality)));
             opponent.TakeDamage(damageApplied, transform);
+
+            // Aplica movimento real somente ao conectar um golpe valido.
+            // Dano, requisitos e calculo de Critical continuam inalterados.
+            if (enablePhysicalHitKnockback)
+            {
+                MonPhysicsController2D opponentMotor =
+                    opponent.GetComponent<MonPhysicsController2D>();
+                if (opponentMotor != null)
+                {
+                    float directionX = opponent.transform.position.x < transform.position.x ? -1f : 1f;
+                    opponentMotor.ApplyAnatomicalHitKnockback(
+                        new Vector2(directionX * Mathf.Max(0f, baseHitKnockbackSpeed), 0f),
+                        Mathf.Max(0f, hitKnockbackControlSeconds));
+                }
+            }
         }
 
         float growthApplied = 0f;
