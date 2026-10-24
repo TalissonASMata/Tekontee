@@ -82,6 +82,9 @@ The following is a **user-selected control contract**, not proof all listed acti
 
 Every move may define morphology requirements.
 
+**Eligibility decision (2026-10-24):** Each move has its own set of anatomical minimum requirements. **Every required parameter must meet its minimum; none can compensate for another** (logical AND). Requiring every attribute of the *entire Mon* is not intended; only the attributes defined as prerequisites of that particular move participate. Eligibility is distinct from the later Critical timing opportunity and from the up-to-three influence parameters a move develops. For the V1.8.4 prototype, F punch / V kick provisionally require their own limb's Extension, Tenacidade and per-limb Massa all at the configured minima, respectively 0.25, 0.10, 0.05. These values are tests, not fixed design balance.
+
+
 A move resolves in one of three quality levels:
 
 ### Fail
