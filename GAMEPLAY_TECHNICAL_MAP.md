@@ -188,6 +188,27 @@ All three apply the same multiplier from V1.8.2: **Fail x0.5 per valid attempt e
 
 **Next V1.8 question (not implemented):** define how multiple anatomical dimensions gate move capability, rather than using only limb extension for F/V Fail-to-Effective. Keep this separate from distributing rewards: a move may require one or several independent body capabilities; deciding exact dependency and threshold should precede implementing a generic evaluator. Do not modify damage/critical timing until that is defined.
 
+## V1.8.4 — All-required anatomical prerequisites for F/V (CODE COMMITTED; UNITY TEST PENDING)
+
+**Decision, 2026-10-24:** user chose **every mandatory requirement** of a particular movement (logical AND, never compensation). A highly developed extension cannot cover inadequate tenacity or mass. This does **not** mean every parameter in the whole Mon is a prerequisite for each action.
+
+**1. Player-visible hypothesis:** The F punch is `Fail` until **arms extension AND arms tenacity AND per-arm mass** all meet the provisional F criteria. V kick independently uses the corresponding leg parameters. A strike can have high extension but still deliver **0 HP** if tenacity or mass is lacking. Repeated Fail attempts (including misses) still provide small three-parameter development, ultimately unlocking Effective after all minima are met. A fully capable strike meeting the enemy's attack startup still becomes Critical by timing; it never becomes Critical just from abundant anatomy.
+
+**2. Movement/mechanic:** existing weak punch and weak kick; **only eligibility calculation changes**. Inputs F/V, physical hitbox and reach, damage multipliers, weighted reinforcement, cooldown, character visuals, transformations, physics, camera, Tamer systems, enemy automatic attacks and legacy V1.6 universal move scoring are unchanged.
+
+**3. Source touchpoints:** `Assets/_Project/Scripts/Combat/MonBasicStrikeSet.cs` reads `MonAnatomy`'s per-limb `extensao`, `tenacidade`, `massa` **before** any damage/reinforcement and applies logical AND in the existing `EvaluateStrikeQuality`. No new component, script, or `.meta` is required. There are two new Inspector-configurable test minima beside the existing extension minimum. `[V1.8.4 REQUISITOS]` shows actual vs minimum for each parameter, OK/FALTA, and eligible SIM/NAO. A very small comparison tolerance (`0.00001`) covers float rounding after repeated incremental gains.
+
+| Move | Extension >= | Tenacity >= (per limb) | Mass >= (per limb) |
+|---|---:|---:|---:|
+| F soco, Bracos | 0.25 | 0.10 | 0.05 |
+| V chute, Pernas | 0.25 | 0.10 | 0.05 |
+
+**All numerical requirements are provisional test defaults, not biological rules or final balance.** With the already validated V1.8.3 Fail gains `+0.05, +0.02, +0.01`, all three minima are normally crossed after five unsupported attempts from a zero baseline, allowing the **sixth** contact to be Effective. Turning off secondary/tertiary growth in Inspector can leave the missing required parameter permanently under its minimum until some other action provides it; this is expected under the non-compensating rule.
+
+**4. First Unity acceptance, single missing attribute:** with Unity closed, `git pull --ff-only`, then check compile and `Mon Basic Strike Set` thresholds. Enter Play; temporarily disable EnemyMon AutoFighter and select Mon through Tab. While **in Play only**, set `Mon -> Mon Anatomy -> Bracos.Extensao = 0.25`, `Bracos.Tenacidade = 0.10`, and `Bracos.Massa = 0.04`. Position Mon close enough to hit EnemyMon; press F **once**. Expected `[V1.8.4 REQUISITOS] golpe=SOCO; extensao=0.25/0.25 OK; tenacidade=0.10/0.10 OK; massa=0.04/0.05 FALTA; elegivel=NAO`. The corresponding `[V1.8.2 GOLPE]` should say `qualidade=Fail; dano=0` even on contact; the already-validated `[V1.8.3 MORFOLOGIA]` should award `+0.05/+0.02/+0.01`, bringing per-arm mass to 0.05 (and other parameter gains). After cooldown, another F in range should be eligible `SIM` and `Effective` with 10 damage. Test only first Fail before proceeding, and share one requirements and one hit log. Stop Play to revert Inspector edits. Do not save temporary scene data or modify unrelated TextMesh Pro files.
+
+**5. Later checks:** keep extension under threshold but other two >=, and repeat with tenacity missing; V/legs independent; eligible whiff still no damage or reinforcement; legitimate counter-hit remains Critical with correct prerequisites. Special/composite moves with richer requirements, deciding physiological meaning of thresholds, coefficient tuning and validated visuals remain future work. Once user confirms all V1.8.4 tests, update this note to UNITY VALIDATED.
+
 ## Minimal anatomical gameplay hypotheses for V1.7
 
 **H1 — Jump:** an anatomical parameter (or derived combination of leg parameters, exact mapping to be decided) incrementally increases jump height, with **no sprite change**. Preserve current jump input and game loop. Test measurable jump apex at at least three parameter values, including baseline.
