@@ -1085,6 +1085,23 @@ The user defines **four separate roles** for leg properties, without automatical
 - Implement the simplest discernible failed-action feedback in Unity only when the corresponding vertical slice is requested; **no Unity code changes authorized**.
 - **Affected nodes:** universal input recognition, move morphology evaluation, Fail result, feedback/animation, jump/glide action gating, player comprehension.
 
+### PHY-124 — Unsupported offensive movement deals no damage but reinforces on attempt (DECIDED, 2026-10-24)
+
+- User correction: **Fail is an anatomical incapacity**, not a weak-but-damaging contact. A Mon can attempt an unsupported offensive move; it inflicts **zero enemy damage**, even if the approximate geometric hitbox overlaps the target.
+- The valid action attempt grants **minimal morphology reinforcement** to help develop the missing supporting anatomy. This applies even when the opponent is out of the hitbox range; the failed attempt is still an opportunity to practice, provided the action was actually executed (not blocked by cooldown or input invalidity).
+- Distinguish **morphological Fail** from an otherwise executable strike missing the target: the latter is a whiff, causes no damage and does not receive the normal on-hit reinforcement.
+- V1.8.2 experimentally tests this for F punch/V kick; exact per-move anatomical requirements, quantities and non-damaging move feedback are later work. Legacy V1.6 generic move damage is not yet converted to this rule.
+- **Affected nodes:** universal move eligibility and resolution, damage routing, anatomical reinforcement and debug feedback.
+
+### PHY-125 — Critical requires a valid strike exploiting the opponent's action window (DECIDED, 2026-10-24)
+
+- User correction: **Critical is not automatically obtained through high limb extension**. Anatomy first establishes whether the move is executable. A Critical requires a **successful strike timed to exploit a vulnerable phase in the opponent's action**, beginning with a counter-hit against an opponent committed to initiating an attack.
+- The activity-axis concept (relaxed -> prepared/active -> action-committed -> recovery) is a **mental model**, not a request for expensive continuous attention simulation. Implement specific attack preparation/commitment windows and vulnerability based on combat state/timers.
+- In the initial V1.8.2 implementation, an automatically controlled Mon opens a short interruptible attack startup window before its universal attack applies damage. A geometrically valid strike by a sufficiently anatomically capable Mon during that window qualifies as Critical and interrupts the pending attack via the ordinary damage-state transition.
+- Ordinary hits outside that window are Effective even when the attacker's morphology is extremely developed. Defense commitment and punish/recovery Critical windows remain separate future candidates; no random critical calculation or fully continuous attention simulation is required now.
+- **Provisional tuning only:** startup 0.45 s, normal damage/reinforcement multiplier 1, Critical damage x1.5 and reinforcement x2. These values are for Unity validation and do not establish final balance.
+- **Affected nodes:** combat states, attack startup/impact timing, interrupts, contact resolution, critical quality and reinforcement, player feedback.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
