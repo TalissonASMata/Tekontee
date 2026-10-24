@@ -241,7 +241,7 @@ All three apply the same multiplier from V1.8.2: **Fail x0.5 per valid attempt e
 
 **Unity functional validation (2026-10-24):** The user provided Play Mode logs showing release during aerial motion: `entrada=0; velAntes=2.99; velDepois=2.95; alvo=0; aceleracao=2`, preserving momentum. Aerial reversal was verified in the opposite direction as well: with leftward movement at -2.99 u/s, pressing right (`entrada=1`) produced -2.83 u/s toward the +2.99 u/s target, proving deceleration before reversal rather than instant velocity sign switch. Other reversal traces include -1.88 -> -1.72. Landing without input logged `velAntes=2.67; velDepois=0; semComando=SIM`; landing with right held logged `velAntes=-1.71; velDepois=2.99; semComando=NAO`, consistent with immediate responsive ground walking. V1.8.6 behavior is **functionally validated** for these motor cases; tuning constants remain provisional. This does not certify all combat/AI/camera regression scenarios, gamepad hardware or broader airborne mechanics.
 
-## V1.8.7 — Morphology-gated basic glide using arms drag (CODE COMMITTED; UNITY TEST PENDING)
+## V1.8.7 — Morphology-gated basic glide using arms drag (UNITY FUNCTIONALLY VALIDATED)
 
 **Purpose and contract:** prove a new anatomical parameter has an *action-dependent* physics result rather than globally changing gravity or passive falling. This is the minimal controlled-glide slice for PHY-086/122/123: a Mon can always try the Glide action in the air; insufficient morphology results in `Fail`, no glide effect and a small practice reinforcement; with sufficient anatomy it becomes `Effective`, reducing **descending** speed only, never granting sustained lift or hovering. No special `Critical` rule is invented for glide. `Fail` visual animation is postponed while primitive prototype placeholders remain; diagnostic logs are temporary feedback, not final presentation.
 
@@ -256,6 +256,8 @@ All three apply the same multiplier from V1.8.2: **Fail x0.5 per valid attempt e
 **Next checks once Fail passes:** start a new jump with `Bracos.Arrasto=0.40` set *during Play*; hold Down when airborne and ensure `Effective` (one +0.04) and `[V1.8.7 DESCIDA]` showing a less-negative descent velocity with cap around 1.33 u/s (based on reinforced 0.44). No input should follow ordinary gravitational falling; stop holding Down midair should restore ordinary descent; compare ordinary vs active glide. Recheck F/V + combat knockback and a regular jump. Discard Play Mode tuning values on exit.
 
 **Scope limitations:** this is not a full authored animation, polished input/gamepad mapping, wing morphology, per-surface drag or universal AI glide. The move catalog will be unified with all anatomical moves later. Treat effects and coefficients as experimental until validated in Unity.
+
+**Unity functional validation (2026-10-24):** User verified five Fail attempts (+0.02 ArmsDrag each) from drag 0 to 0.10, then Effective (+0.04) on attempt six. Effective descent caps decreased with accumulated ArmsDrag: at 0.14, 1.953 u/s; at 0.18, 1.838; at 0.22, 1.736; at 0.26, 1.645; at 0.30, 1.563. Additional test with leg mass 5 and ArmsDrag 0.46 yielded descent cap 1.302 u/s. The user confirmed that releasing Down Arrow returns falling acceleration. Functional behavior validated; timings, visuals, input mapping and game balance are not final.
 
 ## Minimal anatomical gameplay hypotheses for V1.7
 
