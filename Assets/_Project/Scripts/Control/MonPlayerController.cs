@@ -50,6 +50,7 @@ public class MonPlayerController : MonoBehaviour
     private MonBasicStrikeSet basicStrikeSet;
     private InputAction weakPunchAction;
     private InputAction weakKickAction;
+    private InputAction glideAction;
     private InputAction heavyAction;
     private InputAction aerialAction;
     private InputAction defenseAction;
@@ -85,6 +86,12 @@ public class MonPlayerController : MonoBehaviour
         weakPunchAction.Enable();
         weakKickAction.Enable();
 
+        // V1.8.7: binding experimental, so no Mon e enquanto estiver no ar.
+        // A capacidade e avaliada no motor compartilhado, nao na tecla.
+        glideAction = new InputAction("Glide", InputActionType.Button);
+        glideAction.AddBinding("<Keyboard>/downArrow");
+        glideAction.Enable();
+
         // Golpes genericos V1.6 ficam somente no teclado J/K/L para
         // liberar os face buttons do gamepad aos novos golpes anatomicos.
         heavyAction = new InputAction("HeavyStrike", InputActionType.Button);
@@ -104,6 +111,11 @@ public class MonPlayerController : MonoBehaviour
 
     private void OnDisable()
     {
+        physicsController?.SetGlideIntent(false);
+        glideAction?.Disable();
+        glideAction?.Dispose();
+        glideAction = null;
+
         weakPunchAction?.Disable();
         weakKickAction?.Disable();
         weakPunchAction?.Dispose();
@@ -138,10 +150,16 @@ public class MonPlayerController : MonoBehaviour
     {
         // Quando o jogador controla o Tamer, a IA e dona da intencao de movimento.
         // Nao limpar o comando do AutoFighter a cada Update.
-        if (!canControl) return;
+        if (!canControl)
+        {
+            // Nunca deixa intencao de glide pendurada ao devolver Mon para IA.
+            physicsController?.SetGlideIntent(false);
+            return;
+        }
 
         if (selfHealth != null && selfHealth.IsDead)
         {
+            physicsController?.SetGlideIntent(false);
             physicsController?.StopHorizontalMovement();
             SetState(CombatState.Dead);
             return;
@@ -149,6 +167,7 @@ public class MonPlayerController : MonoBehaviour
 
         if (stateMachine != null && stateMachine.IsLocked)
         {
+            physicsController?.SetGlideIntent(false);
             physicsController?.StopHorizontalMovement();
             return;
         }
@@ -159,6 +178,10 @@ public class MonPlayerController : MonoBehaviour
 
     private void HandleMovementAndJump()
     {
+        // Tentativa pode ser mantida antes ou durante a descida.
+        // A subida continua normal; a planagem so altera a queda efetiva.
+        physicsController?.SetGlideIntent(glideAction != null && glideAction.IsPressed());
+
         float horizontalInput = 0f;
 
         if (Keyboard.current != null && Keyboard.current.leftArrowKey.isPressed)
