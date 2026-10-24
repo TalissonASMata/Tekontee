@@ -11,7 +11,10 @@ public enum MonAnatomyParameter
     ArmsMass,
     LegsExtension,
     LegsTenacity,
-    LegsMass
+    LegsMass,
+    // V1.8.7: anexados ao final para preservar IDs serializados de F/V.
+    ArmsDrag,
+    LegsDrag
 }
 
 [Serializable]
@@ -184,6 +187,12 @@ public class MonAnatomy : MonoBehaviour
             case MonAnatomyParameter.LegsMass:
                 if (pernas == null) return 0f;
                 return AddAndMeasure(ref pernas.massa, gain);
+            case MonAnatomyParameter.ArmsDrag:
+                if (bracos == null) return 0f;
+                return AddAndMeasure(ref bracos.arrasto, gain);
+            case MonAnatomyParameter.LegsDrag:
+                if (pernas == null) return 0f;
+                return AddAndMeasure(ref pernas.arrasto, gain);
             default:
                 return 0f;
         }
