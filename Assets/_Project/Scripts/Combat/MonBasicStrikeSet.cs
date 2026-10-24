@@ -58,10 +58,10 @@ public class MonBasicStrikeSet : MonoBehaviour
     [Header("V1.8.8 - Empurrao fisico F/V (teste)")]
     [Tooltip("Acertos Effective/Critical F/V aplicam impulso; Fail/whiff nao.")]
     public bool enablePhysicalHitKnockback = true;
-    [Tooltip("Impulso horizontal base entregue ao alvo antes da resistencia pela massa dele.")]
-    [Min(0f)] public float baseHitKnockbackSpeed = 4f;
-    [Tooltip("Tempo de preservacao do impulso sem controle normal do alvo.")]
-    [Min(0f)] public float hitKnockbackControlSeconds = 0.20f;
+    [Tooltip("Velocidade horizontal de reacao do golpe fraco, antes da resistencia pela massa (u/s).")]
+    [Min(0f)] public float baseHitKnockbackSpeed = 1f;
+    [Tooltip("Duracao curta da reacao sem controle normal, para manter os Mons proximos (s).")]
+    [Min(0f)] public float hitKnockbackControlSeconds = 0.10f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
