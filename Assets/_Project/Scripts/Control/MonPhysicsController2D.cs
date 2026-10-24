@@ -233,7 +233,8 @@ public class MonPhysicsController2D : MonoBehaviour
             glideLoggedFirstDescent = false;
             return;
         }
-        if (!glideIntent) return;
+        if (!glideIntent || Time.time < knockbackControlUntil ||
+            (stateMachine != null && stateMachine.IsLocked)) return;
 
         if (!glideAttemptedThisHold)
         {
