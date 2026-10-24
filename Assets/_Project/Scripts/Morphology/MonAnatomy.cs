@@ -1,6 +1,32 @@
 using System;
 using UnityEngine;
 
+// V1.8.3: IDs numericos anatomicos para distribuicao ponderada por movimento.
+// A lista inicial limita-se aos membros efetivamente usados por F/V.
+// Outros parametros ja armazenados serao integrados quando houver movimentos.
+public enum MonAnatomyParameter
+{
+    ArmsExtension,
+    ArmsTenacity,
+    ArmsMass,
+    LegsExtension,
+    LegsTenacity,
+    LegsMass
+}
+
+[Serializable]
+public class MonAnatomicalInfluence
+{
+    public MonAnatomyParameter parameter;
+    [Min(0f)] public float amount;
+
+    public MonAnatomicalInfluence(MonAnatomyParameter parameter, float amount)
+    {
+        this.parameter = parameter;
+        this.amount = Mathf.Max(0f, amount);
+    }
+}
+
 // V1.7.2 - Dados anatomicos independentes da forma visual e do banco
 // provisório Attack/Defense/Air/Energy da V1.6.
 // "Revestimento" e uma caracteristica, nao uma estatistica numerica.
@@ -110,6 +136,67 @@ public class MonAnatomy : MonoBehaviour
     {
         if (bracos == null) return;
         SetValue(ref bracos.extensao, value);
+    }
+
+    public void SetArmMass(float value)
+    {
+        if (bracos == null) return;
+        SetValue(ref bracos.massa, value);
+    }
+
+    public void SetArmTenacity(float value)
+    {
+        if (bracos == null) return;
+        SetValue(ref bracos.tenacidade, value);
+    }
+
+    public void SetLegTenacity(float value)
+    {
+        if (pernas == null) return;
+        SetValue(ref pernas.tenacidade, value);
+    }
+
+    // Roteamento em um ponto unico: mov. F/V podem reforcar ate tres
+    // parametros independentes sem escrever em campos serializados diretamente.
+    // Retorna o acrescimo realmente aplicado (0 quando invalido/inativo).
+    public float AddInfluence(MonAnatomyParameter parameter, float amount)
+    {
+        float gain = Safe(amount);
+        if (gain <= 0f) return 0f;
+
+        switch (parameter)
+        {
+            case MonAnatomyParameter.ArmsExtension:
+                if (bracos == null) return 0f;
+                return AddAndMeasure(bracos.extensao, gain, SetArmExtension);
+            case MonAnatomyParameter.ArmsTenacity:
+                if (bracos == null) return 0f;
+                return AddAndMeasure(bracos.tenacidade, gain, SetArmTenacity);
+            case MonAnatomyParameter.ArmsMass:
+                if (bracos == null) return 0f;
+                return AddAndMeasure(bracos.massa, gain, SetArmMass);
+            case MonAnatomyParameter.LegsExtension:
+                if (pernas == null) return 0f;
+                return AddAndMeasure(pernas.extensao, gain, SetLegExtension);
+            case MonAnatomyParameter.LegsTenacity:
+                if (pernas == null) return 0f;
+                return AddAndMeasure(pernas.tenacidade, gain, SetLegTenacity);
+            case MonAnatomyParameter.LegsMass:
+                if (pernas == null) return 0f;
+                return AddAndMeasure(pernas.massa, gain, SetLegMass);
+            default:
+                return 0f;
+        }
+    }
+
+    private static float AddAndMeasure(float previous, float gain, Action<float> setter)
+    {
+        setter(previous + gain);
+        // SetValue normaliza numeros e ignora variacoes sub-precisao.
+        // O valor retornado corresponde ao acréscimo requisitado apenas
+        // quando o novo numero diferiu do anterior em precisao float.
+        return Mathf.Approximately(previous, previous + gain)
+            ? 0f : (previous + gain - previous);
     }
 
     public void SetTorsoExtension(float value)
