@@ -4,6 +4,7 @@ using UnityEngine;
 // V1.8.1: primeiro reforco anatomico DIRETO de teste por acerto real.
 // V1.8.2: Fail sem dano; Effective por capacidade; Critical por contra-ataque real.
 // V1.8.3: ate tres influencias anatomicas ponderadas por golpe (valores de teste).
+// V1.8.4: execucao exige TODOS os requisitos anatomicos do golpe (AND).
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -45,9 +46,13 @@ public class MonBasicStrikeSet : MonoBehaviour
     public MonAnatomicalInfluence kickTertiary =
         new MonAnatomicalInfluence(MonAnatomyParameter.LegsMass, 0.02f);
 
-    [Header("V1.8.2 - Capacidade anatomica (limiar de teste)")]
-    [Tooltip("Extensao minima do membro para executar o golpe. Abaixo dela: Fail, zero dano e pouco reforco mesmo sem contato.")]
+    [Header("V1.8.4 - Requisitos anatomicos obrigatorios (teste)")]
+    [Tooltip("Minimo de extensao de bracos/pernas para executar F/V.")]
     [Min(0f)] public float effectiveExtensionThreshold = 0.25f;
+    [Tooltip("Minimo de tenacidade POR membro de bracos/pernas para executar F/V.")]
+    [Min(0f)] public float effectiveTenacityThreshold = 0.10f;
+    [Tooltip("Minimo de massa POR membro de bracos/pernas para executar F/V.")]
+    [Min(0f)] public float effectiveMassThreshold = 0.05f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
@@ -93,8 +98,21 @@ public class MonBasicStrikeSet : MonoBehaviour
         bool counterWindow = geometricalContact && opponentState != null &&
             opponentState.IsInAttackStartup;
 
+        // A capacidade anatomica e medida antes de qualquer reforco no golpe.
         MoveExecutionQuality quality = EvaluateStrikeQuality(
-            punch, counterWindow, out float extensionBefore);
+            punch, counterWindow,
+            out float extensionBefore, out float tenacityBefore, out float massBefore);
+
+        bool hasExtension = MeetsMinimum(extensionBefore, effectiveExtensionThreshold);
+        bool hasTenacity = MeetsMinimum(tenacityBefore, effectiveTenacityThreshold);
+        bool hasMass = MeetsMinimum(massBefore, effectiveMassThreshold);
+        Debug.Log(
+            $"[V1.8.4 REQUISITOS] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
+            $"extensao={extensionBefore:0.###}/{effectiveExtensionThreshold:0.###} {(hasExtension ? "OK" : "FALTA")}; " +
+            $"tenacidade={tenacityBefore:0.###}/{effectiveTenacityThreshold:0.###} {(hasTenacity ? "OK" : "FALTA")}; " +
+            $"massa={massBefore:0.###}/{effectiveMassThreshold:0.###} {(hasMass ? "OK" : "FALTA")}; " +
+            $"elegivel={(quality == MoveExecutionQuality.Fail ? "NAO" : "SIM")}.", this
+        );
 
         int damageApplied = 0;
         if (quality != MoveExecutionQuality.Fail && geometricalContact)
@@ -211,22 +229,36 @@ public class MonBasicStrikeSet : MonoBehaviour
         return primaryApplied;
     }
 
-    // Qualidade depende da capacidade ANTES do golpe + oportunidade de
-    // contra-ataque. Bracos/Pernas so definem Fail vs golpe executavel.
-    // Critical requer contato real durante o STARTUP do adversario.
-    // Tronco so altera alcance neste prototipo.
+    // Regra confirmada V1.8.4: TODOS os atributos exigidos pelo golpe
+    // precisam satisfazer seus proprios minimos, sem compensacao.
+    // Usa somente os 3 parametros envolvidos em F/V nesta fatia.
+    // Critical continua exigindo contato real no startup do adversario.
     private MoveExecutionQuality EvaluateStrikeQuality(
-        bool punch, bool counterWindow, out float extension)
+        bool punch, bool counterWindow,
+        out float extension, out float tenacity, out float mass)
     {
         if (anatomy == null) anatomy = GetComponent<MonAnatomy>();
 
-        extension = anatomy == null ? 0f : Mathf.Max(0f,
-            punch ? (anatomy.bracos?.extensao ?? 0f)
-                  : (anatomy.pernas?.extensao ?? 0f));
+        MonRepeatedLimbAnatomy limb = anatomy == null ? null
+            : punch ? anatomy.bracos : anatomy.pernas;
+        extension = limb == null ? 0f : Mathf.Max(0f, limb.extensao);
+        tenacity = limb == null ? 0f : Mathf.Max(0f, limb.tenacidade);
+        mass = limb == null ? 0f : Mathf.Max(0f, limb.massa);
 
-        float effective = Mathf.Max(0f, effectiveExtensionThreshold);
-        if (extension < effective) return MoveExecutionQuality.Fail;
+        // Tolerancia pequena contra erros de arredondamento perto do limiar.
+        if (limb == null ||
+            !MeetsMinimum(extension, effectiveExtensionThreshold) ||
+            !MeetsMinimum(tenacity, effectiveTenacityThreshold) ||
+            !MeetsMinimum(mass, effectiveMassThreshold))
+            return MoveExecutionQuality.Fail;
+
         return counterWindow ? MoveExecutionQuality.Critical : MoveExecutionQuality.Effective;
+    }
+
+    private static bool MeetsMinimum(float current, float minimum)
+    {
+        const float epsilon = 0.00001f;
+        return current + epsilon >= Mathf.Max(0f, minimum);
     }
 
     private float DamageMultiplier(MoveExecutionQuality quality)
