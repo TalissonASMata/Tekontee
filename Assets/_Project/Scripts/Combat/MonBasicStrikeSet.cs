@@ -3,6 +3,7 @@ using UnityEngine;
 // V1.7.5: golpes basicos com contato anatomico e dano.
 // V1.8.1: primeiro reforco anatomico DIRETO de teste por acerto real.
 // V1.8.2: Fail sem dano; Effective por capacidade; Critical por contra-ataque real.
+// V1.8.3: ate tres influencias anatomicas ponderadas por golpe (valores de teste).
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -23,6 +24,26 @@ public class MonBasicStrikeSet : MonoBehaviour
     public bool enableAnatomicalGrowthOnHit = true;
     [Min(0f)] public float armExtensionGainPerPunchHit = 0.1f;
     [Min(0f)] public float legExtensionGainPerKickHit = 0.1f;
+
+    [Header("V1.8.3 - Influencias secundarias e terciarias (teste)")]
+    [Tooltip("Desative apenas para comparar com V1.8.2. A influencia primaria de extensao continua.")]
+    public bool enableAdditionalAnatomicalInfluences = true;
+
+    [Tooltip("Soco: influencia secundaria. Numeros por braco quando aplicavel.")]
+    public MonAnatomicalInfluence punchSecondary =
+        new MonAnatomicalInfluence(MonAnatomyParameter.ArmsTenacity, 0.04f);
+
+    [Tooltip("Soco: influencia terciaria. Massa e armazenada por braco.")]
+    public MonAnatomicalInfluence punchTertiary =
+        new MonAnatomicalInfluence(MonAnatomyParameter.ArmsMass, 0.02f);
+
+    [Tooltip("Chute: influencia secundaria. Numeros por perna quando aplicavel.")]
+    public MonAnatomicalInfluence kickSecondary =
+        new MonAnatomicalInfluence(MonAnatomyParameter.LegsTenacity, 0.04f);
+
+    [Tooltip("Chute: influencia terciaria. Massa e armazenada por perna.")]
+    public MonAnatomicalInfluence kickTertiary =
+        new MonAnatomicalInfluence(MonAnatomyParameter.LegsMass, 0.02f);
 
     [Header("V1.8.2 - Capacidade anatomica (limiar de teste)")]
     [Tooltip("Extensao minima do membro para executar o golpe. Abaixo dela: Fail, zero dano e pouco reforco mesmo sem contato.")]
@@ -93,6 +114,7 @@ public class MonBasicStrikeSet : MonoBehaviour
                                 : (anatomy.pernas?.extensao ?? 0f));
 
         // Uma unica linha filtravel para acompanhar a fatia ativa.
+        // 'reforco' ainda informa apenas o parametro principal (extensao).
         Debug.Log(
             $"[V1.8.2 GOLPE] {name}: tipo={(punch ? "SOCO" : "CHUTE")}; " +
             $"qualidade={quality}; contatoGeometrico={(geometricalContact ? "SIM" : "NAO")}; " +
@@ -117,44 +139,76 @@ public class MonBasicStrikeSet : MonoBehaviour
         return true;
     }
 
-    // Reforco anatomico experimental: Fail por tentativa;
-    // Effective e Critical apenas em contato real.
-    // Os coeficientes NAO sao definitivos.
+    // V1.8.3 - Um golpe pode reforcar ate tres parametros: primario,
+    // secundario e terciario. Os valores sao base POR MOVIMENTO e a qualidade
+    // os multiplica de forma uniforme (Fail .5, Effective 1, Critical 2).
+    // Fail reforca por tentativa; Effective/Critical so por contato.
+    // A influencia primaria permanece extensao para preservar V1.8.1/2.
     private float ReinforceAnatomyAfterAttempt(bool punch, MoveExecutionQuality quality)
     {
         if (!enableAnatomicalGrowthOnHit) return 0f;
         if (anatomy == null) anatomy = GetComponent<MonAnatomy>();
         if (anatomy == null) return 0f;
 
-        float baseGain = Mathf.Max(0f,
+        float multiplier = GrowthMultiplier(quality);
+        float basePrimary = Mathf.Max(0f,
             punch ? armExtensionGainPerPunchHit : legExtensionGainPerKickHit);
-        float gain = baseGain * GrowthMultiplier(quality);
-        if (gain <= 0f) return 0f;
+        MonAnatomyParameter primary = punch
+            ? MonAnatomyParameter.ArmsExtension
+            : MonAnatomyParameter.LegsExtension;
 
-        if (punch && anatomy.bracos != null)
+        float primaryBefore = punch
+            ? (anatomy.bracos?.extensao ?? 0f)
+            : (anatomy.pernas?.extensao ?? 0f);
+
+        float primaryApplied = anatomy.AddInfluence(primary, basePrimary * multiplier);
+
+        // A distribuicao secundaria/terciaria e experimental e separada
+        // dos quatro eixos legados Attack/Defense/Air/Energy.
+        MonAnatomicalInfluence secondary = punch ? punchSecondary : kickSecondary;
+        MonAnatomicalInfluence tertiary = punch ? punchTertiary : kickTertiary;
+        float secondaryApplied = 0f;
+        float tertiaryApplied = 0f;
+
+        if (enableAdditionalAnatomicalInfluences)
         {
-            float before = anatomy.bracos.extensao;
-            anatomy.SetArmExtension(before + gain);
-            Debug.Log(
-                $"[V1.8.1 REFORCO BRACOS] {name}: " +
-                $"extensao={before:0.###} -> {anatomy.bracos.extensao:0.###}; " +
-                $"alcanceSoco={hitboxes.PunchReach:0.###} u.", this
-            );
-            return anatomy.bracos.extensao - before;
-        }
-        else if (!punch && anatomy.pernas != null)
-        {
-            float before = anatomy.pernas.extensao;
-            anatomy.SetLegExtension(before + gain);
-            Debug.Log(
-                $"[V1.8.1 REFORCO PERNAS] {name}: " +
-                $"extensao={before:0.###} -> {anatomy.pernas.extensao:0.###}; " +
-                $"alcanceChute={hitboxes.KickReach:0.###} u.", this
-            );
-            return anatomy.pernas.extensao - before;
+            if (secondary != null)
+                secondaryApplied = anatomy.AddInfluence(
+                    secondary.parameter, Mathf.Max(0f, secondary.amount) * multiplier);
+            if (tertiary != null)
+                tertiaryApplied = anatomy.AddInfluence(
+                    tertiary.parameter, Mathf.Max(0f, tertiary.amount) * multiplier);
         }
 
-        return 0f;
+        float primaryAfter = punch
+            ? (anatomy.bracos?.extensao ?? 0f)
+            : (anatomy.pernas?.extensao ?? 0f);
+
+        // Mantem diagnosticos de V1.8.1 para comparacao, sem novas chamadas
+        // de crescimento das extensoes.
+        if (primaryApplied > 0f)
+        {
+            string limb = punch ? "BRACOS" : "PERNAS";
+            float reach = punch ? hitboxes.PunchReach : hitboxes.KickReach;
+            Debug.Log(
+                $"[V1.8.1 REFORCO {limb}] {name}: " +
+                $"extensao={primaryBefore:0.###} -> {primaryAfter:0.###}; " +
+                $"alcance={(reach):0.###} u.", this
+            );
+        }
+
+        string secondaryName = secondary != null ? secondary.parameter.ToString() : "Nenhum";
+        string tertiaryName = tertiary != null ? tertiary.parameter.ToString() : "Nenhum";
+        Debug.Log(
+            $"[V1.8.3 MORFOLOGIA] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
+            $"qualidade={quality}; primaria={primary} +{primaryApplied:0.###}; " +
+            $"secundaria={secondaryName} +{secondaryApplied:0.###}; " +
+            $"terciaria={tertiaryName} +{tertiaryApplied:0.###}; " +
+            $"massaGeral={anatomy.MassaGeral:0.###}; " +
+            $"tenacidadeGeral={anatomy.TenacidadeGeral:0.###}.", this
+        );
+
+        return primaryApplied;
     }
 
     // Qualidade depende da capacidade ANTES do golpe + oportunidade de
