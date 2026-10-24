@@ -19,7 +19,7 @@ This roadmap tracks prototype validation milestones. Keep each version small eno
 
 | Version | Milestone | Validation target |
 |---|---|---|
-| V1.8 | Full Morphology Feedback Loop | **In progress.** V1.8.1 validated in Unity: successful F/V contacts develop arm/leg extensions, whereas misses do not. V1.8.2 **code committed, Unity test pending**: independent anatomy-based Fail / Effective / Critical changes damage and growth multipliers for F/V, with provisional thresholds. Further slices must validate multi-parameter weighted anatomical reinforcement and a common move-quality path for AI and player actions. |
+| V1.8 | Full Morphology Feedback Loop | **In progress.** V1.8.1 validated in Unity: successful F/V contacts develop arm/leg extensions while valid whiffs do not. V1.8.2 **corrected code committed; Unity retest pending**: unsupported F/V -> Fail with zero damage and minimal attempt-based growth; sufficient anatomy -> Effective on ordinary contact; Critical requires actual hit in enemy attack startup, not high extension alone. AI startup is now a real interruptible timing window. Future slices: weighted multi-parameter reinforcement, richer requirements and shared player/AI semantics. |
 | V1.9 | Special Techniques | Add special techniques that require more advanced combinations of morphology parameters so they cannot be trivially spammed to feed themselves indefinitely. |
 | V1.10 | Original Morphology Baseline | Store the morphology each Mon had when entering the battle as `OriginalMorphology`. |
 | V1.11 | Morph Reversion / Debuff | Add combat effects that pull current morphology back toward `OriginalMorphology`, partially dismantling morphology built during the match. |
