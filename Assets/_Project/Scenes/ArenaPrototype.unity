@@ -1225,7 +1225,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 705824166}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18dab5a6765e7d6409d8df046322d31c, type: 3}
   m_Name: 
@@ -3189,6 +3189,7 @@ GameObject:
   - component: {fileID: 1784146752}
   - component: {fileID: 1784146753}
   - component: {fileID: 1784146754}
+  - component: {fileID: 1784146755}
   m_Layer: 0
   m_Name: Mon
   m_TagString: Untagged
@@ -3710,7 +3711,7 @@ MonoBehaviour:
     revestimento: 
     massa: 0
     tenacidade: 0
-    extensao: 0
+    extensao: 1
     arrasto: 0
     quantidade: 2
   cauda:
@@ -3759,6 +3760,20 @@ MonoBehaviour:
   punchHeightOffset: 0.08
   kickHeightOffset: -0.15
   drawHitboxes: 1
+--- !u!114 &1784146755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1784146732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02b18b47eeef4f9f8546670528427109, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonBasicStrikeSet
+  weakPunchDamage: 10
+  weakKickDamage: 10
 --- !u!1 &1792495306
 GameObject:
   m_ObjectHideFlags: 0
