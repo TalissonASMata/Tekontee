@@ -6,6 +6,7 @@ using UnityEngine;
 /// V1.8.5: velocidade de caminhada no solo deriva da anatomia atual.
 /// V1.8.6: controle horizontal parcial no ar e parada imediata no pouso normal.
 /// V1.8.7: planagem opcional, suportada por arrasto anatomico dos bracos.
+/// V1.8.8: resistencia da massa geral ao impulso de golpes anatomicos F/V.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -43,6 +44,12 @@ public class MonPhysicsController2D : MonoBehaviour
     [Min(0f)] public float glideDragStrength = 2f;
     [Tooltip("Velocidade de descida minima para impedir pairar indefinidamente.")]
     [Min(0.1f)] public float glideMinDescentSpeed = 0.6f;
+
+    [Header("V1.8.8 - Resistencia ao impacto pela massa (teste)")]
+    [Tooltip("Coeficiente experimental: mais massa geral atenua a velocidade recebida de um golpe.")]
+    [Min(0f)] public float massImpactResistance = 0.08f;
+    [Tooltip("Limite minimo do fator de impacto. Nao representa balanceamento final.")]
+    [Range(0.01f, 1f)] public float minimumImpactMultiplier = 0.25f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -356,9 +363,36 @@ public class MonPhysicsController2D : MonoBehaviour
         );
     }
 
+    // V1.8.8 / PHY-093: em um mesmo golpe, Mon mais pesado absorve
+    // maior parte do impulso. Ainda NAO inclui aderencia contextual ao solo
+    // (revestimento, numero de pernas e terreno ficam para outra fatia).
+    // Este metodo recebe um vetor 2D para ser reutilizavel em outros impactos.
+    public void ApplyAnatomicalHitKnockback(Vector2 requestedVelocityDelta, float controlLockSeconds)
+    {
+        if (health != null && health.IsDead) return;
+        if (anatomy == null) anatomy = GetComponent<MonAnatomy>();
+
+        float totalMass = Mathf.Max(0f, anatomy?.MassaGeral ?? 0f);
+        float factor = 1f / Mathf.Sqrt(1f + totalMass * Mathf.Max(0f, massImpactResistance));
+        factor = Mathf.Clamp(factor, Mathf.Clamp01(minimumImpactMultiplier), 1f);
+
+        Vector2 appliedDelta = requestedVelocityDelta * factor;
+        float velocityBeforeX = body.linearVelocity.x;
+        ApplyKnockback(appliedDelta, controlLockSeconds);
+
+        Debug.Log(
+            $"[V1.8.8 IMPACTO] {name}: massaGeral={totalMass:0.###}; " +
+            $"emSolo={(isGrounded ? "SIM" : "NAO")}; fator=x{factor:0.###}; " +
+            $"impulsoPedidoX={requestedVelocityDelta.x:0.###}; " +
+            $"impulsoAplicadoX={appliedDelta.x:0.###}; " +
+            $"velXAntes={velocityBeforeX:0.###}; velXDepois={body.linearVelocity.x:0.###}; " +
+            $"tempoControle={Mathf.Max(0f, controlLockSeconds):0.###} s.", this);
+    }
+
     /// <summary>
     /// Acrescenta uma variacao de velocidade de impacto ao corpo.
     /// V1.7.1: valor de teste, sem calculo anatomico de impulso.
+    /// Este metodo continua sem escala de massa para preservar efeitos legados.
     /// </summary>
     public void ApplyKnockback(Vector2 velocityDelta, float controlLockSeconds)
     {
