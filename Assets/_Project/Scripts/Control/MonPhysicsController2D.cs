@@ -5,6 +5,7 @@ using UnityEngine;
 /// Os controladores (jogador/IA) apenas enviam intencao de movimento.
 /// V1.8.5: velocidade de caminhada no solo deriva da anatomia atual.
 /// V1.8.6: controle horizontal parcial no ar e parada imediata no pouso normal.
+/// V1.8.7: planagem opcional, suportada por arrasto anatomico dos bracos.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -28,6 +29,20 @@ public class MonPhysicsController2D : MonoBehaviour
     [Min(0f)] public float airSteeringAcceleration = 8f;
     [Tooltip("Perda gradual de velocidade horizontal no ar ao soltar a direcao (u/s²).")]
     [Min(0f)] public float airReleaseDeceleration = 2f;
+
+    [Header("V1.8.7 - Planagem anatomica (hipotese de teste)")]
+    [Tooltip("Minimo de arrasto dos bracos para planagem efetiva. Valor de teste.")]
+    [Min(0f)] public float glideArmDragThreshold = 0.10f;
+    [Tooltip("Reforco minimo no arrasto dos bracos por tentativa Fail valida.")]
+    [Min(0f)] public float glideFailDragGain = 0.02f;
+    [Tooltip("Reforco unico por nova planagem Effective, nunca a cada frame.")]
+    [Min(0f)] public float glideEffectiveDragGain = 0.04f;
+    [Tooltip("Limite superior inicial da velocidade de descida durante a planagem (u/s).")]
+    [Min(0.1f)] public float glideBaseDescentSpeed = 2.5f;
+    [Tooltip("Quanto o arrasto dos bracos reduz a velocidade limite de descida.")]
+    [Min(0f)] public float glideDragStrength = 2f;
+    [Tooltip("Velocidade de descida minima para impedir pairar indefinidamente.")]
+    [Min(0.1f)] public float glideMinDescentSpeed = 0.6f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -54,6 +69,10 @@ public class MonPhysicsController2D : MonoBehaviour
     private bool sampledGroundedState;
     private bool groundedLastPhysicsStep;
     private float lastLoggedAirInput = 2f; // sentinel para logar o primeiro comando no ar
+    private bool glideIntent;
+    private bool glideAttemptedThisHold;
+    private bool glideEligibleThisHold;
+    private bool glideLoggedFirstDescent;
 
     // Diagnostico da V1.7.3: mede a altura realmente percorrida pelo Rigidbody2D.
     private bool trackingJumpApex;
@@ -170,6 +189,8 @@ public class MonPhysicsController2D : MonoBehaviour
             body.linearVelocity = new Vector2(nextX, body.linearVelocity.y);
         }
 
+        UpdateAnatomicalGlide();
+
         if (clampX)
         {
             Vector2 position = body.position;
@@ -184,6 +205,81 @@ public class MonPhysicsController2D : MonoBehaviour
                   || (position.x >= maxX && body.linearVelocity.x > 0f))
             {
                 body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
+            }
+        }
+    }
+
+    // V1.8.7 / PHY-086, 122, 123: comando universal de tentativa.
+    // O controle comunica intencao; o motor decide a capacidade anatomica.
+    // A tentativa so conta enquanto o Mon esta realmente no ar.
+    public void SetGlideIntent(bool held)
+    {
+        glideIntent = held;
+        if (!held)
+        {
+            glideAttemptedThisHold = false;
+            glideEligibleThisHold = false;
+            glideLoggedFirstDescent = false;
+        }
+    }
+
+    private void UpdateAnatomicalGlide()
+    {
+        if (isGrounded || health != null && health.IsDead)
+        {
+            // Permite nova tentativa no proximo salto; Down no solo nao conta.
+            glideAttemptedThisHold = false;
+            glideEligibleThisHold = false;
+            glideLoggedFirstDescent = false;
+            return;
+        }
+        if (!glideIntent) return;
+
+        if (!glideAttemptedThisHold)
+        {
+            glideAttemptedThisHold = true;
+            if (anatomy == null) anatomy = GetComponent<MonAnatomy>();
+
+            float currentDrag = Mathf.Max(0f, anatomy?.bracos?.arrasto ?? 0f);
+            glideEligibleThisHold = anatomy != null && anatomy.bracos != null &&
+                currentDrag + 0.00001f >= Mathf.Max(0f, glideArmDragThreshold);
+
+            // Similar aos golpes F/V: Falha reforca por tentativa,
+            // Effective reforca uma vez por inicio, nunca por FixedUpdate.
+            float delta = glideEligibleThisHold ? glideEffectiveDragGain : glideFailDragGain;
+            float growth = anatomy == null ? 0f :
+                anatomy.AddInfluence(MonAnatomyParameter.ArmsDrag, Mathf.Max(0f, delta));
+
+            Debug.Log(
+                $"[V1.8.7 PLANAGEM] {name}: qualidade={(glideEligibleThisHold ? "Effective" : "Fail")}; " +
+                $"arrastoBracosAntes={currentDrag:0.###}; minimo={glideArmDragThreshold:0.###}; " +
+                $"reforco={growth:0.###}; efeitoDescida={(glideEligibleThisHold ? "HABILITADO" : "NENHUM")}.", this);
+        }
+
+        // Gliding so atua na DESCIDA. A subida do pulo original nao muda.
+        if (!glideEligibleThisHold || body.linearVelocity.y >= 0f) return;
+
+        float drag = Mathf.Max(0f, anatomy?.bracos?.arrasto ?? 0f);
+        float baseSpeed = Mathf.Max(0.1f, glideBaseDescentSpeed);
+        float minimumSpeed = Mathf.Clamp(glideMinDescentSpeed, 0.1f, baseSpeed);
+        float maxDownSpeed = Mathf.Clamp(
+            baseSpeed / (1f + drag * Mathf.Max(0f, glideDragStrength)),
+            minimumSpeed, baseSpeed);
+        float oldY = body.linearVelocity.y;
+        float newY = Mathf.Max(oldY, -maxDownSpeed);
+
+        // Preserva a gravidade global do Rigidbody2D. Apenas aplica um
+        // limite de descida na planagem ativa, nunca cria sustentacao positiva.
+        if (newY > oldY)
+        {
+            body.linearVelocity = new Vector2(body.linearVelocity.x, newY);
+            if (!glideLoggedFirstDescent)
+            {
+                Debug.Log(
+                    $"[V1.8.7 DESCIDA] {name}: arrastoBracos={drag:0.###}; " +
+                    $"velYAntes={oldY:0.###}; velYDepois={newY:0.###}; " +
+                    $"limiteDescida={maxDownSpeed:0.###} u/s.", this);
+                glideLoggedFirstDescent = true;
             }
         }
     }
