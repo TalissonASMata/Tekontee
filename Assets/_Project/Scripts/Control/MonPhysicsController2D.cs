@@ -4,6 +4,7 @@ using UnityEngine;
 /// V1.7.1: motor fisico compartilhado por PlayerMon e EnemyMon.
 /// Os controladores (jogador/IA) apenas enviam intencao de movimento.
 /// V1.8.5: velocidade de caminhada no solo deriva da anatomia atual.
+/// V1.8.6: controle horizontal parcial no ar e parada imediata no pouso normal.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -21,6 +22,12 @@ public class MonPhysicsController2D : MonoBehaviour
     [Tooltip("Limites provisórios; nao representam balanceamento definitivo.")]
     [Min(0.1f)] public float minimumGroundSpeedMultiplier = 0.5f;
     [Min(0.1f)] public float maximumGroundSpeedMultiplier = 2f;
+
+    [Header("V1.8.6 - Direcao horizontal no ar (teste)")]
+    [Tooltip("Velocidade de correcao horizontal no ar com direcao pressionada (u/s²).")]
+    [Min(0f)] public float airSteeringAcceleration = 8f;
+    [Tooltip("Perda gradual de velocidade horizontal no ar ao soltar a direcao (u/s²).")]
+    [Min(0f)] public float airReleaseDeceleration = 2f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -44,6 +51,9 @@ public class MonPhysicsController2D : MonoBehaviour
     private bool isGrounded;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
+    private bool sampledGroundedState;
+    private bool groundedLastPhysicsStep;
+    private float lastLoggedAirInput = 2f; // sentinel para logar o primeiro comando no ar
 
     // Diagnostico da V1.7.3: mede a altura realmente percorrida pelo Rigidbody2D.
     private bool trackingJumpApex;
@@ -80,6 +90,14 @@ public class MonPhysicsController2D : MonoBehaviour
         UpdateGrounded();
         TrackJumpApex();
 
+        // O estado anterior e guardado por passo FISICO: TryJump muda
+        // isGrounded no Update, entre dois FixedUpdates.
+        bool justTookOff = sampledGroundedState && groundedLastPhysicsStep && !isGrounded;
+        bool justLanded = sampledGroundedState && !groundedLastPhysicsStep && isGrounded;
+        groundedLastPhysicsStep = isGrounded;
+        sampledGroundedState = true;
+        if (isGrounded) lastLoggedAirInput = 2f;
+
         if (health != null && health.IsDead)
         {
             body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
@@ -89,26 +107,67 @@ public class MonPhysicsController2D : MonoBehaviour
         if (Time.time >= knockbackControlUntil)
         {
             bool locked = stateMachine != null && stateMachine.IsLocked;
-            // Somente caminhada NO SOLO nesta fatia. Preserva o movimento aereo
-            // existente ate a validacao separada de controle parcial no ar.
-            float groundMultiplier = isGrounded ? CalculateGroundSpeedMultiplier() : 1f;
+            float direction = Mathf.Clamp(inputX, -1f, 1f);
+            float movementFactor = CalculateGroundSpeedMultiplier();
+            // O alvo horizontal continua derivado de Pernas.Extensao/MassaGeral.
+            // Apenas a RESPOSTA ao comando e diferente no ar.
             float desiredX = locked ? 0f :
-                Mathf.Clamp(inputX, -1f, 1f) * Mathf.Max(0f, requestedSpeed) * groundMultiplier;
+                direction * Mathf.Max(0f, requestedSpeed) * movementFactor;
 
-            if (isGrounded && !locked && Mathf.Abs(inputX) > 0.01f && requestedSpeed > 0f &&
-                (Mathf.Abs(groundMultiplier - lastReportedGroundMultiplier) > 0.005f ||
+            float beforeX = body.linearVelocity.x;
+            float nextX;
+            if (locked)
+            {
+                // Preserva a prioridade existente de estados de combate.
+                nextX = 0f;
+            }
+            else if (isGrounded)
+            {
+                // Caminhada responsiva; sem comando no pouso, freia imediatamente.
+                nextX = desiredX;
+            }
+            else
+            {
+                // PHY-089: correcao parcial no ar, nao troca instantanea.
+                // Sem comando, o impulso horizontal se dissipa gradualmente.
+                float acceleration = Mathf.Abs(direction) > 0.01f
+                    ? airSteeringAcceleration : airReleaseDeceleration;
+                nextX = Mathf.MoveTowards(
+                    beforeX, desiredX, Mathf.Max(0f, acceleration) * Time.fixedDeltaTime);
+            }
+
+            if (isGrounded && !locked && Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f &&
+                (Mathf.Abs(movementFactor - lastReportedGroundMultiplier) > 0.005f ||
                  Mathf.Abs(requestedSpeed - lastReportedRequestedSpeed) > 0.005f))
             {
                 Debug.Log(
                     $"[V1.8.5 CAMINHADA] {name}: pernasExtensao={Mathf.Max(0f, anatomy?.pernas?.extensao ?? 0f):0.###}; " +
                     $"massaGeral={Mathf.Max(0f, anatomy?.MassaGeral ?? 0f):0.###}; " +
-                    $"velocidadeBase={requestedSpeed:0.###}; fator=x{groundMultiplier:0.###}; " +
+                    $"velocidadeBase={requestedSpeed:0.###}; fator=x{movementFactor:0.###}; " +
                     $"velocidadeSolo={Mathf.Abs(desiredX):0.###} u/s.", this);
-                lastReportedGroundMultiplier = groundMultiplier;
+                lastReportedGroundMultiplier = movementFactor;
                 lastReportedRequestedSpeed = requestedSpeed;
             }
 
-            body.linearVelocity = new Vector2(desiredX, body.linearVelocity.y);
+            if (justLanded && !locked)
+                Debug.Log(
+                    $"[V1.8.6 POUSO] {name}: entrada={direction:0.##}; " +
+                    $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
+                    $"semComando={(Mathf.Abs(direction) < 0.01f ? "SIM" : "NAO")}.", this);
+
+            // Logar entrada/soltura/troca de direcao, nunca por frame.
+            if (!isGrounded && !locked &&
+                (justTookOff || Mathf.Abs(direction - lastLoggedAirInput) > 0.01f))
+            {
+                Debug.Log(
+                    $"[V1.8.6 AR] {name}: entrada={direction:0.##}; " +
+                    $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
+                    $"alvo={desiredX:0.###}; fatorAnatomico=x{movementFactor:0.###}; " +
+                    $"aceleracao={(Mathf.Abs(direction) > 0.01f ? airSteeringAcceleration : airReleaseDeceleration):0.###}.", this);
+                lastLoggedAirInput = direction;
+            }
+
+            body.linearVelocity = new Vector2(nextX, body.linearVelocity.y);
         }
 
         if (clampX)
