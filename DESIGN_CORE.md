@@ -88,23 +88,26 @@ A move resolves in one of three quality levels:
 
 The Mon attempts the move without enough supporting morphology.
 
-- The action still happens in degraded form when appropriate.
-- It grants only minimal morphology reinforcement.
+- The unsupported attack **does not damage the opponent**, even if its geometric attack query overlaps.
+- It grants only **minimal morphology reinforcement for the attempted action**, including when it does not geometrically connect; the body can learn from an unsuccessful attempt.
+- A normally executable move that simply misses is **not** a morphological Fail: it is an Effective-capable whiff without contact damage or hit-based reinforcement.
 - Persistent reliance on unsupported moves is intended to contribute to the future Corrupted direction.
 
 ### Effective
 
 The Mon meets the intended morphology requirement.
 
-- The move behaves normally.
-- It grants medium morphology reinforcement.
+- The move executes normally; damage and ordinary hit-based reinforcement require contact.
+- It is not a Critical merely because its supporting body parameter is very high.
 
 ### Critical
 
-The Mon strongly exceeds or optimally matches the morphology needed for the action.
+The Mon **has anatomy sufficient to execute the movement**, and the successful hit exploits a favorable **timing/opportunity** in the opposing Mon's action cycle.
 
-- The move reaches its strongest controlled result.
-- It grants maximum morphology reinforcement.
+- Current prototype: an in-range strike that hits while the opponent is **committed to preparing an attack** (counter-hit). It can interrupt that pending attack.
+- Critical is **not** automatically triggered by accumulating high extension or other raw morphology totals; no random critical roll is used in the current slice.
+- Critical grants the strongest controlled hit result and enhanced morphological reinforcement.
+- Counter-hit is the first testable criterion; defensive commitment, punish-on-recovery and other timing states need separate validation.
 - Repeated highly concentrated development contributes conceptually toward the future Extremist direction, but this relationship should not be implemented as a simplistic direct counter.
 
 ## 4. Weighted morphology reinforcement
