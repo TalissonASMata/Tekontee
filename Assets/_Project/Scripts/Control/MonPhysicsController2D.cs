@@ -8,6 +8,7 @@ using UnityEngine;
 /// V1.8.6: controle horizontal parcial no ar e parada imediata no pouso normal.
 /// V1.8.7: planagem opcional, suportada por arrasto anatomico dos bracos.
 /// V1.8.8: resistencia da massa geral ao impulso de golpes anatomicos F/V.
+/// V1.8.9: pernas em contato com solo atenuam reacao horizontal a golpes.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -51,6 +52,14 @@ public class MonPhysicsController2D : MonoBehaviour
     [Min(0f)] public float massImpactResistance = 0.08f;
     [Tooltip("Limite minimo do fator de impacto. Nao representa balanceamento final.")]
     [Range(0.01f, 1f)] public float minimumImpactMultiplier = 0.25f;
+
+    [Header("V1.8.9 - Aderencia por quantidade de pernas (teste)")]
+    [Tooltip("Resistencia extra por perna acima de duas, SOMENTE em solo; valores de teste.")]
+    [Min(0f)] public float legCountGroundTractionGain = 0.15f;
+    [Tooltip("Piso para o multiplicador horizontal de aderencia por numero de pernas.")]
+    [Range(0.01f, 1f)] public float minimumLegCountTractionMultiplier = 0.5f;
+    [Tooltip("Teto da reacao com menos de duas pernas (perda de aderencia).")]
+    [Min(1f)] public float maximumLegCountTractionMultiplier = 1.5f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -367,8 +376,8 @@ public class MonPhysicsController2D : MonoBehaviour
     // V1.8.8 / PHY-093: em um mesmo golpe, Mon mais pesado absorve
     // maior parte da velocidade de reacao. F/V SUBSTITUEM o movimento X
     // anterior, evitando amplificar o empurrao por velocidade residual.
-    // Ainda NAO inclui aderencia contextual ao solo
-    // (revestimento, numero de pernas e terreno ficam para outra fatia).
+    // V1.8.9: quantidade de pernas contribui para a aderencia SOMENTE no solo.
+    // Revestimento e tipo de terreno permanecem fora desta fatia.
     // Este metodo recebe um vetor 2D para ser reutilizavel em outros impactos.
     public void ApplyAnatomicalHitKnockback(Vector2 requestedVelocityDelta, float controlLockSeconds)
     {
@@ -379,7 +388,22 @@ public class MonPhysicsController2D : MonoBehaviour
         float factor = 1f / Mathf.Sqrt(1f + totalMass * Mathf.Max(0f, massImpactResistance));
         factor = Mathf.Clamp(factor, Mathf.Clamp01(minimumImpactMultiplier), 1f);
 
-        Vector2 reactionVelocity = requestedVelocityDelta * factor;
+        int legs = Mathf.Max(0, anatomy?.pernas?.quantidade ?? 2);
+        float tractionFactor = 1f;
+        if (isGrounded)
+        {
+            // Dois membros preservam exatamente a reacao aprovada na V1.8.8.1.
+            // Mais pernas => mais aderencia e menor velocidade horizontal.
+            // Menos pernas => menos aderencia e maior reacao horizontal.
+            float denominator = 1f + (legs - 2) * Mathf.Max(0f, legCountGroundTractionGain);
+            float minimum = Mathf.Clamp(minimumLegCountTractionMultiplier, 0.01f, 1f);
+            float maximum = Mathf.Max(1f, maximumLegCountTractionMultiplier);
+            tractionFactor = Mathf.Clamp(1f / Mathf.Max(0.01f, denominator), minimum, maximum);
+        }
+
+        Vector2 reactionVelocity = new Vector2(
+            requestedVelocityDelta.x * factor * tractionFactor,
+            requestedVelocityDelta.y * factor); // aderencia nao cancela lancamento vertical
         float velocityBeforeX = body.linearVelocity.x;
         float positionBeforeX = body.position.x;
 
@@ -397,11 +421,27 @@ public class MonPhysicsController2D : MonoBehaviour
         Debug.Log(
             $"[V1.8.8 IMPACTO] {name}: massaGeral={totalMass:0.###}; " +
             $"emSolo={(isGrounded ? "SIM" : "NAO")}; fator=x{factor:0.###}; " +
+            $"pernasQtd={legs}; aderenciaPernas=x{tractionFactor:0.###}; " +
             $"impulsoPedidoX={requestedVelocityDelta.x:0.###}; " +
             $"impulsoAplicadoX={reactionVelocity.x:0.###}; modo=SUBSTITUICAO; " +
             $"velXAntes={velocityBeforeX:0.###}; velXDepois={body.linearVelocity.x:0.###}; " +
             $"posX={positionBeforeX:0.###}; limiteX=[{minX:0.###},{maxX:0.###}]; " +
             $"tempoControle={Mathf.Max(0f, controlLockSeconds):0.###} s.", this);
+
+        if (isGrounded)
+        {
+            Debug.Log(
+                $"[V1.8.9 ADERENCIA] {name}: emSolo=SIM; pernasQtd={legs}; " +
+                $"massaGeral={totalMass:0.###}; fatorMassa=x{factor:0.###}; " +
+                $"fatorPernas=x{tractionFactor:0.###}; " +
+                $"velReacaoX={reactionVelocity.x:0.###} u/s.", this);
+        }
+        else
+        {
+            Debug.Log(
+                $"[V1.8.9 ADERENCIA] {name}: emSolo=NAO; pernasQtd={legs}; " +
+                $"fatorPernas=x1; velReacaoX={reactionVelocity.x:0.###} u/s.", this);
+        }
 
         StartCoroutine(LogAnatomicalHitDisplacement(
             positionBeforeX, reactionVelocity.x,
