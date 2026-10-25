@@ -371,9 +371,27 @@ public class MonPhysicsController2D : MonoBehaviour
                 $"distanciaColisao={distanceToBody:0.###} u; " +
                 $"posAlvoX={blockedBy.body.position.x:0.###}; " +
                 "origem=CAMINHADA_SEM_EMPURRAO.", this);
+            // Mede o outro corpo depois da colisao, nao so nossa velocidade.
+            StartCoroutine(LogBodyBlockTargetPosition(
+                blockedBy, blockedBy.body.position.x));
         }
         monBodyBlockReported = blocked;
         return allowedX;
+    }
+
+    private IEnumerator LogBodyBlockTargetPosition(
+        MonPhysicsController2D target, float startX)
+    {
+        // 15 passos, cerca de 0.3s na configuracao fisica padrao.
+        for (int i = 0; i < 15; i++)
+            yield return new WaitForFixedUpdate();
+        if (target == null || target.body == null) yield break;
+
+        float endX = target.body.position.x;
+        Debug.Log(
+            $"[V1.8.12 ALVO] {name} -> {target.name}: " +
+            $"posAlvoAntes={startX:0.###}; posAlvoDepois={endX:0.###}; " +
+            $"deltaX={endX - startX:0.###} u; janela=15 FixedUpdates.", this);
     }
 
     // V1.8.7 / PHY-086, 122, 123: comando universal de tentativa.
