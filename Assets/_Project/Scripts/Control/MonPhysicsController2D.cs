@@ -98,6 +98,7 @@ public class MonPhysicsController2D : MonoBehaviour
     private MonPhysicsController2D[] otherMonMotors;
     private bool monBodyBlockReported;
     private bool monBodyFullStopReported;
+    private bool monBodyTargetSamplePending;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -368,7 +369,7 @@ public class MonPhysicsController2D : MonoBehaviour
 
                 float possibleSpeed = Mathf.Max(0f, gap - skin) /
                     Mathf.Max(0.001f, Time.fixedDeltaTime);
-                if (possibleSpeed < Mathf.Abs(allowedX))
+                if (possibleSpeed + 0.0001f < Mathf.Abs(allowedX))
                 {
                     allowedX = sign * possibleSpeed;
                     blockedBy = other;
@@ -387,6 +388,14 @@ public class MonPhysicsController2D : MonoBehaviour
                 $"velPedidoX={voluntaryX:0.###}; velPermitidoX={allowedX:0.###}; " +
                 $"distanciaColisao={closestDistance:0.###} u; " +
                 "origem=LOCOMOCAO_VOLUNTARIA.", this);
+            // Mesmo sem velocidade EXATAMENTE zero, verifica se o motor
+            // deslocou o outro Mon durante o contato fisico.
+            if (!monBodyTargetSamplePending)
+            {
+                monBodyTargetSamplePending = true;
+                StartCoroutine(LogBodyBlockTargetPosition(
+                    blockedBy, blockedBy.body.position.x));
+            }
         }
         if (fullyStopped && !monBodyFullStopReported)
         {
@@ -394,8 +403,6 @@ public class MonPhysicsController2D : MonoBehaviour
                 $"[V1.8.12 BLOQUEIO] {name}: alvo={blockedBy.name}; " +
                 $"velPedidoX={voluntaryX:0.###}; velPermitidoX={allowedX:0.###}; " +
                 $"posAlvoX={blockedBy.body.position.x:0.###}.", this);
-            StartCoroutine(LogBodyBlockTargetPosition(
-                blockedBy, blockedBy.body.position.x));
         }
         monBodyBlockReported = limited;
         monBodyFullStopReported = fullyStopped;
@@ -408,13 +415,18 @@ public class MonPhysicsController2D : MonoBehaviour
         // 15 passos, cerca de 0.3s na configuracao fisica padrao.
         for (int i = 0; i < 15; i++)
             yield return new WaitForFixedUpdate();
-        if (target == null || target.body == null) yield break;
+        if (target == null || target.body == null)
+        {
+            monBodyTargetSamplePending = false;
+            yield break;
+        }
 
         float endX = target.body.position.x;
         Debug.Log(
             $"[V1.8.12 ALVO] {name} -> {target.name}: " +
             $"posAlvoAntes={startX:0.###}; posAlvoDepois={endX:0.###}; " +
             $"deltaX={endX - startX:0.###} u; janela=15 FixedUpdates.", this);
+        monBodyTargetSamplePending = false;
     }
 
     // V1.8.7 / PHY-086, 122, 123: comando universal de tentativa.
