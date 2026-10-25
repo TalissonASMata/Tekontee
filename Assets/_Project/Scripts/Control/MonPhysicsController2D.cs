@@ -12,6 +12,7 @@ using UnityEngine;
 /// V1.8.10: interacao contextual piso/revestimento modifica reacao no solo.
 /// V1.8.11: soltar direcao em solo desfavoravel permite breve deslize.
 /// V1.8.12: movimento voluntario evita empurrao corporal passivo.
+/// V1.8.12.1: a cabeca do oponente nao funciona como plataforma.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -71,6 +72,10 @@ public class MonPhysicsController2D : MonoBehaviour
     [Header("V1.8.12 - Colisao corporal sem empurrao passivo (teste)")]
     [Tooltip("Margem antes de tocar o collider de outro Mon (unidades).")]
     [Min(0f)] public float monBodyContactSkin = 0.025f;
+    [Tooltip("V1.8.12.1 - velocidade lateral do escape ao pousar sobre outro Mon (u/s).")]
+    [Min(0.1f)] public float overheadSlipSpeed = 2.5f;
+    [Tooltip("V1.8.12.1 - janela acima da cabeca para identificar contato vertical (u).")]
+    [Min(0.01f)] public float overheadContactWindow = 0.20f;
 
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
@@ -99,6 +104,8 @@ public class MonPhysicsController2D : MonoBehaviour
     private bool monBodyBlockReported;
     private bool monBodyFullStopReported;
     private bool monBodyTargetSamplePending;
+    private MonPhysicsController2D overheadSlipTarget;
+    private float overheadSlipDirection;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -159,6 +166,7 @@ public class MonPhysicsController2D : MonoBehaviour
 
         if (health != null && health.IsDead)
         {
+            EndOverheadSlip("MORTE");
             walkedOnGroundLastPhysicsStep = false;
             locomotionSlipActive = false;
             body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
@@ -310,6 +318,7 @@ public class MonPhysicsController2D : MonoBehaviour
         }
 
         UpdateAnatomicalGlide();
+        UpdateOverheadSlip();
 
         if (clampX)
         {
@@ -327,6 +336,128 @@ public class MonPhysicsController2D : MonoBehaviour
                 body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
             }
         }
+    }
+
+    // V1.8.12.1 / PHY-096: enquanto um Mon desce sobre o topo do outro,
+    // a colisao fisica da DUPLA e suspensa so pelo tempo necessario para
+    // o Mon de cima escorregar ate uma lateral livre. Depois restauramos
+    // imediatamente a colisao habitual dos corpos. O piso real continua
+    // colidindo e a gravidade nunca e anulada.
+    private void UpdateOverheadSlip()
+    {
+        if (body == null || bodyCollider == null) return;
+
+        if (overheadSlipTarget != null)
+        {
+            // Nunca restaurar os colisores ainda sobrepostos: o solver
+            // poderia gerar um empurrao passivo ao separar os dois corpos.
+            CapsuleCollider2D targetCollider = overheadSlipTarget.bodyCollider;
+            if (targetCollider == null || !targetCollider.enabled ||
+                !overheadSlipTarget.gameObject.activeInHierarchy)
+            {
+                EndOverheadSlip("ALVO_INATIVO");
+                return;
+            }
+
+            Bounds upper = bodyCollider.bounds;
+            Bounds lower = targetCollider.bounds;
+            float clearance = Mathf.Max(0.015f, monBodyContactSkin);
+            bool freeOnX = upper.min.x >= lower.max.x + clearance ||
+                           upper.max.x <= lower.min.x - clearance;
+            if (freeOnX)
+            {
+                EndOverheadSlip("LATERAL_LIVRE");
+                return;
+            }
+
+            // Movimento temporario limitado a sair de cima da cabeca.
+            // Permite a gravidade levar o Mon ao piso, sem transforma-lo
+            // numa plataforma ou desabilitar colisoes com o terreno.
+            body.linearVelocity = new Vector2(
+                overheadSlipDirection * Mathf.Max(0.1f, overheadSlipSpeed),
+                body.linearVelocity.y);
+            return;
+        }
+
+        // Um golpe ou estado travado nao pode disparar esse escape.
+        if (isGrounded || body.linearVelocity.y > 0.05f ||
+            Time.time < knockbackControlUntil ||
+            (stateMachine != null && stateMachine.IsLocked))
+            return;
+
+        if (otherMonMotors == null) return;
+        foreach (MonPhysicsController2D other in otherMonMotors)
+        {
+            if (other == null || other == this ||
+                other.body == null || other.bodyCollider == null ||
+                !other.bodyCollider.enabled || other.bodyCollider.isTrigger ||
+                !other.gameObject.activeInHierarchy || !other.isGrounded)
+                continue;
+
+            Bounds upper = bodyCollider.bounds;
+            Bounds lower = other.bodyCollider.bounds;
+            float gapY = upper.min.y - lower.max.y;
+            float window = Mathf.Max(0.01f, overheadContactWindow);
+            bool xOverlap = upper.min.x < lower.max.x &&
+                            upper.max.x > lower.min.x;
+            if (!xOverlap || gapY < -window * 0.5f || gapY > window)
+                continue;
+
+            float centerOffset = upper.center.x - lower.center.x;
+            float escape = Mathf.Abs(centerOffset) > 0.025f
+                ? Mathf.Sign(centerOffset)
+                : Mathf.Abs(body.linearVelocity.x) > 0.05f
+                    ? Mathf.Sign(body.linearVelocity.x)
+                    : Mathf.Abs(inputX) > 0.05f
+                        ? Mathf.Sign(inputX) : 1f;
+            if (clampX)
+            {
+                float travel = upper.extents.x + lower.extents.x + 0.08f;
+                if (body.position.x + escape * travel < minX ||
+                    body.position.x + escape * travel > maxX)
+                    escape = -escape;
+            }
+
+            overheadSlipTarget = other;
+            overheadSlipDirection = escape;
+            Physics2D.IgnoreCollision(bodyCollider, other.bodyCollider, true);
+            walkedOnGroundLastPhysicsStep = false;
+            locomotionSlipActive = false;
+            Debug.Log(
+                $"[V1.8.12 CABECA] {name}: evento=DESLIZE_INICIO; " +
+                $"alvo={other.name}; distanciaVertical={gapY:0.###} u; " +
+                $"direcao={(escape > 0f ? "DIREITA" : "ESQUERDA")}; " +
+                $"velEscape={Mathf.Max(0.1f, overheadSlipSpeed):0.###} u/s; " +
+                "colisaoDupla=TEMPORARIAMENTE_IGNORADA.", this);
+            body.linearVelocity = new Vector2(
+                escape * Mathf.Max(0.1f, overheadSlipSpeed),
+                body.linearVelocity.y);
+            break;
+        }
+    }
+
+    private void EndOverheadSlip(string reason)
+    {
+        if (overheadSlipTarget == null) return;
+        MonPhysicsController2D other = overheadSlipTarget;
+        if (bodyCollider != null && bodyCollider.enabled &&
+            other.bodyCollider != null && other.bodyCollider.enabled &&
+            gameObject.activeInHierarchy && other.gameObject.activeInHierarchy)
+        {
+            Physics2D.IgnoreCollision(bodyCollider, other.bodyCollider, false);
+        }
+
+        Debug.Log(
+            $"[V1.8.12 CABECA] {name}: evento=DESLIZE_FIM; " +
+            $"alvo={other.name}; motivo={reason}; " +
+            "colisaoDupla=RESTAURADA_QUANDO_POSSIVEL.", this);
+        overheadSlipTarget = null;
+        overheadSlipDirection = 0f;
+    }
+
+    private void OnDisable()
+    {
+        EndOverheadSlip("COMPONENTE_DESATIVADO");
     }
 
     // V1.8.12 / PHY-095/096: a caminhada nao deve empurrar passivamente
