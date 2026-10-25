@@ -11,6 +11,7 @@ using UnityEngine;
 /// V1.8.9: pernas em contato com solo atenuam reacao horizontal a golpes.
 /// V1.8.10: interacao contextual piso/revestimento modifica reacao no solo.
 /// V1.8.11: soltar direcao em solo desfavoravel permite breve deslize.
+/// V1.8.12: movimento voluntario evita empurrao corporal passivo.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -67,6 +68,10 @@ public class MonPhysicsController2D : MonoBehaviour
     [Tooltip("Frenagem horizontal ao soltar a direcao enquanto caminha em terreno desfavoravel (u/s²).")]
     [Min(0.1f)] public float unfavorableGroundBrakeDeceleration = 12f;
 
+    [Header("V1.8.12 - Colisao corporal sem empurrao passivo (teste)")]
+    [Tooltip("Margem antes de tocar o collider de outro Mon (unidades).")]
+    [Min(0f)] public float monBodyContactSkin = 0.025f;
+
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
     public LayerMask groundLayers;
@@ -90,6 +95,8 @@ public class MonPhysicsController2D : MonoBehaviour
     private Collider2D supportingGroundCollider;
     private bool walkedOnGroundLastPhysicsStep;
     private bool locomotionSlipActive;
+    private readonly RaycastHit2D[] monBodyCastHits = new RaycastHit2D[24];
+    private bool monBodyBlockReported;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -240,6 +247,13 @@ public class MonPhysicsController2D : MonoBehaviour
                     beforeX, desiredX, Mathf.Max(0f, acceleration) * Time.fixedDeltaTime);
             }
 
+            // Nao deixa a velocidade VOLUNTARIA de caminhada transferir
+            // um empurrao ao corpo do outro Mon. Golpes usam rota propria.
+            if (!locked && Mathf.Abs(nextX) > 0.0001f)
+                nextX = LimitVoluntarySpeedAgainstOtherMon(nextX);
+            else
+                monBodyBlockReported = false;
+
             walkedOnGroundLastPhysicsStep = isGrounded && !locked &&
                 Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f;
 
@@ -278,9 +292,10 @@ public class MonPhysicsController2D : MonoBehaviour
         }
         else
         {
-            // Reacoes forcadas de combate nunca sao confundidas com deslizamento.
+            // Reacoes forcadas de combate nao usam o limite de caminhada.
             walkedOnGroundLastPhysicsStep = false;
             locomotionSlipActive = false;
+            monBodyBlockReported = false;
         }
 
         UpdateAnatomicalGlide();
@@ -301,6 +316,64 @@ public class MonPhysicsController2D : MonoBehaviour
                 body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
             }
         }
+    }
+
+    // V1.8.12 / PHY-095/096: a caminhada nao deve empurrar passivamente
+    // o oponente. O cast antecipa a proxima posicao do CapsuleCollider2D.
+    // No ar, so bloqueia se os corpos realmente ocuparem a mesma altura;
+    // a ultrapassagem por cima permanece possivel.
+    private float LimitVoluntarySpeedAgainstOtherMon(float voluntaryX)
+    {
+        if (bodyCollider == null || Mathf.Abs(voluntaryX) < 0.0001f)
+        {
+            monBodyBlockReported = false;
+            return voluntaryX;
+        }
+
+        float sign = Mathf.Sign(voluntaryX);
+        float stepDistance = Mathf.Abs(voluntaryX) * Time.fixedDeltaTime;
+        float skin = Mathf.Max(0f, monBodyContactSkin);
+        int hits = bodyCollider.Cast(
+            Vector2.right * sign, ContactFilter2D.noFilter,
+            monBodyCastHits, stepDistance + skin, true);
+
+        float allowedX = voluntaryX;
+        MonPhysicsController2D blockedBy = null;
+        float distanceToBody = float.PositiveInfinity;
+        for (int i = 0; i < hits; i++)
+        {
+            Collider2D candidate = monBodyCastHits[i].collider;
+            if (candidate == null || candidate.isTrigger) continue;
+
+            MonPhysicsController2D other = candidate.GetComponentInParent<MonPhysicsController2D>();
+            if (other == null || other == this || other.body == null) continue;
+            // Mesmo sobrepostos, permitir afastar-se do outro corpo.
+            if ((other.body.position.x - body.position.x) * sign <= 0f) continue;
+
+            float gap = Mathf.Max(0f, monBodyCastHits[i].distance);
+            float availableSpeed = Mathf.Max(0f, gap - skin) /
+                Mathf.Max(0.001f, Time.fixedDeltaTime);
+            if (availableSpeed < Mathf.Abs(allowedX))
+            {
+                allowedX = sign * availableSpeed;
+                blockedBy = other;
+                distanceToBody = gap;
+            }
+        }
+
+        bool blocked = blockedBy != null && Mathf.Abs(allowedX) < 0.001f;
+        if (blocked && !monBodyBlockReported)
+        {
+            Debug.Log(
+                $"[V1.8.12 BLOQUEIO] {name}: alvo={blockedBy.name}; " +
+                $"emSolo={(isGrounded ? "SIM" : "NAO")}; " +
+                $"velPedidoX={voluntaryX:0.###}; velPermitidoX={allowedX:0.###}; " +
+                $"distanciaColisao={distanceToBody:0.###} u; " +
+                $"posAlvoX={blockedBy.body.position.x:0.###}; " +
+                "origem=CAMINHADA_SEM_EMPURRAO.", this);
+        }
+        monBodyBlockReported = blocked;
+        return allowedX;
     }
 
     // V1.8.7 / PHY-086, 122, 123: comando universal de tentativa.
@@ -517,6 +590,7 @@ public class MonPhysicsController2D : MonoBehaviour
             responseX, body.linearVelocity.y + reactionVelocity.y);
         walkedOnGroundLastPhysicsStep = false;
         locomotionSlipActive = false;
+        monBodyBlockReported = false;
         knockbackControlUntil = Mathf.Max(
             knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
 
@@ -592,6 +666,7 @@ public class MonPhysicsController2D : MonoBehaviour
         // Reacoes de golpes legados nao contam como locomocao voluntaria.
         walkedOnGroundLastPhysicsStep = false;
         locomotionSlipActive = false;
+        monBodyBlockReported = false;
         knockbackControlUntil = Mathf.Max(knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
     }
 
