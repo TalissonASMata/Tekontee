@@ -3795,6 +3795,9 @@ MonoBehaviour:
   effectiveExtensionThreshold: 0.25
   effectiveTenacityThreshold: 0.1
   effectiveMassThreshold: 0.05
+  enablePhysicalHitKnockback: 1
+  baseHitKnockbackSpeed: 1
+  hitKnockbackControlSeconds: 0.1
   effectiveDamageMultiplier: 1
   criticalDamageMultiplier: 1.5
   failGrowthMultiplier: 0.5
