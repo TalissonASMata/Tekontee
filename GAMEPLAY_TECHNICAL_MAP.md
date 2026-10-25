@@ -354,7 +354,7 @@ User feedback: measured F/V displacement of 0.963–1.267 world units felt exces
 
 **Final visual acceptance (2026-10-25):** User expressly confirmed perceiving the Mon slide after releasing horizontal movement on the unfavorable `Garras + Liso` pairing. With numeric logs for gradual braking and stop, neutral-floor immediate halt and the no-input landing regressions in both directions, the narrow V1.8.11 locomotion-release slip feature is **functionally validated in Unity**. This is not certification of complete physics-based friction, slopes, wall adhesion, diverse terrain materials or force interaction; those remain separate design/implementation slices.
 
-## V1.8.12 — Mon body blocking without passive walk push (REVISED DIAGNOSTICS COMMITTED; UNITY RECHECK PENDING)
+## V1.8.12 — Mon body blocking without passive walk push (CONTACT LOGGED; TARGET DISPLACEMENT PENDING)
 
 **Scope:** PHY-095 first slice. Both Mons stay solid Dynamic Rigidbody2D/CapsuleCollider2D bodies. Normal horizontal movement must not shove a stationary opponent, while explicit F/V strike reactions bypass this voluntary speed limit. PHY-096 jump-over/side contact remains a separate test. No scene file modified.
 
@@ -364,6 +364,8 @@ User feedback: measured F/V displacement of 0.963–1.267 world units felt exces
 
 **Next Unity test — same setup with updated code:** Stop Play and close Unity; `cd ~/Projetos/Tekontee && git pull --ff-only`; reopen and Play. Ensure EnemyMon AutoFighter disabled, both Mons at ground level, e.g. Mon X=-2.5 / EnemyMon X=0, terrain neutral; walk player Mon right into EnemyMon and hold for 1 second, no F/V. Console filter exactly `V1.8.12`. Expect two `[V1.8.12 ATIVO]` entries (Mon, EnemyMon), a `CONTATO` when approach is limited, a `BLOQUEIO` when speed becomes 0, and an `ALVO` with close-to-zero target `deltaX`. Send actual logs; don't claim validated if these or user-visible absence of passive pushing are missing. Scene has user-local changes (screenshot `ArenaPrototype*`), preserve them and don't `git restore` scene.
 
+
+**Unity log breakthrough (2026-10-25):** `[V1.8.12 ATIVO]` occurred on EnemyMon and Mon with `MonsEncontrados=2; margem=0.025`. Voluntary `[V1.8.12 CONTATO]` logged Mon approaching EnemyMon while grounded, `velPedidoX=2.988; velPermitidoX=0.880; distanciaColisao=0.043 u`. This verifies active physics code and partial speed clipping. Another contact log showed permitted speed rounding to requested 2.988 at 0.085 u; numerical near-equality tolerance tightened. No `BLOQUEIO`/ `ALVO` yet, since `ALVO` was mistakenly triggered only by full zero-speed block. **Revised diagnostic:** sample target position starting from first `CONTATO` that genuinely clips speed by >0.0001 u/s, with at most one 15-physics-step sample in flight. User must repeat the identical approach once and share `[V1.8.12 ALVO]` plus whether EnemyMon visually moves; do not mark fully verified yet.
 
 ## Minimal anatomical gameplay hypotheses for V1.7
 
