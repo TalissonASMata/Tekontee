@@ -1546,6 +1546,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonPhysicsController2D
   gravityAcceleration: 18
+  legExtensionSpeedGain: 0.25
+  generalMassSpeedPenalty: 0.08
+  minimumGroundSpeedMultiplier: 0.5
+  maximumGroundSpeedMultiplier: 2
+  airSteeringAcceleration: 8
+  airReleaseDeceleration: 2
+  glideArmDragThreshold: 0.1
+  glideFailDragGain: 0.02
+  glideEffectiveDragGain: 0.04
+  glideBaseDescentSpeed: 2.5
+  glideDragStrength: 2
+  glideMinDescentSpeed: 0.6
+  massImpactResistance: 0.08
+  minimumImpactMultiplier: 0.25
+  legCountGroundTractionGain: 0.15
+  minimumLegCountTractionMultiplier: 0.5
+  maximumLegCountTractionMultiplier: 1.5
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -1649,7 +1666,7 @@ MonoBehaviour:
     arrasto: 0
     quantidade: 2
   pernas:
-    revestimento: 
+    revestimento: Garras
     massa: 0
     tenacidade: 0
     extensao: 0
@@ -2322,6 +2339,7 @@ GameObject:
   - component: {fileID: 1374209203}
   - component: {fileID: 1374209202}
   - component: {fileID: 1374209201}
+  - component: {fileID: 1374209204}
   m_Layer: 3
   m_Name: Ground
   m_TagString: Untagged
@@ -2449,6 +2467,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1374209204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1374209200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf495cfcde348979eca0130c8b9140a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MonGroundSurface2D
+  surfaceKind: 0
+  compatibleImpactMultiplier: 0.8
+  incompatibleImpactMultiplier: 1.2
 --- !u!1 &1451213099
 GameObject:
   m_ObjectHideFlags: 0
@@ -3607,6 +3640,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MonPhysicsController2D
   gravityAcceleration: 18
+  legExtensionSpeedGain: 0.25
+  generalMassSpeedPenalty: 0.08
+  minimumGroundSpeedMultiplier: 0.5
+  maximumGroundSpeedMultiplier: 2
+  airSteeringAcceleration: 8
+  airReleaseDeceleration: 2
+  glideArmDragThreshold: 0.1
+  glideFailDragGain: 0.02
+  glideEffectiveDragGain: 0.04
+  glideBaseDescentSpeed: 2.5
+  glideDragStrength: 2
+  glideMinDescentSpeed: 0.6
+  massImpactResistance: 0.08
+  minimumImpactMultiplier: 0.25
+  legCountGroundTractionGain: 0.15
+  minimumLegCountTractionMultiplier: 0.5
+  maximumLegCountTractionMultiplier: 1.5
   groundLayers:
     serializedVersion: 2
     m_Bits: 8
@@ -3704,9 +3754,9 @@ MonoBehaviour:
     cobertura: 
   bracos:
     revestimento: 
-    massa: 0
-    tenacidade: 0
-    extensao: 0
+    massa: 0.05
+    tenacidade: 0.1
+    extensao: 0.25
     arrasto: 0
     quantidade: 2
   pernas:
