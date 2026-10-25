@@ -10,6 +10,7 @@ using UnityEngine;
 /// V1.8.8: resistencia da massa geral ao impulso de golpes anatomicos F/V.
 /// V1.8.9: pernas em contato com solo atenuam reacao horizontal a golpes.
 /// V1.8.10: interacao contextual piso/revestimento modifica reacao no solo.
+/// V1.8.11: soltar direcao em solo desfavoravel permite breve deslize.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -62,6 +63,10 @@ public class MonPhysicsController2D : MonoBehaviour
     [Tooltip("Teto da reacao com menos de duas pernas (perda de aderencia).")]
     [Min(1f)] public float maximumLegCountTractionMultiplier = 1.5f;
 
+    [Header("V1.8.11 - Deslize contextual da locomocao (teste)")]
+    [Tooltip("Frenagem horizontal ao soltar a direcao enquanto caminha em terreno desfavoravel (u/s²).")]
+    [Min(0.1f)] public float unfavorableGroundBrakeDeceleration = 12f;
+
     [Header("Deteccao de solo")]
     [Tooltip("Selecione APENAS a layer de piso (ex.: ArenaGround), nunca a layer dos Mons.")]
     public LayerMask groundLayers;
@@ -83,6 +88,8 @@ public class MonPhysicsController2D : MonoBehaviour
     private float knockbackControlUntil;
     private bool isGrounded;
     private Collider2D supportingGroundCollider;
+    private bool walkedOnGroundLastPhysicsStep;
+    private bool locomotionSlipActive;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -138,6 +145,8 @@ public class MonPhysicsController2D : MonoBehaviour
 
         if (health != null && health.IsDead)
         {
+            walkedOnGroundLastPhysicsStep = false;
+            locomotionSlipActive = false;
             body.linearVelocity = new Vector2(0f, body.linearVelocity.y);
             return;
         }
@@ -156,16 +165,73 @@ public class MonPhysicsController2D : MonoBehaviour
             float nextX;
             if (locked)
             {
-                // Preserva a prioridade existente de estados de combate.
+                // Estados de combate sempre tem prioridade; nao iniciam deslize.
                 nextX = 0f;
+                locomotionSlipActive = false;
             }
             else if (isGrounded)
             {
-                // Caminhada responsiva; sem comando no pouso, freia imediatamente.
-                nextX = desiredX;
+                if (justLanded || Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f)
+                {
+                    // PHY-083/090: caminhada normal responsiva e pouso sem
+                    // comando com parada imediata, mesmo sobre piso liso.
+                    nextX = desiredX;
+                    locomotionSlipActive = false;
+                }
+                else
+                {
+                    // V1.8.11: so um Mon que CAMINHAVA no chao pode comecar
+                    // a deslizar ao soltar o comando em uma interacao ruim.
+                    // Impulso de golpe e aterrissagem nunca iniciam este deslize.
+                    MonGroundSurface2D floor = supportingGroundCollider != null
+                        ? supportingGroundCollider.GetComponentInParent<MonGroundSurface2D>()
+                        : null;
+                    string interaction = "NEUTRA";
+                    bool hasLegContact = anatomy != null && anatomy.pernas != null &&
+                        anatomy.pernas.quantidade > 0;
+                    if (floor != null && hasLegContact)
+                        floor.GetImpactResponseMultiplier(
+                            anatomy.pernas.revestimento, out interaction);
+                    bool unfavorable = interaction == "DESFAVORAVEL";
+
+                    bool slipStarted = !locomotionSlipActive &&
+                        walkedOnGroundLastPhysicsStep && unfavorable;
+                    if (slipStarted) locomotionSlipActive = true;
+
+                    if (locomotionSlipActive && unfavorable)
+                    {
+                        float brake = Mathf.Max(0.1f, unfavorableGroundBrakeDeceleration);
+                        nextX = Mathf.MoveTowards(
+                            beforeX, 0f, brake * Time.fixedDeltaTime);
+
+                        if (slipStarted)
+                            Debug.Log(
+                                $"[V1.8.11 DESLIZE] {name}: evento=INICIO; " +
+                                $"superficie={floor.surfaceKind}; " +
+                                $"revestimento={anatomy.pernas.revestimento}; " +
+                                $"interacao={interaction}; velAntes={beforeX:0.###}; " +
+                                $"velDepois={nextX:0.###}; frenagem={brake:0.###} u/s².", this);
+
+                        if (Mathf.Abs(nextX) <= 0.001f)
+                        {
+                            nextX = 0f;
+                            locomotionSlipActive = false;
+                            Debug.Log(
+                                $"[V1.8.11 DESLIZE] {name}: evento=FIM; velX=0.", this);
+                        }
+                    }
+                    else
+                    {
+                        // Em solo neutro ou compativel o comando continua
+                        // parando imediatamente, sem inercia acumulada.
+                        nextX = 0f;
+                        locomotionSlipActive = false;
+                    }
+                }
             }
             else
             {
+                locomotionSlipActive = false;
                 // PHY-089: correcao parcial no ar, nao troca instantanea.
                 // Sem comando, o impulso horizontal se dissipa gradualmente.
                 float acceleration = Mathf.Abs(direction) > 0.01f
@@ -173,6 +239,9 @@ public class MonPhysicsController2D : MonoBehaviour
                 nextX = Mathf.MoveTowards(
                     beforeX, desiredX, Mathf.Max(0f, acceleration) * Time.fixedDeltaTime);
             }
+
+            walkedOnGroundLastPhysicsStep = isGrounded && !locked &&
+                Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f;
 
             if (isGrounded && !locked && Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f &&
                 (Mathf.Abs(movementFactor - lastReportedGroundMultiplier) > 0.005f ||
@@ -206,6 +275,12 @@ public class MonPhysicsController2D : MonoBehaviour
             }
 
             body.linearVelocity = new Vector2(nextX, body.linearVelocity.y);
+        }
+        else
+        {
+            // Reacoes forcadas de combate nunca sao confundidas com deslizamento.
+            walkedOnGroundLastPhysicsStep = false;
+            locomotionSlipActive = false;
         }
 
         UpdateAnatomicalGlide();
@@ -440,6 +515,8 @@ public class MonPhysicsController2D : MonoBehaviour
             : velocityBeforeX;
         body.linearVelocity = new Vector2(
             responseX, body.linearVelocity.y + reactionVelocity.y);
+        walkedOnGroundLastPhysicsStep = false;
+        locomotionSlipActive = false;
         knockbackControlUntil = Mathf.Max(
             knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
 
