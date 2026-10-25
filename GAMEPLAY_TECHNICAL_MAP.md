@@ -301,7 +301,7 @@ User feedback: measured F/V displacement of 0.963–1.267 world units felt exces
 
 **Unity aerial confirmation (2026-10-25):** With EnemyMon `Pernas.Quantidade=6`, mass=0, grounded state forced false by moving off ground and temporarily disabling gravity in Play, the user logged `[V1.8.9 ADERENCIA] EnemyMon: emSolo=NAO; pernasQtd=6; fatorPernas=x1; velReacaoX=1 u/s.` Therefore six-leg traction properly disappears in air, while mass resistance remains a separate factor. Together with two-leg grounded x1 and six-leg grounded x0.625, the narrow V1.8.9 feature is functionally validated. User also reported the enemy rose off-screen during the artificial zero-gravity test; zero gravity does not itself cause upward movement, but permits any pre-existing upward velocity/contact impulse to persist. Do not interpret the off-screen ascent as a confirmed ordinary-gravity bug; reset temporary Gravity Scale by leaving Play, and investigate only if reproduced in normal gameplay. Terrain type and categorical leg covering are still not implemented.
 
-## V1.8.10 — Contextual leg covering × ground surface (CODE COMMITTED; UNITY TEST PENDING)
+## V1.8.10 — Contextual leg covering × ground surface (GARRAS + RUGOSO UNITY VALIDATED; OTHER PAIRS PENDING)
 
 **Minimal PHY-091/092/093 experiment:** The existing `MonAnatomy.pernas.revestimento` string is combined with a floor collider's explicitly declared surface type. This is **not** an unconditional numeric armor/grip bonus attached to "Garras" or "Ventosas"; the same covering can be favorable or unfavorable on different surfaces. The whole mechanism applies only to the **grounded horizontal weak F/V hit reaction**, after multiplying the already validated mass (V1.8.8) and leg count (V1.8.9) factors. Airborne interactions and the vertical component keep covering/surface traction at x1. Normal locomotion, jump, glide, ground detection, damage, strike quality and legacy push rules are not changed.
 
@@ -316,6 +316,8 @@ User feedback: measured F/V displacement of 0.963–1.267 world units felt exces
 **Next separate tests only after the first succeeds:** Keep Ground Rugoso, change EnemyMon only to `Revestimento = Ventosas` (expect DESFAVORAVEL x1.2). Then switch Ground to Liso and verify the favorable/unfavorable outcomes swap; finally test no floor component / air as x1 to catch regression. Reposition Mons to X=-1.3 / 0 after each hit and clear Console to isolate the attempt. Changes made **during Play** should not be considered permanently saved.
 
 **Status:** source and docs committed; Unity build/playtest pending. If the input covering name is different, log will explicitly report `interacao=NEUTRA`, making it easy to diagnose without changing any other morphology.
+
+**Unity first test (2026-10-25):** Ground surface `Rugoso`, EnemyMon legs `Revestimento=Garras`, `Quantidade=2`, all body mass zero, grounded. Unity log `[V1.8.10 TERRENO] EnemyMon: emSolo=SIM; superficie=Rugoso; revestimento=Garras; interacao=COMPATIVEL; fatorRevestimento=x0.8; fatorPernas=x1; fatorMassa=x1; velReacaoX=0.8 u/s`. First favorable pairing numerically validated; incompatible covering on the same terrain and reversed terrain are **not yet tested**. Next test: same `Rugoso` surface and same scene/positions, change only EnemyMon covering to `Ventosas`; expect `DESFAVORAVEL`, x1.2, X reaction 1.2 u/s.
 
 ## Minimal anatomical gameplay hypotheses for V1.7
 
