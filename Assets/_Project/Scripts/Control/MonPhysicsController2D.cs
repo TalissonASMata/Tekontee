@@ -9,6 +9,7 @@ using UnityEngine;
 /// V1.8.7: planagem opcional, suportada por arrasto anatomico dos bracos.
 /// V1.8.8: resistencia da massa geral ao impulso de golpes anatomicos F/V.
 /// V1.8.9: pernas em contato com solo atenuam reacao horizontal a golpes.
+/// V1.8.10: interacao contextual piso/revestimento modifica reacao no solo.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -81,6 +82,7 @@ public class MonPhysicsController2D : MonoBehaviour
     private float requestedSpeed;
     private float knockbackControlUntil;
     private bool isGrounded;
+    private Collider2D supportingGroundCollider;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -401,8 +403,31 @@ public class MonPhysicsController2D : MonoBehaviour
             tractionFactor = Mathf.Clamp(1f / Mathf.Max(0.01f, denominator), minimum, maximum);
         }
 
+        string legCovering = anatomy?.pernas?.revestimento ?? string.Empty;
+        string surfaceLabel = "SEM_COMPONENTE";
+        string interaction = "NEUTRA";
+        float coveringSurfaceFactor = 1f;
+        if (isGrounded)
+        {
+            MonGroundSurface2D surface = supportingGroundCollider != null
+                ? supportingGroundCollider.GetComponentInParent<MonGroundSurface2D>()
+                : null;
+            if (surface != null)
+            {
+                surfaceLabel = surface.surfaceKind.ToString();
+                if (legs > 0)
+                    coveringSurfaceFactor = surface.GetImpactResponseMultiplier(
+                        legCovering, out interaction);
+            }
+        }
+        else
+        {
+            surfaceLabel = "NO_AR";
+            interaction = "INATIVA";
+        }
+
         Vector2 reactionVelocity = new Vector2(
-            requestedVelocityDelta.x * factor * tractionFactor,
+            requestedVelocityDelta.x * factor * tractionFactor * coveringSurfaceFactor,
             requestedVelocityDelta.y * factor); // aderencia nao cancela lancamento vertical
         float velocityBeforeX = body.linearVelocity.x;
         float positionBeforeX = body.position.x;
@@ -422,6 +447,7 @@ public class MonPhysicsController2D : MonoBehaviour
             $"[V1.8.8 IMPACTO] {name}: massaGeral={totalMass:0.###}; " +
             $"emSolo={(isGrounded ? "SIM" : "NAO")}; fator=x{factor:0.###}; " +
             $"pernasQtd={legs}; aderenciaPernas=x{tractionFactor:0.###}; " +
+            $"aderenciaRevestimento=x{coveringSurfaceFactor:0.###}; " +
             $"impulsoPedidoX={requestedVelocityDelta.x:0.###}; " +
             $"impulsoAplicadoX={reactionVelocity.x:0.###}; modo=SUBSTITUICAO; " +
             $"velXAntes={velocityBeforeX:0.###}; velXDepois={body.linearVelocity.x:0.###}; " +
@@ -442,6 +468,13 @@ public class MonPhysicsController2D : MonoBehaviour
                 $"[V1.8.9 ADERENCIA] {name}: emSolo=NAO; pernasQtd={legs}; " +
                 $"fatorPernas=x1; velReacaoX={reactionVelocity.x:0.###} u/s.", this);
         }
+
+        Debug.Log(
+            $"[V1.8.10 TERRENO] {name}: emSolo={(isGrounded ? "SIM" : "NAO")}; " +
+            $"superficie={surfaceLabel}; revestimento={(string.IsNullOrWhiteSpace(legCovering) ? "Nenhum" : legCovering)}; " +
+            $"interacao={interaction}; fatorRevestimento=x{coveringSurfaceFactor:0.###}; " +
+            $"fatorPernas=x{tractionFactor:0.###}; fatorMassa=x{factor:0.###}; " +
+            $"velReacaoX={reactionVelocity.x:0.###} u/s.", this);
 
         StartCoroutine(LogAnatomicalHitDisplacement(
             positionBeforeX, reactionVelocity.x,
@@ -486,6 +519,7 @@ public class MonPhysicsController2D : MonoBehaviour
     {
         if (groundLayers.value == 0 || bodyCollider == null)
         {
+            supportingGroundCollider = null;
             isGrounded = false;
             return;
         }
@@ -493,8 +527,9 @@ public class MonPhysicsController2D : MonoBehaviour
         Bounds bounds = bodyCollider.bounds;
         Vector2 probeCenter = new Vector2(bounds.center.x, bounds.min.y - groundProbeDepth * 0.5f);
         Vector2 probeSize = new Vector2(bounds.size.x * 0.75f, groundProbeDepth);
-        isGrounded = Physics2D.OverlapBox(probeCenter, probeSize, 0f, groundLayers) != null
-                  && body.linearVelocity.y <= 0.01f;
+        supportingGroundCollider = Physics2D.OverlapBox(
+            probeCenter, probeSize, 0f, groundLayers);
+        isGrounded = supportingGroundCollider != null && body.linearVelocity.y <= 0.01f;
     }
 
     private void OnDrawGizmosSelected()
