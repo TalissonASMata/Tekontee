@@ -632,6 +632,7 @@ public class MonPhysicsController2D : MonoBehaviour
         walkedOnGroundLastPhysicsStep = false;
         locomotionSlipActive = false;
         monBodyBlockReported = false;
+        monBodyFullStopReported = false;
         knockbackControlUntil = Mathf.Max(
             knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
 
@@ -708,6 +709,7 @@ public class MonPhysicsController2D : MonoBehaviour
         walkedOnGroundLastPhysicsStep = false;
         locomotionSlipActive = false;
         monBodyBlockReported = false;
+        monBodyFullStopReported = false;
         knockbackControlUntil = Mathf.Max(knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
     }
 
