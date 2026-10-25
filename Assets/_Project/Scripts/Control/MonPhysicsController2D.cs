@@ -589,6 +589,9 @@ public class MonPhysicsController2D : MonoBehaviour
         if (health != null && health.IsDead) return;
 
         body.linearVelocity += velocityDelta;
+        // Reacoes de golpes legados nao contam como locomocao voluntaria.
+        walkedOnGroundLastPhysicsStep = false;
+        locomotionSlipActive = false;
         knockbackControlUntil = Mathf.Max(knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
     }
 
