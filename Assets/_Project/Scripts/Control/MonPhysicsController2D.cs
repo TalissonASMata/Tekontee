@@ -95,8 +95,9 @@ public class MonPhysicsController2D : MonoBehaviour
     private Collider2D supportingGroundCollider;
     private bool walkedOnGroundLastPhysicsStep;
     private bool locomotionSlipActive;
-    private readonly RaycastHit2D[] monBodyCastHits = new RaycastHit2D[24];
+    private MonPhysicsController2D[] otherMonMotors;
     private bool monBodyBlockReported;
+    private bool monBodyFullStopReported;
     private float lastReportedGroundMultiplier = -1f;
     private float lastReportedRequestedSpeed = -1f;
     private bool sampledGroundedState;
@@ -122,6 +123,11 @@ public class MonPhysicsController2D : MonoBehaviour
         stateMachine = GetComponent<CombatantStateMachine>();
         health = GetComponent<Health>();
         anatomy = GetComponent<MonAnatomy>();
+        // Ambos os Mons ja existem na cena quando Awake executa.
+        // Cache evita procurar objetos a cada passo de fisica.
+        otherMonMotors = FindObjectsByType<MonPhysicsController2D>(FindObjectsSortMode.None);
+        Debug.Log($"[V1.8.12 ATIVO] {name}: motor carregado; " +
+                  $"MonsEncontrados={otherMonMotors.Length}; margem={monBodyContactSkin:0.###} u.", this);
 
         body.bodyType = RigidbodyType2D.Dynamic;
         body.freezeRotation = true;
@@ -252,7 +258,10 @@ public class MonPhysicsController2D : MonoBehaviour
             if (!locked && Mathf.Abs(nextX) > 0.0001f)
                 nextX = LimitVoluntarySpeedAgainstOtherMon(nextX);
             else
+            {
                 monBodyBlockReported = false;
+                monBodyFullStopReported = false;
+            }
 
             walkedOnGroundLastPhysicsStep = isGrounded && !locked &&
                 Mathf.Abs(direction) > 0.01f && requestedSpeed > 0f;
@@ -296,6 +305,7 @@ public class MonPhysicsController2D : MonoBehaviour
             walkedOnGroundLastPhysicsStep = false;
             locomotionSlipActive = false;
             monBodyBlockReported = false;
+            monBodyFullStopReported = false;
         }
 
         UpdateAnatomicalGlide();
@@ -319,63 +329,76 @@ public class MonPhysicsController2D : MonoBehaviour
     }
 
     // V1.8.12 / PHY-095/096: a caminhada nao deve empurrar passivamente
-    // o oponente. O cast antecipa a proxima posicao do CapsuleCollider2D.
-    // No ar, so bloqueia se os corpos realmente ocuparem a mesma altura;
-    // a ultrapassagem por cima permanece possivel.
+    // outro Mon. Collider2D.Distance mede a separacao REAL entre as duas
+    // capsulas, inclusive quando o motor fisico ja estabeleceu contato.
+    // Em alturas diferentes, o salto pode passar por cima normalmente.
     private float LimitVoluntarySpeedAgainstOtherMon(float voluntaryX)
     {
         if (bodyCollider == null || Mathf.Abs(voluntaryX) < 0.0001f)
         {
             monBodyBlockReported = false;
+            monBodyFullStopReported = false;
             return voluntaryX;
         }
 
         float sign = Mathf.Sign(voluntaryX);
         float stepDistance = Mathf.Abs(voluntaryX) * Time.fixedDeltaTime;
         float skin = Mathf.Max(0f, monBodyContactSkin);
-        int hits = bodyCollider.Cast(
-            Vector2.right * sign, ContactFilter2D.noFilter,
-            monBodyCastHits, stepDistance + skin, true);
-
         float allowedX = voluntaryX;
         MonPhysicsController2D blockedBy = null;
-        float distanceToBody = float.PositiveInfinity;
-        for (int i = 0; i < hits; i++)
+        float closestDistance = float.PositiveInfinity;
+
+        if (otherMonMotors != null)
         {
-            Collider2D candidate = monBodyCastHits[i].collider;
-            if (candidate == null || candidate.isTrigger) continue;
-
-            MonPhysicsController2D other = candidate.GetComponentInParent<MonPhysicsController2D>();
-            if (other == null || other == this || other.body == null) continue;
-            // Mesmo sobrepostos, permitir afastar-se do outro corpo.
-            if ((other.body.position.x - body.position.x) * sign <= 0f) continue;
-
-            float gap = Mathf.Max(0f, monBodyCastHits[i].distance);
-            float availableSpeed = Mathf.Max(0f, gap - skin) /
-                Mathf.Max(0.001f, Time.fixedDeltaTime);
-            if (availableSpeed < Mathf.Abs(allowedX))
+            foreach (MonPhysicsController2D other in otherMonMotors)
             {
-                allowedX = sign * availableSpeed;
-                blockedBy = other;
-                distanceToBody = gap;
+                if (other == null || other == this ||
+                    other.body == null || other.bodyCollider == null ||
+                    !other.bodyCollider.enabled || other.bodyCollider.isTrigger ||
+                    !other.gameObject.activeInHierarchy)
+                    continue;
+
+                // Se o outro esta atras, o movimento de afastamento e livre.
+                if ((other.body.position.x - body.position.x) * sign <= 0f)
+                    continue;
+
+                ColliderDistance2D separation = bodyCollider.Distance(other.bodyCollider);
+                float gap = Mathf.Max(0f, separation.distance);
+                if (gap > stepDistance + skin) continue;
+
+                float possibleSpeed = Mathf.Max(0f, gap - skin) /
+                    Mathf.Max(0.001f, Time.fixedDeltaTime);
+                if (possibleSpeed < Mathf.Abs(allowedX))
+                {
+                    allowedX = sign * possibleSpeed;
+                    blockedBy = other;
+                    closestDistance = separation.distance;
+                }
             }
         }
 
-        bool blocked = blockedBy != null && Mathf.Abs(allowedX) < 0.001f;
-        if (blocked && !monBodyBlockReported)
+        bool limited = blockedBy != null;
+        bool fullyStopped = limited && Mathf.Abs(allowedX) < 0.001f;
+        if (limited && !monBodyBlockReported)
+        {
+            Debug.Log(
+                $"[V1.8.12 CONTATO] {name}: alvo={blockedBy.name}; " +
+                $"emSolo={(isGrounded ? "SIM" : "NAO")}; " +
+                $"velPedidoX={voluntaryX:0.###}; velPermitidoX={allowedX:0.###}; " +
+                $"distanciaColisao={closestDistance:0.###} u; " +
+                "origem=LOCOMOCAO_VOLUNTARIA.", this);
+        }
+        if (fullyStopped && !monBodyFullStopReported)
         {
             Debug.Log(
                 $"[V1.8.12 BLOQUEIO] {name}: alvo={blockedBy.name}; " +
-                $"emSolo={(isGrounded ? "SIM" : "NAO")}; " +
                 $"velPedidoX={voluntaryX:0.###}; velPermitidoX={allowedX:0.###}; " +
-                $"distanciaColisao={distanceToBody:0.###} u; " +
-                $"posAlvoX={blockedBy.body.position.x:0.###}; " +
-                "origem=CAMINHADA_SEM_EMPURRAO.", this);
-            // Mede o outro corpo depois da colisao, nao so nossa velocidade.
+                $"posAlvoX={blockedBy.body.position.x:0.###}.", this);
             StartCoroutine(LogBodyBlockTargetPosition(
                 blockedBy, blockedBy.body.position.x));
         }
-        monBodyBlockReported = blocked;
+        monBodyBlockReported = limited;
+        monBodyFullStopReported = fullyStopped;
         return allowedX;
     }
 
