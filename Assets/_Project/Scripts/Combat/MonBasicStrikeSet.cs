@@ -7,6 +7,7 @@ using UnityEngine;
 // V1.8.4: execucao exige TODOS os requisitos anatomicos do golpe (AND).
 // V1.8.8: golpes Effective/Critical aplicam impulso fisico de teste no alvo.
 // V1.8.13: componentes horizontal e vertical independentes de impacto.
+// V1.8.14: potencia de impulso influenciada pela massa do membro atacante.
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -67,6 +68,16 @@ public class MonBasicStrikeSet : MonoBehaviour
     [Header("V1.8.13 - Impacto vetorial do chute (teste)")]
     [Tooltip("Velocidade vertical (Y) solicitada no chute V Effective/Critical. 0 preserva o chute horizontal validado anteriormente.")]
     [Min(0f)] public float weakKickVerticalLaunchSpeed = 0f;
+
+    [Header("V1.8.14 - Potencia fisica pela massa do membro atacante (teste)")]
+    [Tooltip("Aplica o mesmo fator de massa do braco/perna a X e Y do impacto; dano permanece independente.")]
+    public bool enableStrikingLimbMassImpact = true;
+    [Tooltip("Massa POR MEMBRO abaixo ou igual a este valor preserva o impulso base (sem bonus).")]
+    [Min(0f)] public float referenceStrikingLimbMass = 0.10f;
+    [Tooltip("Bonus de velocidade de impacto por unidade de massa do membro acima da referencia.")]
+    [Min(0f)] public float strikingLimbMassImpactGain = 0.25f;
+    [Tooltip("Teto experimental do multiplicador de impacto por massa do membro.")]
+    [Min(1f)] public float maximumStrikingLimbMassImpactMultiplier = 2f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
@@ -145,12 +156,33 @@ public class MonBasicStrikeSet : MonoBehaviour
                 if (opponentMotor != null)
                 {
                     float directionX = opponent.transform.position.x < transform.position.x ? -1f : 1f;
-                    // V1.8.13: o mesmo golpe pode empurrar em X e lancar em Y.
-                    // 0 preserva integralmente a reacao fraca de V1.8.8-12.
-                    // Esta primeira fatia so habilita Y configuravel no chute.
+                    // V1.8.14: massBefore e a massa POR MEMBRO ANTES do reforco
+                    // deste proprio golpe. Braco para F, perna para V.
+                    // Fator inicial x1 em 0.10 para preservar V1.8.13;
+                    // bonus acima da referencia, limitado para este prototipo.
+                    float strikingLimbMass = Mathf.Max(0f, massBefore);
+                    float referenceMass = Mathf.Max(0f, referenceStrikingLimbMass);
+                    float massImpactMultiplier = enableStrikingLimbMassImpact
+                        ? Mathf.Clamp(
+                            1f + Mathf.Max(0f, strikingLimbMass - referenceMass) *
+                                Mathf.Max(0f, strikingLimbMassImpactGain),
+                            1f, Mathf.Max(1f, maximumStrikingLimbMassImpactMultiplier))
+                        : 1f;
+
+                    // O mesmo fator atua em X/Y do vetor do movimento,
+                    // sem substituir a resistencia do Mon atingido.
+                    // Dano, qualidade e crescimento permanecem inalterados.
                     Vector2 requestedHitVelocity = new Vector2(
                         directionX * Mathf.Max(0f, baseHitKnockbackSpeed),
-                        punch ? 0f : Mathf.Max(0f, weakKickVerticalLaunchSpeed));
+                        punch ? 0f : Mathf.Max(0f, weakKickVerticalLaunchSpeed)) *
+                        massImpactMultiplier;
+                    Debug.Log(
+                        $"[V1.8.14 POTENCIA] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
+                        $"massaMembro={strikingLimbMass:0.###}; referencia={referenceMass:0.###}; " +
+                        $"ganho={Mathf.Max(0f, strikingLimbMassImpactGain):0.###}; " +
+                        $"fator=x{massImpactMultiplier:0.###}; " +
+                        $"pedidoX={requestedHitVelocity.x:0.###}; " +
+                        $"pedidoY={requestedHitVelocity.y:0.###}; alvo={opponent.name}.", this);
                     Debug.Log(
                         $"[V1.8.13 VETOR] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
                         $"qualidade={quality}; contato=SIM; " +
