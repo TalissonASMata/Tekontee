@@ -6,6 +6,7 @@ using UnityEngine;
 // V1.8.3: ate tres influencias anatomicas ponderadas por golpe (valores de teste).
 // V1.8.4: execucao exige TODOS os requisitos anatomicos do golpe (AND).
 // V1.8.8: golpes Effective/Critical aplicam impulso fisico de teste no alvo.
+// V1.8.13: componentes horizontal e vertical independentes de impacto.
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -62,6 +63,10 @@ public class MonBasicStrikeSet : MonoBehaviour
     [Min(0f)] public float baseHitKnockbackSpeed = 1f;
     [Tooltip("Duracao curta da reacao sem controle normal, para manter os Mons proximos (s).")]
     [Min(0f)] public float hitKnockbackControlSeconds = 0.10f;
+
+    [Header("V1.8.13 - Impacto vetorial do chute (teste)")]
+    [Tooltip("Velocidade vertical (Y) solicitada no chute V Effective/Critical. 0 preserva o chute horizontal validado anteriormente.")]
+    [Min(0f)] public float weakKickVerticalLaunchSpeed = 0f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
@@ -140,8 +145,20 @@ public class MonBasicStrikeSet : MonoBehaviour
                 if (opponentMotor != null)
                 {
                     float directionX = opponent.transform.position.x < transform.position.x ? -1f : 1f;
+                    // V1.8.13: o mesmo golpe pode empurrar em X e lancar em Y.
+                    // 0 preserva integralmente a reacao fraca de V1.8.8-12.
+                    // Esta primeira fatia so habilita Y configuravel no chute.
+                    Vector2 requestedHitVelocity = new Vector2(
+                        directionX * Mathf.Max(0f, baseHitKnockbackSpeed),
+                        punch ? 0f : Mathf.Max(0f, weakKickVerticalLaunchSpeed));
+                    Debug.Log(
+                        $"[V1.8.13 VETOR] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
+                        $"qualidade={quality}; contato=SIM; " +
+                        $"pedidoX={requestedHitVelocity.x:0.###} u/s; " +
+                        $"pedidoY={requestedHitVelocity.y:0.###} u/s; " +
+                        $"alvo={opponent.name}.", this);
                     opponentMotor.ApplyAnatomicalHitKnockback(
-                        new Vector2(directionX * Mathf.Max(0f, baseHitKnockbackSpeed), 0f),
+                        requestedHitVelocity,
                         Mathf.Max(0f, hitKnockbackControlSeconds));
                 }
             }
