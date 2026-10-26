@@ -13,6 +13,7 @@ using UnityEngine;
 /// V1.8.11: soltar direcao em solo desfavoravel permite breve deslize.
 /// V1.8.12: movimento voluntario evita empurrao corporal passivo.
 /// V1.8.12.1: a cabeca do oponente nao funciona como plataforma.
+/// V1.8.13: impacto anatomico com vetor horizontal/vertical observavel.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -762,7 +763,9 @@ public class MonPhysicsController2D : MonoBehaviour
             requestedVelocityDelta.x * factor * tractionFactor * coveringSurfaceFactor,
             requestedVelocityDelta.y * factor); // aderencia nao cancela lancamento vertical
         float velocityBeforeX = body.linearVelocity.x;
+        float velocityBeforeY = body.linearVelocity.y;
         float positionBeforeX = body.position.x;
+        float positionBeforeY = body.position.y;
 
         // F/V: velocidade de REACAO definida pelo golpe, nao velocidade acumulada.
         // Uma velocidade anterior causada por colisao/movimento nao amplifica
@@ -778,6 +781,18 @@ public class MonPhysicsController2D : MonoBehaviour
         monBodyFullStopReported = false;
         knockbackControlUntil = Mathf.Max(
             knockbackControlUntil, Time.time + Mathf.Max(0f, controlLockSeconds));
+
+        // V1.8.13: diagnóstico separado do X existente, para que impulso
+        // vertical e ganho REAL de altura possam ser medidos no Unity.
+        Debug.Log(
+            $"[V1.8.13 IMPACTO] {name}: emSolo={(isGrounded ? "SIM" : "NAO")}; " +
+            $"pedidoX={requestedVelocityDelta.x:0.###}; pedidoY={requestedVelocityDelta.y:0.###}; " +
+            $"aplicadoX={reactionVelocity.x:0.###}; aplicadoY={reactionVelocity.y:0.###}; " +
+            $"fatorMassa=x{factor:0.###}; aderenciaSoloX=x{tractionFactor * coveringSurfaceFactor:0.###}; " +
+            $"velYAntes={velocityBeforeY:0.###}; velYDepois={body.linearVelocity.y:0.###}; " +
+            "modoY=ADICAO.", this);
+        if (requestedVelocityDelta.y > 0.0001f)
+            StartCoroutine(LogHitVerticalDisplacement(positionBeforeY));
 
         Debug.Log(
             $"[V1.8.8 IMPACTO] {name}: massaGeral={totalMass:0.###}; " +
@@ -815,6 +830,25 @@ public class MonPhysicsController2D : MonoBehaviour
         StartCoroutine(LogAnatomicalHitDisplacement(
             positionBeforeX, reactionVelocity.x,
             Mathf.Max(0.06f, controlLockSeconds)));
+    }
+
+    // V1.8.13: amostra o pico efetivo do lancamento do alvo, nao apenas
+    // a velocidade atribuida. Intervalo cobre o arco esperado com gravidade 18.
+    private IEnumerator LogHitVerticalDisplacement(float initialY)
+    {
+        float maximumY = body.position.y;
+        int steps = Mathf.Max(1, Mathf.CeilToInt(
+            0.65f / Mathf.Max(0.001f, Time.fixedDeltaTime)));
+        for (int step = 0; step < steps; step++)
+        {
+            yield return new WaitForFixedUpdate();
+            if (body == null) yield break;
+            maximumY = Mathf.Max(maximumY, body.position.y);
+        }
+        Debug.Log(
+            $"[V1.8.13 ALTURA] {name}: inicioY={initialY:0.###}; " +
+            $"picoY={maximumY:0.###}; subidaReal={maximumY - initialY:0.###} u; " +
+            $"finalY={body.position.y:0.###}; amostras={steps}.", this);
     }
 
     // Diagnostico temporario: velocidade pode ser bloqueada por borda/colisao.
