@@ -134,7 +134,7 @@ public class MonPhysicsController2D : MonoBehaviour
         anatomy = GetComponent<MonAnatomy>();
         // Ambos os Mons ja existem na cena quando Awake executa.
         // Cache evita procurar objetos a cada passo de fisica.
-        otherMonMotors = FindObjectsByType<MonPhysicsController2D>(FindObjectsSortMode.None);
+        otherMonMotors = FindObjectsByType<MonPhysicsController2D>();
         Debug.Log($"[V1.8.12 ATIVO] {name}: motor carregado; " +
                   $"MonsEncontrados={otherMonMotors.Length}; margem={monBodyContactSkin:0.###} u.", this);
 
