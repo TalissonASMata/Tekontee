@@ -1111,6 +1111,28 @@ The user defines **four separate roles** for leg properties, without automatical
 - **Primeira hipótese parametrizada V1.8.4, ainda sem validação Unity:** F soco requer Braços.Extensão >= 0,25, Braços.Tenacidade >= 0,10 e Braços.Massa **por braço** >= 0,05. V chute exige os mesmos três limites nas Pernas. Estes mínimos são exclusivamente valores de teste — foram escolhidos para corresponder a cerca de cinco tentativas iniciais `Fail` com as influências de V1.8.3, não representam fisiologia final ou uma proporção universal.
 - **Afeta:** pré-condições de execução do movimento, logs diagnósticos de atributos presentes/ausentes. **Não altera:** regras de contato, dano, Critical, reforço ponderado, progressão visual, IA, câmera ou comandos.
 
+### PHY-127 — Vigor visível, estresse invisível pela recuperação (DECIDED, 2026-10-27)
+
+- **Interface do jogador:** mostrar apenas duas barras, **Vigor Físico** e **Vigor Mágico/Elemental**. Não exibir medidores separados de estresse.
+- **Estados internos:** `Estresse Físico` e `Estresse Mágico` diminuem a taxa de recuperação do respectivo vigor. O efeito deve ser percebido pelo tempo de recuperação da barra; estresse não é mais um recurso que o jogador precisa gerenciar por uma terceira/quarta barra.
+- **Desgaste:** ações físicas e mágicas relevantes consomem seu vigor e podem acumular estresse do sistema correspondente. A intensidade, regras e custos exatos ainda precisam de teste.
+- **Recuperação intencional:** parar/ficar mais quieto e defender são comportamentos que favorecem a redução de estresse e recuperação posterior. Defender não implica regeneração gratuita ou invulnerabilidade; impactos, bloqueio sustentado e outras condições ainda precisam de regras próprias.
+- **Afeta:** HUD, ritmo ofensivo-defensivo, recuperação e custos de movimento/combat, golpes físicos e elementais. Não autoriza criar ou mostrar barras de estresse nem fixar coeficientes por antecipação.
+
+### PHY-128 — Arrasto simplificado como capacidade de impulso e contenção direcionais (DESIGN DECIDED, 2026-10-27)
+
+- **Escolha explícita do usuário:** evitar modelo detalhado de aerodinâmica e hidrodinâmica. A propriedade morfológica existente `Arrasto` tem uma leitura **funcional de gameplay**, usada tanto para potencializar um movimento que já está sendo comandado quanto para segurar/frear o Mon quando o comando de direção cessa ou está em repouso.
+- **Abstração estilizada:** não afirmar que arrasto físico em si é motor de propulsão. Aqui, `Arrasto` funciona como uma capacidade única de **controle do movimento no meio**, combinando impulso assistido com desaceleração/estabilidade. As fórmulas de aceleração/frenagem podem ser escalares simples associadas ao input e estado de movimento; não requerem simular forças de fluidos, superfícies das asas ou dinâmica 3D.
+- **Condições e compatibilidade:** a atuação apropriada deve respeitar contexto de voo/planagem/água/solo, capacidades morfológicas e direção atual. Preservar, até decisão/teste específico, o movimento de chão responsivo já validado (PHY-083/087), a inércia e a correção parcial em ar (PHY-089/090) e o efeito já implementado de `Braços.Arrasto` na velocidade de descida durante planagem (PHY-086/122). O comportamento de `Pernas.Arrasto` como resistência à queda (PHY-015) não deve ser eliminado.
+- **Não decidido:** quais regiões contribuem por meio, critérios de sustentação do voo, números, aplicação de impulso/fricção, interações com ataques e função ambiental detalhada. Implementar somente uma fatia de cada vez.
+
+### PHY-129 — Voo por dois comandos e direcionamento do impulso (DIRECTION DECIDED, 2026-10-27)
+
+- **Visão de controle explicitada:** uma ação/botão **Retesar** prepara o movimento aéreo, enquanto uma segunda ação/botão permite **puxar/ganhar altura**. A direção do jogador orienta o impulso, permitindo subida e deslocamentos direcionais, em vez de haver apenas um lançamento sempre vertical. A analogia de sensação é o voo com capa do Mario, estilizado.
+- **Distinção do escopo anterior:** PHY-086 definiu primeiro **planagem sem voo propulsionado** para o protótipo; essa planagem continua válida. A presente decisão **expande o objetivo futuro** com voo/impulso ativo, não declara que o protótipo de planagem já implementa sustentação ou voo.
+- **Regras de compatibilidade:** ativar o impulso depende de morfologia apta (não habilitar voo para todos), segue a mesma gravidade, teto suave comum de arena (PHY-083/084/085), direção com inércia e gasto de Vigor Físico / estresse interno quando apropriado (PHY-127). Não criar um voo sem limites ou movimento fora da arena de luta.
+- **Ainda pendente:** mapeamento preciso em teclado/controle, papel exato de segurar/soltar cada botão, sequência ou intervalo entre Retesar e impulso, custo de cada ativação, reforços morfológicos, fórmula e interação com um comando de subida sem direção. Não substituir comandos atualmente validados sem um teste dedicado.
+
 ## Existing architectural boundary
 
 - A **Move** is an executable action (e.g. punch or jump).
