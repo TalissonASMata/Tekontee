@@ -14,6 +14,7 @@ using UnityEngine;
 /// V1.8.12: movimento voluntario evita empurrao corporal passivo.
 /// V1.8.12.1: a cabeca do oponente nao funciona como plataforma.
 /// V1.8.13: impacto anatomico com vetor horizontal/vertical observavel.
+/// V1.8.16: arrasto dos bracos melhora controle e frenagem horizontal no ar.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -37,6 +38,14 @@ public class MonPhysicsController2D : MonoBehaviour
     [Min(0f)] public float airSteeringAcceleration = 8f;
     [Tooltip("Perda gradual de velocidade horizontal no ar ao soltar a direcao (u/s²).")]
     [Min(0f)] public float airReleaseDeceleration = 2f;
+
+    [Header("V1.8.16 - Controle aereo simplificado por arrasto (teste)")]
+    [Tooltip("Quando ativo, Bracos.Arrasto melhora a aceleracao lateral em ar e a frenagem sem comando. Nao afeta caminhada no solo nem subida.")]
+    public bool enableAnatomicalAirDragControl = true;
+    [Tooltip("Bonus de taxa de controle horizontal aereo por unidade de Bracos.Arrasto.")]
+    [Min(0f)] public float airDragControlGain = 0.50f;
+    [Tooltip("Teto do multiplicador das taxas de aceleracao e frenagem no ar.")]
+    [Min(1f)] public float maximumAirDragControlMultiplier = 2f;
 
     [Header("V1.8.7 - Planagem anatomica (hipotese de teste)")]
     [Tooltip("Minimo de arrasto dos bracos para planagem efetiva. Valor de teste.")]
@@ -112,6 +121,7 @@ public class MonPhysicsController2D : MonoBehaviour
     private bool sampledGroundedState;
     private bool groundedLastPhysicsStep;
     private float lastLoggedAirInput = 2f; // sentinel para logar o primeiro comando no ar
+    private float lastLoggedAirDrag = -1f; // V1.8.16: logar mudanca de arrasto sem spam por frame
     private bool glideIntent;
     private bool glideAttemptedThisHold;
     private bool glideEligibleThisHold;
@@ -163,7 +173,11 @@ public class MonPhysicsController2D : MonoBehaviour
         bool justLanded = sampledGroundedState && !groundedLastPhysicsStep && isGrounded;
         groundedLastPhysicsStep = isGrounded;
         sampledGroundedState = true;
-        if (isGrounded) lastLoggedAirInput = 2f;
+        if (isGrounded)
+        {
+            lastLoggedAirInput = 2f;
+            lastLoggedAirDrag = -1f;
+        }
 
         if (health != null && health.IsDead)
         {
@@ -186,6 +200,9 @@ public class MonPhysicsController2D : MonoBehaviour
 
             float beforeX = body.linearVelocity.x;
             float nextX;
+            float armDragForAirControl = 0f;
+            float airDragControlFactor = 1f;
+            float airControlRate = 0f;
             if (locked)
             {
                 // Estados de combate sempre tem prioridade; nao iniciam deslize.
@@ -256,11 +273,23 @@ public class MonPhysicsController2D : MonoBehaviour
             {
                 locomotionSlipActive = false;
                 // PHY-089: correcao parcial no ar, nao troca instantanea.
-                // Sem comando, o impulso horizontal se dissipa gradualmente.
-                float acceleration = Mathf.Abs(direction) > 0.01f
+                // V1.8.16 / PHY-128: um unico Arrasto anatomico funciona como
+                // capacidade ESTILIZADA de controle do movimento: mais
+                // aceleracao na direcao comandada; mais frenagem ao soltar.
+                // Nao e simulacao de aerodinamica nem impulsao vertical.
+                // Arrasto=0 ou toggle off recuperam exatamente V1.8.6.
+                armDragForAirControl =
+                    Mathf.Max(0f, anatomy?.bracos?.arrasto ?? 0f);
+                airDragControlFactor = enableAnatomicalAirDragControl
+                    ? Mathf.Clamp(
+                        1f + armDragForAirControl * Mathf.Max(0f, airDragControlGain),
+                        1f, Mathf.Max(1f, maximumAirDragControlMultiplier))
+                    : 1f;
+                float baseRate = Mathf.Abs(direction) > 0.01f
                     ? airSteeringAcceleration : airReleaseDeceleration;
+                airControlRate = Mathf.Max(0f, baseRate) * airDragControlFactor;
                 nextX = Mathf.MoveTowards(
-                    beforeX, desiredX, Mathf.Max(0f, acceleration) * Time.fixedDeltaTime);
+                    beforeX, desiredX, airControlRate * Time.fixedDeltaTime);
             }
 
             // Nao deixa a velocidade VOLUNTARIA de caminhada transferir
@@ -295,16 +324,35 @@ public class MonPhysicsController2D : MonoBehaviour
                     $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
                     $"semComando={(Mathf.Abs(direction) < 0.01f ? "SIM" : "NAO")}.", this);
 
-            // Logar entrada/soltura/troca de direcao, nunca por frame.
-            if (!isGrounded && !locked &&
-                (justTookOff || Mathf.Abs(direction - lastLoggedAirInput) > 0.01f))
+            // Uma linha quando o comando comeca/muda ou o Arrasto muda
+            // durante Play. Logs mostram taxa REAL usada no MoveTowards;
+            // nao emitimos nada a cada passo de fisica.
+            if (!isGrounded && !locked)
             {
-                Debug.Log(
-                    $"[V1.8.6 AR] {name}: entrada={direction:0.##}; " +
-                    $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
-                    $"alvo={desiredX:0.###}; fatorAnatomico=x{movementFactor:0.###}; " +
-                    $"aceleracao={(Mathf.Abs(direction) > 0.01f ? airSteeringAcceleration : airReleaseDeceleration):0.###}.", this);
-                lastLoggedAirInput = direction;
+                bool inputChanged = justTookOff ||
+                    Mathf.Abs(direction - lastLoggedAirInput) > 0.01f;
+                bool dragChanged = Mathf.Abs(armDragForAirControl - lastLoggedAirDrag) > 0.005f;
+                if (inputChanged || dragChanged)
+                {
+                    Debug.Log(
+                        $"[V1.8.16 ARRASTO] {name}: entrada={direction:0.##}; " +
+                        $"arrastoBracos={armDragForAirControl:0.###}; " +
+                        $"fatorControle=x{airDragControlFactor:0.###}; " +
+                        $"taxaAplicada={airControlRate:0.###} u/s²; " +
+                        $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
+                        $"alvo={desiredX:0.###}; modo={(Mathf.Abs(direction) > 0.01f ? "DIRECAO" : "FREIO")}.", this);
+                    lastLoggedAirDrag = armDragForAirControl;
+                }
+
+                if (inputChanged)
+                {
+                    Debug.Log(
+                        $"[V1.8.6 AR] {name}: entrada={direction:0.##}; " +
+                        $"velAntes={beforeX:0.###}; velDepois={nextX:0.###}; " +
+                        $"alvo={desiredX:0.###}; fatorAnatomico=x{movementFactor:0.###}; " +
+                        $"aceleracao={airControlRate:0.###}.", this);
+                    lastLoggedAirInput = direction;
+                }
             }
 
             body.linearVelocity = new Vector2(nextX, body.linearVelocity.y);
