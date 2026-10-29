@@ -8,7 +8,8 @@ using UnityEngine;
 // V1.8.8: golpes Effective/Critical aplicam impulso fisico de teste no alvo.
 // V1.8.13: componentes horizontal e vertical independentes de impacto.
 // V1.8.14: potencia de impulso influenciada pela massa do membro atacante.
-// V1.8.15: aproximação fisica na direcao do alvo reforca o impacto.
+// V1.8.15: aproximacao fisica na direcao do alvo reforca o impacto.
+// V1.8.15.1: velocidade relativa amostrada ANTES do feedback de dano.
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -151,6 +152,18 @@ public class MonBasicStrikeSet : MonoBehaviour
         int damageApplied = 0;
         if (quality != MoveExecutionQuality.Fail && geometricalContact)
         {
+            // V1.8.15.1: tirar o retrato das velocidades ANTES de TakeDamage.
+            // OnDamaged executa DamageFeedback de forma sincrona, e esse
+            // feedback aplica um knockback legado (0.25 / 0.08 = 3.125 u/s).
+            // Essa velocidade de REACAO nao e locomocao previa do alvo e
+            // nao pode subtrair a aproximacao fisica do atacante.
+            Rigidbody2D attackerBodyAtContact = GetComponent<Rigidbody2D>();
+            Rigidbody2D targetBodyAtContact = opponent.GetComponent<Rigidbody2D>();
+            float attackerVelocityXAtContact = attackerBodyAtContact != null
+                ? attackerBodyAtContact.linearVelocity.x : 0f;
+            float targetVelocityXAtContact = targetBodyAtContact != null
+                ? targetBodyAtContact.linearVelocity.x : 0f;
+
             int baseDamage = Mathf.Max(1, punch ? weakPunchDamage : weakKickDamage);
             damageApplied = Mathf.Max(1,
                 Mathf.RoundToInt(baseDamage * DamageMultiplier(quality)));
@@ -190,10 +203,10 @@ public class MonBasicStrikeSet : MonoBehaviour
                     // no sentido do alvo, limitada pela velocidade de FECHAMENTO
                     // relativa. Assim recuar nao ganha bonus mesmo se o alvo vier
                     // na nossa direcao; perseguir alvo mais rapido tambem nao.
-                    Rigidbody2D attackerBody = GetComponent<Rigidbody2D>();
-                    Rigidbody2D targetBody = opponent.GetComponent<Rigidbody2D>();
-                    float attackerVelocityX = attackerBody != null ? attackerBody.linearVelocity.x : 0f;
-                    float targetVelocityX = targetBody != null ? targetBody.linearVelocity.x : 0f;
+                    // Amostras pre-dano capturadas acima; nao ler velocidades
+                    // depois do evento OnDamaged / DamageFeedback.
+                    float attackerVelocityX = attackerVelocityXAtContact;
+                    float targetVelocityX = targetVelocityXAtContact;
                     float forwardSpeed = Mathf.Max(0f, attackerVelocityX * directionX);
                     float closingSpeed = Mathf.Max(0f,
                         (attackerVelocityX - targetVelocityX) * directionX);
