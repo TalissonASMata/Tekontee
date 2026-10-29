@@ -8,6 +8,7 @@ using UnityEngine;
 // V1.8.8: golpes Effective/Critical aplicam impulso fisico de teste no alvo.
 // V1.8.13: componentes horizontal e vertical independentes de impacto.
 // V1.8.14: potencia de impulso influenciada pela massa do membro atacante.
+// V1.8.15: aproximação fisica na direcao do alvo reforca o impacto.
 // Nao converte os pontos Attack/Defense/Air/Energy da V1.6.
 public enum MonBasicStrikeId
 {
@@ -78,6 +79,14 @@ public class MonBasicStrikeSet : MonoBehaviour
     [Min(0f)] public float strikingLimbMassImpactGain = 0.25f;
     [Tooltip("Teto experimental do multiplicador de impacto por massa do membro.")]
     [Min(1f)] public float maximumStrikingLimbMassImpactMultiplier = 2f;
+
+    [Header("V1.8.15 - Velocidade de aproximacao no impacto (teste)")]
+    [Tooltip("Bonus de empurrao apenas quando o atacante avanca e fecha distancia com o alvo; nao altera dano.")]
+    public bool enableApproachSpeedImpact = true;
+    [Tooltip("Bonus por unidade/s de aproximacao efetiva. Valor experimental, nao equivale a aceleracao fisica.")]
+    [Min(0f)] public float approachSpeedImpactGain = 0.10f;
+    [Tooltip("Teto do bonus adicional causado pela velocidade de aproximacao.")]
+    [Min(1f)] public float maximumApproachImpactMultiplier = 1.5f;
 
     [Header("V1.8.2 - Multiplicadores de teste por qualidade")]
     [Min(0f)] public float effectiveDamageMultiplier = 1f;
@@ -169,20 +178,51 @@ public class MonBasicStrikeSet : MonoBehaviour
                             1f, Mathf.Max(1f, maximumStrikingLimbMassImpactMultiplier))
                         : 1f;
 
-                    // O mesmo fator atua em X/Y do vetor do movimento,
-                    // sem substituir a resistencia do Mon atingido.
-                    // Dano, qualidade e crescimento permanecem inalterados.
-                    Vector2 requestedHitVelocity = new Vector2(
+                    // Primeiro preserva a contribuição anatomica isolada V1.8.14.
+                    // O bonus de movimento e aplicado apenas depois dela, sem
+                    // mudar o dano nem a resistencia do Mon atingido.
+                    Vector2 limbMassHitVelocity = new Vector2(
                         directionX * Mathf.Max(0f, baseHitKnockbackSpeed),
                         punch ? 0f : Mathf.Max(0f, weakKickVerticalLaunchSpeed)) *
                         massImpactMultiplier;
+
+                    // V1.8.15: so conta a velocidade real do proprio atacante
+                    // no sentido do alvo, limitada pela velocidade de FECHAMENTO
+                    // relativa. Assim recuar nao ganha bonus mesmo se o alvo vier
+                    // na nossa direcao; perseguir alvo mais rapido tambem nao.
+                    Rigidbody2D attackerBody = GetComponent<Rigidbody2D>();
+                    Rigidbody2D targetBody = opponent.GetComponent<Rigidbody2D>();
+                    float attackerVelocityX = attackerBody != null ? attackerBody.linearVelocity.x : 0f;
+                    float targetVelocityX = targetBody != null ? targetBody.linearVelocity.x : 0f;
+                    float forwardSpeed = Mathf.Max(0f, attackerVelocityX * directionX);
+                    float closingSpeed = Mathf.Max(0f,
+                        (attackerVelocityX - targetVelocityX) * directionX);
+                    float effectiveApproachSpeed = Mathf.Min(forwardSpeed, closingSpeed);
+                    float approachImpactMultiplier = enableApproachSpeedImpact
+                        ? Mathf.Clamp(
+                            1f + effectiveApproachSpeed * Mathf.Max(0f, approachSpeedImpactGain),
+                            1f, Mathf.Max(1f, maximumApproachImpactMultiplier))
+                        : 1f;
+                    Vector2 requestedHitVelocity =
+                        limbMassHitVelocity * approachImpactMultiplier;
+
                     Debug.Log(
                         $"[V1.8.14 POTENCIA] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
                         $"massaMembro={strikingLimbMass:0.###}; referencia={referenceMass:0.###}; " +
                         $"ganho={Mathf.Max(0f, strikingLimbMassImpactGain):0.###}; " +
                         $"fator=x{massImpactMultiplier:0.###}; " +
-                        $"pedidoX={requestedHitVelocity.x:0.###}; " +
-                        $"pedidoY={requestedHitVelocity.y:0.###}; alvo={opponent.name}.", this);
+                        $"pedidoX={limbMassHitVelocity.x:0.###}; " +
+                        $"pedidoY={limbMassHitVelocity.y:0.###}; alvo={opponent.name}.", this);
+                    Debug.Log(
+                        $"[V1.8.15 APROXIMACAO] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
+                        $"direcaoAlvoX={directionX:0}; " +
+                        $"velAtacanteX={attackerVelocityX:0.###}; velAlvoX={targetVelocityX:0.###}; " +
+                        $"avanco={forwardSpeed:0.###}; fechamento={closingSpeed:0.###}; " +
+                        $"aproximacaoUsada={effectiveApproachSpeed:0.###}; " +
+                        $"fatorVel=x{approachImpactMultiplier:0.###}; " +
+                        $"fatorMembro=x{massImpactMultiplier:0.###}; " +
+                        $"pedidoFinalX={requestedHitVelocity.x:0.###}; " +
+                        $"pedidoFinalY={requestedHitVelocity.y:0.###}.", this);
                     Debug.Log(
                         $"[V1.8.13 VETOR] {name}: golpe={(punch ? "SOCO" : "CHUTE")}; " +
                         $"qualidade={quality}; contato=SIM; " +
