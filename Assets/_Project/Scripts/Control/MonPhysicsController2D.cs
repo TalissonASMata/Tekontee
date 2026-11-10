@@ -15,6 +15,7 @@ using UnityEngine;
 /// V1.8.12.1: a cabeca do oponente nao funciona como plataforma.
 /// V1.8.13: impacto anatomico com vetor horizontal/vertical observavel.
 /// V1.8.16: arrasto dos bracos melhora controle e frenagem horizontal no ar.
+/// V1.8.17: garante componente de recurso fisico separado, sem mexer na cena.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -142,6 +143,13 @@ public class MonPhysicsController2D : MonoBehaviour
         stateMachine = GetComponent<CombatantStateMachine>();
         health = GetComponent<Health>();
         anatomy = GetComponent<MonAnatomy>();
+
+        // V1.8.17: componente independente para cada Mon, criado
+        // automaticamente no Play sem editar os assets/scene do usuario.
+        // Nao influencia o movimento nem cobra vigor dos golpes ainda.
+        if (GetComponent<MonPhysicalVigor>() == null)
+            gameObject.AddComponent<MonPhysicalVigor>();
+
         // Ambos os Mons ja existem na cena quando Awake executa.
         // Cache evita procurar objetos a cada passo de fisica.
         otherMonMotors = FindObjectsByType<MonPhysicsController2D>();
