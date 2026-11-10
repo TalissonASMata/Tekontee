@@ -486,7 +486,7 @@ User feedback: measured F/V displacement of 0.963–1.267 world units felt exces
 
 **Acceptance 2 (only after acceptance 1):** Without leaving Play or changing numbers, run **`V1.8.17 - Testar recuperacao / Estresse 80`** from the same component menu; start vigor 40, stress internally 80, factor x0.6 and recovery 6/s, end vigor ~46 after 1 second. Compare against 10/s with no stress. Ask for `INICIO` and `RECUPERACAO` lines. Only then proceed toward isolated stress decay and action cost design, with a separate balance decision. Avoid new UI or magically resource during this test.
 
-## Design direction 2026-10-27 — Vigor, internal stress, simplified Arrasto and directional Retesar flight (DOCUMENTED, NOT CODED)
+## Design direction 2026-10-27 — Vigor, internal stress, simplified Arrasto and directional Retesar flight (PARTLY CODED IN LATER V1.8 SLICES)
 
 **Player feedback/resources (PHY-127):** Only display Vigor Físico and Vigor Mágico/Elemental. Each has associated **hidden** stress that slows recovery as it accumulates; a calmer interval and defending reduce stress. The distinction is instantaneous spending (visible vigor) versus recovery burden (internal stress). Do not introduce extra stress bars. Rates, defense cost/mitigation and exact action spending intentionally undecided.
 
