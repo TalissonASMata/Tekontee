@@ -16,6 +16,7 @@ using UnityEngine;
 /// V1.8.13: impacto anatomico com vetor horizontal/vertical observavel.
 /// V1.8.16: arrasto dos bracos melhora controle e frenagem horizontal no ar.
 /// V1.8.17: garante componente de recurso fisico separado, sem mexer na cena.
+/// V1.8.17.1: consulta contextual de repouso para dissipacao de estresse.
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(Rigidbody2D))]
@@ -135,6 +136,33 @@ public class MonPhysicsController2D : MonoBehaviour
     private float jumpInitialSpeed;
 
     public bool IsGrounded => isGrounded;
+
+    // V1.8.17.1: repouso real para dissipar estresse fisico.
+    // Nao basta o estado Idle: exige solo, sem comando, sem movimento residual
+    // relevante, sem queda/salto, sem ataque/dano e sem knockback ativo.
+    // Exposicao apenas de consulta; este metodo NAO altera a fisica.
+    public bool IsRestingForPhysicalStressRecovery(
+        float maximumHorizontalSpeed, float maximumVerticalSpeed)
+    {
+        if (body == null || !isGrounded)
+            return false;
+
+        if (health != null && health.IsDead)
+            return false;
+
+        if (stateMachine != null &&
+            (stateMachine.IsLocked || stateMachine.CurrentState != CombatState.Idle))
+            return false;
+
+        if (Time.time < knockbackControlUntil || overheadSlipTarget != null)
+            return false;
+
+        if (Mathf.Abs(inputX) > 0.01f && requestedSpeed > 0.01f)
+            return false;
+
+        return Mathf.Abs(body.linearVelocity.x) <= Mathf.Max(0f, maximumHorizontalSpeed) &&
+               Mathf.Abs(body.linearVelocity.y) <= Mathf.Max(0f, maximumVerticalSpeed);
+    }
 
     private void Awake()
     {
