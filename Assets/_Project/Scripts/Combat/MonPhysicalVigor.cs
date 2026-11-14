@@ -27,6 +27,8 @@ public sealed class MonPhysicalVigor : MonoBehaviour
     [Min(0f)] public float maximumRestHorizontalSpeed = 0.10f;
     [Tooltip("Velocidade Y maxima considerada repouso (u/s).")]
     [Min(0f)] public float maximumRestVerticalSpeed = 0.10f;
+    [Tooltip("Duracao apenas do teste de interrupcao de repouso no menu do componente. Nao altera nenhuma regra de gameplay.")]
+    [Min(2f)] public float idleStressDiagnosticDurationSeconds = 8f;
 
     [Header("Estado atual - somente diagnostico no Inspector")]
     [SerializeField] private float currentPhysicalVigor;
@@ -124,14 +126,41 @@ public sealed class MonPhysicalVigor : MonoBehaviour
             $"dissipacao={Mathf.Max(0f, idlePhysicalStressDecayPerSecond):0.###} u/s; " +
             $"taxaVigorAntes={initialRecoveryRate:0.###} u/s.", this);
 
-        diagnosticRoutine = StartCoroutine(LogIdleStressAfterOneSecond(
+        diagnosticRoutine = StartCoroutine(LogIdleStressAfterDiagnosticWindow(
             currentPhysicalVigor, currentPhysicalStress, Time.time));
     }
 
-    private IEnumerator LogIdleStressAfterOneSecond(
+    private IEnumerator LogIdleStressAfterDiagnosticWindow(
         float vigorBefore, float stressBefore, float startTime)
     {
-        yield return new WaitForSeconds(1f);
+        // Apenas a janela de observacao e ampliada. A dissipacao efetiva
+        // continua acontecendo exclusivamente no Update em repouso real.
+        // Acumulamos o tempo efetivamente apto/inapto para observar quando
+        // o usuario alterna entre Inspector e Game e passa a caminhar.
+        float duration = Mathf.Max(2f, idleStressDiagnosticDurationSeconds);
+        float restingSeconds = 0f;
+        float outsideRestSeconds = 0f;
+        float lastSampleTime = startTime;
+        bool leftRestAtLeastOnce = false;
+        while (Time.time - startTime < duration)
+        {
+            yield return null;
+            float now = Time.time;
+            float elapsed = Mathf.Max(0f, now - lastSampleTime);
+            lastSampleTime = now;
+            bool resting = physicsMotor != null &&
+                physicsMotor.IsRestingForPhysicalStressRecovery(
+                    maximumRestHorizontalSpeed, maximumRestVerticalSpeed);
+            if (resting)
+            {
+                restingSeconds += elapsed;
+            }
+            else
+            {
+                outsideRestSeconds += elapsed;
+                leftRestAtLeastOnce = true;
+            }
+        }
 
         float seconds = Mathf.Max(0f, Time.time - startTime);
         bool restingNow = physicsMotor != null &&
@@ -140,7 +169,10 @@ public sealed class MonPhysicalVigor : MonoBehaviour
         Debug.Log(
             $"[V1.8.17.1 REPOUSO FIM] {name}: " +
             $"repousoAgora={(restingNow ? "SIM" : "NAO")}; " +
+            $"interrompeuRepouso={(leftRestAtLeastOnce ? "SIM" : "NAO")}; " +
             $"tempo={seconds:0.###} s; " +
+            $"tempoRepouso={restingSeconds:0.###} s; " +
+            $"tempoForaRepouso={outsideRestSeconds:0.###} s; " +
             $"estresseAntes={stressBefore:0.###}; " +
             $"estresseDepois={currentPhysicalStress:0.###}; " +
             $"reducaoEstresse={stressBefore - currentPhysicalStress:0.###}; " +
